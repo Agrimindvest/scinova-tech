@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Tasks - SciNovaTech</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .task-container { max-width: 600px; margin: 0 auto; }
+        .progress-section { text-align: center; margin-bottom: 20px; }
+
+        .article-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            max-height: 320px;
+            overflow-y: auto;
+            line-height: 1.8;
+            font-size: 0.95em;
+        }
+        .article-card h4 { color: var(--cyan); margin-bottom: 10px; font-size: 1em; }
+        .article-card .article-meta {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 0.72em;
+            color: var(--text-dim);
+            flex-wrap: wrap;
+        }
+        .article-card .article-meta span {
+            padding: 3px 10px;
+            background: rgba(0,229,255,0.08);
+            border-radius: 10px;
+        }
+
+        .timer-section { text-align: center; margin-bottom: 20px; }
+
+        .timer-display {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: var(--cyan);
+            margin: 10px 0;
+            transition: color 0.3s;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .timer-display.warning { color: var(--warning); animation: timerPulse 0.5s infinite; }
+        .timer-display.danger { color: var(--danger); animation: timerPulse 0.3s infinite; }
+
+        @keyframes timerPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+
+        .quiz-section { display: none; }
+        .quiz-section.active { display: block; animation: fadeSlideUp 0.4s ease; }
+
+        @keyframes fadeSlideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+        .question-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid var(--cyan);
+            box-shadow: 0 0 20px rgba(0,229,255,0.08);
+        }
+        .question-worth { color: var(--gold); font-weight: 700; font-size: 0.9em; margin-bottom: 10px; }
+
+        .all-done-card { text-align: center; padding: 30px; }
+        .all-done-card .done-icon {
+            font-size: 5em;
+            color: var(--success);
+            animation: bounceIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 0 20px rgba(34,197,94,0.4));
+        }
+        .task-history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9em;
+        }
+
+        /* Reading phase - 5 minute timer is big */
+        .reading-timer-circle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        .reading-timer-circle svg { transform: rotate(-90deg); }
+        .reading-timer-circle .bg { fill: none; stroke: var(--border); stroke-width: 6; }
+        .reading-timer-circle .progress {
+            fill: none;
+            stroke: url(#timerGrad);
+            stroke-width: 6;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear;
+        }
+        .reading-timer-circle .label {
+            position: absolute;
+            font-size: 1.4em;
+            font-weight: 800;
+            color: var(--cyan);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Reading reward claimed badge */
+        .claim-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(255,184,0,0.15), rgba(0,229,255,0.1));
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            color: var(--gold);
+            font-size: 0.85em;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 0.9em;
+            color: var(--cyan);
+            font-weight: 700;
+        }
+        .step-header .step-num {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--cyan));
+            color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75em;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <a href="home.html" class="logo">
+            <img src="assets/img/logo.svg" alt="SciNovaTech">
+            <span>SciNovaTech</span>
+        </a>
+        <div class="icons"><a href="profile.html"><i class="fas fa-user-circle"></i></a></div>
+    </header>
+
+    <div class="main-content">
+        <a href="home.html" style="color:var(--cyan);text-decoration:none;display:flex;align-items:center;gap:5px;margin-bottom:15px;font-size:0.9em;">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+
+        <div class="task-container">
+
+            <!-- NO ACTIVE PLAN -->
+            <div id="noPlanSection" class="hidden">
+                <div class="card" style="text-align:center;">
+                    <i class="fas fa-lock" style="font-size:3em;color:var(--warning);margin-bottom:15px;display:block;"></i>
+                    <h3 style="color:var(--warning);">No Active Plan</h3>
+                    <p style="color:var(--text-dim);margin-bottom:15px;">You need to invest in a plan to start earning from tasks.</p>
+                    <a href="plans.html" class="btn btn-primary btn-block"><i class="fas fa-layer-group"></i> View Plans</a>
+                </div>
+            </div>
+
+            <!-- TASK SECTION -->
+            <div id="taskSection" class="hidden">
+
+                <div class="progress-section">
+                    <div style="font-size:0.85em;color:var(--text-dim);margin-bottom:6px;">📊 Progress: <span id="progressText">0/3</span> Completed</div>
+                    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%;"></div></div>
+                    <p style="color:var(--text-dim);font-size:0.9em;">💰 Earned Today: <strong style="color:var(--gold);" id="earnedToday">₦0</strong></p>
+                </div>
+
+                <div class="info-box" id="taskInstructions">
+                    <h4>📋 HOW IT WORKS</h4>
+                    <ul>
+                        <li><i class="fas fa-clock"></i> Read the article for 5 minutes to earn <strong style="color:var(--gold);">₦100</strong></li>
+                        <li><i class="fas fa-brain"></i> Then answer 3 questions — no penalties for wrong answers</li>
+                        <li><i class="fas fa-coins"></i> Earn per correct answer based on your active plan</li>
+                        <li><i class="fas fa-clock"></i> Tasks expire at midnight (WAT) daily</li>
+                    </ul>
+                </div>
+
+                <!-- ============ PHASE 1: READING (5 minutes) ============ -->
+                <div id="readingPhase">
+                    <div class="step-header">
+                        <span class="step-num">1</span> Read the article
+                    </div>
+
+                    <div class="article-card" id="articleContent">
+                        <h4 id="articleTitle">Loading article...</h4>
+                        <div class="article-meta" id="articleMeta"></div>
+                        <p id="articleBody">Please wait...</p>
+                    </div>
+
+                    <div class="timer-section">
+                        <p style="color:var(--text-dim);font-size:0.85em;">⏰ Reading reward unlocks in:</p>
+
+                        <div class="reading-timer-circle" style="position:relative;">
+                            <svg width="140" height="140">
+                                <defs>
+                                    <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#00E5FF"/>
+                                        <stop offset="100%" stop-color="#7C3AED"/>
+                                    </linearGradient>
+                                </defs>
+                                <circle class="bg" cx="70" cy="70" r="62"></circle>
+                                <circle class="progress" cx="70" cy="70" r="62" id="timerCircle"
+                                        stroke-dasharray="389.5" stroke-dashoffset="0"></circle>
+                            </svg>
+                            <div class="label" id="readingTimerDisplay">5:00</div>
+                        </div>
+
+                        <p style="color:var(--text-dim);font-size:0.75em;margin-top:6px;" id="readingHint">
+                            Keep this page open to earn ₦100
+                        </p>
+                    </div>
+
+                    <button class="btn btn-gold btn-block" id="claimReadingBtn" disabled onclick="claimReadingReward()">
+                        <i class="fas fa-lock"></i> WAIT FOR TIMER
+                    </button>
+                </div>
+
+                <!-- ============ PHASE 2: QUIZ (3 questions) ============ -->
+                <div class="quiz-section" id="quizPhase">
+                    <div class="step-header">
+                        <span class="step-num">2</span> Answer the question
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-worth">❓ Question <span id="qNumber">1</span> of 3 • 💰 Worth: <span id="qWorth">₦0</span></div>
+                        <p style="font-weight:600;margin-bottom:15px;font-size:1em;" id="questionText">Loading...</p>
+                        <div class="options-list" id="optionsList"></div>
+                        <button class="btn btn-primary btn-block" id="submitBtn" style="margin-top:15px;" onclick="submitAnswer()" disabled>
+                            <i class="fas fa-check"></i> Submit Answer
+                        </button>
+                    </div>
+                    <div id="quizFeedback" style="text-align:center;margin-top:15px;"></div>
+                </div>
+
+                <!-- ============ DONE ============ -->
+                <div id="allDonePhase" class="hidden">
+                    <div class="card all-done-card">
+                        <div class="done-icon">🎉</div>
+                        <h3 style="color:var(--success);margin:10px 0;">ALL TASKS COMPLETED!</h3>
+                        <p style="color:var(--text-dim);margin-bottom:15px;">Great job! You've completed all 3 questions for today.</p>
+                        <div style="background:var(--deep);border-radius:12px;padding:15px;margin-bottom:15px;">
+                            <h4 style="color:var(--cyan);margin-bottom:10px;font-size:0.9em;">📊 Today's Results</h4>
+                            <div id="taskResults"></div>
+                            <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:10px;font-size:1.15em;">
+                                <strong>💰 Total Earned:</strong>
+                                <span style="color:var(--gold);font-weight:800;" id="totalEarned">₦0</span>
+                            </div>
+                        </div>
+                        <p style="color:var(--text-dim);font-size:0.9em;">Come back tomorrow for new tasks!</p>
+                        <a href="home.html" class="btn btn-primary btn-block" style="margin-top:10px;">
+                            <i class="fas fa-home"></i> Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="plans.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Plans</span></a>
+        <a href="deposit.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Deposit</span></a>
+        <a href="tasks.html" class="nav-item active"><i class="fas fa-tasks"></i><span>Tasks</span></a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+    <script>
+        const user = checkAuth();
+        if (!user) window.location.href = 'login.html';
+
+        let currentUser = user;
+        let activePlans = {};
+        let perQuestionValue = 0;
+        let currentQuestionIndex = 1;
+        let currentArticle = null;
+        let currentQuestion = null;
+        let readingTimerInterval = null;
+        let readingSecondsLeft = 300; // 5 minutes
+        let readingRewardClaimed = false;
+        let todayTasks = [];
+        let totalEarnedToday = 0;
+        let siteSettings = {};
+        const TOTAL_QUESTIONS = 3;
+        const READING_SECONDS = 300; // 5 minutes
+
+        // ============ SCIENCE ARTICLES ============
+        const scienceArticles = [
+            {
+                title: 'Quantum Entanglement: Spooky Action at a Distance',
+                category: 'Physics',
+                difficulty: 'Intermediate',
+                content: 'Quantum entanglement is one of the most fascinating and counterintuitive phenomena in modern physics. When two particles become entangled, their quantum states become intrinsically linked, no matter how far apart they are. Measuring one particle instantaneously affects the other, even if they are light-years apart. Einstein famously called this "spooky action at a distance" and was uncomfortable with it. However, experiments have repeatedly confirmed that entanglement is real. This phenomenon is now being used in quantum computing, quantum cryptography, and quantum teleportation. Scientists are developing unhackable communication networks using entangled particles, which could revolutionize how we protect sensitive information.',
+                qs: [
+                    { q: 'What did Einstein call quantum entanglement?', o: ['Quantum leap', 'Spooky action at a distance', 'Wave collapse'], a: 1 },
+                    { q: 'How does measuring one entangled particle affect the other?', o: ['No effect', 'Instantaneous effect', 'Delayed by light speed'], a: 1 },
+                    { q: 'Which field is NOT mentioned as using entanglement?', o: ['Quantum computing', 'Cryptography', 'Astrobiology'], a: 2 }
+                ]
+            },
+            {
+                title: 'CRISPR: The Future of Gene Editing',
+                category: 'Biology',
+                difficulty: 'Beginner',
+                content: 'CRISPR-Cas9 is a revolutionary gene-editing technology that allows scientists to precisely modify DNA sequences. Originally discovered as a bacterial immune system, CRISPR works by using a guide RNA to target specific DNA sequences and the Cas9 enzyme to cut them. This technology has enormous potential for treating genetic diseases like sickle cell anemia, cystic fibrosis, and Huntington\'s disease. In agriculture, CRISPR is being used to create drought-resistant crops and disease-resistant livestock. However, ethical concerns about editing human embryos have led to calls for strict regulation. The technology is so powerful that scientists can now edit the human genome with unprecedented precision, opening both miraculous possibilities and serious ethical debates.',
+                qs: [
+                    { q: 'Where was CRISPR originally discovered?', o: ['Human cells', 'Bacterial immune system', 'Plant cells'], a: 1 },
+                    { q: 'What enzyme cuts DNA in CRISPR?', o: ['RNA polymerase', 'Cas9', 'Ligase'], a: 1 },
+                    { q: 'Which disease is mentioned as treatable by CRISPR?', o: ['Malaria', 'Sickle cell anemia', 'Diabetes'], a: 1 }
+                ]
+            },
+            {
+                title: 'Black Holes: The Cosmic Vacuum Cleaners',
+                category: 'Astronomy',
+                difficulty: 'Beginner',
+                content: 'Black holes are regions of space where gravity is so intense that nothing — not even light — can escape. They form when massive stars collapse at the end of their life cycles. The boundary around a black hole where escape velocity equals the speed of light is called the event horizon. Anything crossing this boundary is lost forever. Black holes come in various sizes: stellar black holes (a few times the mass of our Sun) and supermassive black holes (millions to billions of times the Sun\'s mass) that sit at the center of most galaxies. In 2019, the Event Horizon Telescope captured the first image of a black hole, confirming decades of theoretical predictions. Studying black holes helps scientists understand gravity, spacetime, and the nature of the universe itself.',
+                qs: [
+                    { q: 'What is the boundary of a black hole called?', o: ['Photon ring', 'Event horizon', 'Singularity'], a: 1 },
+                    { q: 'How are black holes formed?', o: ['From gas clouds', 'From massive star collapse', 'From asteroids'], a: 1 },
+                    { q: 'When was the first black hole image captured?', o: ['2005', '2019', '1995'], a: 1 }
+                ]
+            },
+            {
+                title: 'Artificial Intelligence: How Machines Learn',
+                category: 'Artificial Intelligence',
+                difficulty: 'Beginner',
+                content: 'Machine learning is a subset of artificial intelligence that enables computers to learn from data without being explicitly programmed. There are three main types: supervised learning (learning from labeled examples), unsupervised learning (finding patterns in unlabeled data), and reinforcement learning (learning through trial and error with rewards). Deep learning uses artificial neural networks with many layers to process complex data like images, text, and speech. Modern AI systems like ChatGPT and image generators are powered by these techniques. However, machine learning models can inherit biases from their training data, making it crucial to ensure diverse and representative datasets. The field is advancing rapidly, with new breakthroughs announced every month.',
+                qs: [
+                    { q: 'What is NOT a type of machine learning?', o: ['Supervised', 'Reflective', 'Reinforcement'], a: 1 },
+                    { q: 'What powers modern AI systems like ChatGPT?', o: ['Deep learning', 'Rule engines', 'Simple decision trees'], a: 0 },
+                    { q: 'Why can AI systems inherit bias?', o: ['From training data', 'From electricity', 'From users'], a: 0 }
+                ]
+            },
+            {
+                title: 'The Human Brain: Nature\'s Supercomputer',
+                category: 'Neuroscience',
+                difficulty: 'Intermediate',
+                content: 'The human brain contains approximately 86 billion neurons, each connected to thousands of others through synapses. This creates a network of trillions of connections — more than the number of stars in the Milky Way. Neurons communicate through electrical and chemical signals, releasing neurotransmitters like dopamine, serotonin, and acetylcholine. Neuroplasticity allows the brain to reorganize itself by forming new neural connections throughout life, which is why learning new skills is possible at any age. Sleep plays a critical role in memory consolidation and clearing metabolic waste. Cutting-edge brain-computer interfaces are now allowing paralyzed patients to control robotic limbs with their thoughts, and researchers are developing treatments for Alzheimer\'s and Parkinson\'s using targeted stimulation.',
+                qs: [
+                    { q: 'How many neurons does the human brain contain?', o: ['1 billion', '86 billion', '500 billion'], a: 1 },
+                    { q: 'What allows the brain to reorganize itself?', o: ['Neuroplasticity', 'Neurotoxicity', 'Neurosis'], a: 0 },
+                    { q: 'What role does sleep play in the brain?', o: ['No role', 'Memory consolidation', 'Only rest'], a: 1 }
+                ]
+            },
+            {
+                title: 'Fusion Energy: Powering the Future',
+                category: 'Engineering',
+                difficulty: 'Advanced',
+                content: 'Nuclear fusion is the process that powers the sun and stars. It involves combining light atomic nuclei to form heavier ones, releasing enormous amounts of energy in the process. Unlike nuclear fission (which splits atoms and produces long-lived radioactive waste), fusion produces minimal waste and uses abundant fuels like hydrogen isotopes. The challenge is that fusion requires temperatures of over 100 million degrees Celsius — hotter than the sun\'s core. Scientists use magnetic confinement (tokamaks) or inertial confinement (lasers) to contain the plasma. In December 2022, the National Ignition Facility achieved the first-ever net energy gain from fusion, a historic milestone. Commercial fusion power is still decades away, but the potential is enormous: clean, safe, nearly limitless energy.',
+                qs: [
+                    { q: 'How does fusion differ from fission?', o: ['Same process', 'Fusion combines, fission splits', 'Both combine'], a: 1 },
+                    { q: 'What temperature is needed for fusion?', o: ['10,000°C', '100 million°C', '1,000°C'], a: 1 },
+                    { q: 'What milestone happened in December 2022?', o: ['First fusion reactor', 'First net energy gain', 'First plasma'], a: 1 }
+                ]
+            },
+            {
+                title: 'Nanotechnology: Engineering at the Atomic Scale',
+                category: 'Engineering',
+                difficulty: 'Intermediate',
+                content: 'Nanotechnology manipulates matter at the nanoscale — one billionth of a meter. At this scale, materials exhibit unique properties. Gold, normally inert, becomes a powerful catalyst. Carbon, depending on its arrangement, forms either soft graphite or super-hard diamond, or revolutionary materials like graphene and carbon nanotubes. Graphene is 200 times stronger than steel, conducts electricity better than copper, and is transparent and flexible. Nanotechnology is being applied in medicine (targeted drug delivery), energy (more efficient solar cells), electronics (smaller, faster chips), and materials science (self-cleaning surfaces, stronger composites). Some scientists believe nanotechnology will drive the next industrial revolution, transforming everything from healthcare to manufacturing.',
+                qs: [
+                    { q: 'How much stronger is graphene than steel?', o: ['10×', '200×', '1000×'], a: 1 },
+                    { q: 'What is one billionth of a meter called?', o: ['Micrometer', 'Nanometer', 'Picometer'], a: 1 },
+                    { q: 'Which is NOT a nanotech application?', o: ['Drug delivery', 'Solar cells', 'Weather control'], a: 2 }
+                ]
+            },
+            {
+                title: 'Robotics: Machines That Think and Move',
+                category: 'Robotics',
+                difficulty: 'Beginner',
+                content: 'Robotics combines mechanical engineering, electronics, and computer science to create machines that can perform tasks autonomously or under human control. Modern robots range from industrial arms welding cars to surgical robots performing precision operations, to humanoid robots exploring Mars. Key components include sensors (to perceive the environment), actuators (to move), and controllers (to decide). Artificial intelligence is increasingly integrated into robotics, enabling robots to learn tasks, adapt to new situations, and work alongside humans safely. Soft robotics uses flexible materials to create robots that can grip delicate objects or squeeze through tight spaces. The robotics industry is projected to reach $260 billion by 2030, transforming manufacturing, healthcare, logistics, and exploration.',
+                qs: [
+                    { q: 'Which is NOT a key robot component?', o: ['Sensors', 'Actuators', 'Combustors'], a: 2 },
+                    { q: 'What is soft robotics about?', o: ['Loud robots', 'Flexible materials', 'Soft software'], a: 1 },
+                    { q: 'What field is robotics NOT transforming?', o: ['Healthcare', 'Manufacturing', 'Astrology'], a: 2 }
+                ]
+            },
+            {
+                title: 'Climate Change and Renewable Energy',
+                category: 'Environment',
+                difficulty: 'Beginner',
+                content: 'Climate change is driven primarily by greenhouse gas emissions from burning fossil fuels. Renewable energy sources — solar, wind, hydroelectric, geothermal, and biomass — offer sustainable alternatives. Solar photovoltaic costs have dropped by 90% since 2010, making it the cheapest electricity source in history in many regions. Wind turbines have grown from modest machines to towering structures generating 15 megawatts each. Battery storage is improving rapidly, solving the intermittency problem of renewables. Countries like Norway (98% renewable), Costa Rica (99%), and Iceland (100%) demonstrate what is possible. The transition to clean energy is not just environmental — it\'s economic, creating millions of jobs and reducing dependence on imported fuels.',
+                qs: [
+                    { q: 'What is the cheapest electricity source in many regions?', o: ['Coal', 'Solar', 'Nuclear'], a: 1 },
+                    { q: 'By how much have solar costs dropped since 2010?', o: ['50%', '90%', '10%'], a: 1 },
+                    { q: 'Which country is 100% renewable?', o: ['Iceland', 'Nigeria', 'China'], a: 0 }
+                ]
+            },
+            {
+                title: 'The Internet of Things: Connecting Everything',
+                category: 'Computing',
+                difficulty: 'Beginner',
+                content: 'The Internet of Things (IoT) refers to billions of physical devices connected to the internet, collecting and sharing data. From smart thermostats and fitness trackers to industrial sensors and connected cars, IoT is transforming how we live and work. By 2030, an estimated 50 billion IoT devices will be online. These devices use sensors, wireless networks, and cloud computing to enable automation, monitoring, and predictive maintenance. Smart cities use IoT for traffic management, waste collection, and energy optimization. In healthcare, IoT enables remote patient monitoring and medication adherence. However, IoT raises serious security concerns: many devices have weak default passwords and unpatched vulnerabilities, making them targets for hackers.',
+                qs: [
+                    { q: 'How many IoT devices expected by 2030?', o: ['1 billion', '50 billion', '500 million'], a: 1 },
+                    { q: 'What is a major IoT concern?', o: ['Speed', 'Security', 'Color'], a: 1 },
+                    { q: 'Which is NOT an IoT application?', o: ['Smart cities', 'Fitness trackers', 'Stone carving'], a: 2 }
+                ]
+            }
+        ];
+
+        // ============ INIT ============
+        window.addEventListener('load', async () => {
+            try {
+                currentUser = await refreshUser();
+                siteSettings = await getSiteSettings();
+
+                if (!hasActivePlan(currentUser)) {
+                    document.getElementById('noPlanSection').classList.remove('hidden');
+                    document.getElementById('taskSection').classList.add('hidden');
+                    return;
+                }
+
+                document.getElementById('taskSection').classList.remove('hidden');
+                activePlans = await getActivePlans();
+                perQuestionValue = calculatePerQuestion(currentUser, activePlans);
+
+                const today = getLocalDate();
+                const taskData = await syncUserTasks(currentUser.id, today);
+                todayTasks = taskData.tasks || [];
+                readingRewardClaimed = taskData.readingRewardClaimed || false;
+                totalEarnedToday = todayTasks.reduce((s, t) => s + (t.earned || 0), 0);
+                currentQuestionIndex = todayTasks.filter(t => t.done).length + 1;
+
+                // If reading is not yet claimed, start reading phase
+                if (!readingRewardClaimed) {
+                    startReadingPhase();
+                } else if (currentQuestionIndex > TOTAL_QUESTIONS) {
+                    showAllDone();
+                } else {
+                    skipToQuiz();
+                }
+
+            } catch (error) {
+                console.error("Error loading tasks:", error);
+                document.getElementById('taskSection').classList.remove('hidden');
+                document.getElementById('taskSection').innerHTML = `<div class="card" style="text-align:center;">
+                    <i class="fas fa-exclamation-triangle" style="font-size:3em;color:var(--danger);"></i>
+                    <h3>Error Loading Tasks</h3>
+                    <p style="color:var(--text-dim);">Please check your connection and try again.</p>
+                    <a href="javascript:location.reload()" class="btn btn-primary">Try Again</a>
+                </div>`;
+            }
+        });
+
+        function updateProgress() {
+            const done = todayTasks.filter(t => t.done).length;
+            document.getElementById('progressText').textContent = done + '/' + TOTAL_QUESTIONS;
+            document.getElementById('progressFill').style.width = (done / TOTAL_QUESTIONS * 100) + '%';
+            document.getElementById('earnedToday').textContent = fmt(totalEarnedToday);
+        }
+
+        // ============ PHASE 1: READING ============
+        function startReadingPhase() {
+            document.getElementById('readingPhase').style.display = 'block';
+            document.getElementById('quizPhase').classList.remove('active');
+            document.getElementById('allDonePhase').classList.add('hidden');
+
+            // Pick a random article
+            currentArticle = scienceArticles[Math.floor(Math.random() * scienceArticles.length)];
+            document.getElementById('articleTitle').textContent = '📖 ' + currentArticle.title;
+            document.getElementById('articleMeta').innerHTML = `
+                <span>🔬 ${currentArticle.category}</span>
+                <span>📊 ${currentArticle.difficulty}</span>
+                <span>⏱️ 5 min read</span>
+            `;
+            document.getElementById('articleBody').textContent = currentArticle.content;
+
+            // Reset timer
+            readingSecondsLeft = READING_SECONDS;
+            updateReadingTimer();
+
+            // Disable claim button initially
+            const btn = document.getElementById('claimReadingBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-lock"></i> WAIT FOR TIMER';
+
+            // Start timer
+            if (readingTimerInterval) clearInterval(readingTimerInterval);
+            readingTimerInterval = setInterval(() => {
+                readingSecondsLeft--;
+                updateReadingTimer();
+
+                if (readingSecondsLeft <= 0) {
+                    clearInterval(readingTimerInterval);
+                    const btn = document.getElementById('claimReadingBtn');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-gift"></i> CLAIM ₦' + (siteSettings.readingReward || READING_REWARD) + ' REWARD';
+                    btn.classList.add('btn-pulse');
+                    document.getElementById('readingHint').innerHTML = '<strong style="color:var(--success);">✅ Reward unlocked! Click the button below.</strong>';
+                }
+            }, 1000);
+        }
+
+        function updateReadingTimer() {
+            const mins = Math.floor(readingSecondsLeft / 60);
+            const secs = readingSecondsLeft % 60;
+            document.getElementById('readingTimerDisplay').textContent =
+                mins + ':' + String(secs).padStart(2, '0');
+
+            // Update circular progress
+            const circle = document.getElementById('timerCircle');
+            const totalLength = 389.5;
+            const progress = readingSecondsLeft / READING_SECONDS;
+            circle.style.strokeDashoffset = totalLength * (1 - progress);
+
+            const timerDisplay = document.getElementById('readingTimerDisplay');
+            timerDisplay.className = 'label';
+            if (readingSecondsLeft <= 60) timerDisplay.style.color = 'var(--warning)';
+            if (readingSecondsLeft <= 30) timerDisplay.style.color = 'var(--danger)';
+        }
+
+        async function claimReadingReward() {
+            if (readingRewardClaimed) return;
+            if (readingSecondsLeft > 0) return;
+
+            const reward = siteSettings.readingReward || READING_REWARD;
+            const btn = document.getElementById('claimReadingBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Claiming...';
+
+            try {
+                // Update user balance
+                await sb.rpc('increment_user_field', {
+                    p_user_id: currentUser.id,
+                    p_field: 'balance',
+                    p_amount: reward
+                });
+                await sb.rpc('increment_user_field', {
+                    p_user_id: currentUser.id,
+                    p_field: 'total_earned',
+                    p_amount: reward
+                });
+
+                // Mark reading as claimed in user_tasks
+                await saveUserTasks(currentUser.id, getLocalDate(), todayTasks, true);
+                readingRewardClaimed = true;
+
+                // Log payout
+                await sb.from('payout_ledger').insert({
+                    user_id: currentUser.id,
+                    amount: reward,
+                    source: 'reading'
+                });
+
+                // Update local state
+                currentUser.balance = (currentUser.balance || 0) + reward;
+                localStorage.setItem('scn_u', JSON.stringify(currentUser));
+
+                toast('✅ +' + fmt(reward) + ' reading reward claimed!');
+
+                // Move to quiz phase
+                setTimeout(() => {
+                    skipToQuiz();
+                }, 1200);
+
+            } catch (error) {
+                console.error('Claim reading error:', error);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-gift"></i> CLAIM REWARD';
+                toast('❌ Failed to claim. Please try again.');
+            }
+        }
+
+        // ============ PHASE 2: QUIZ ============
+        function skipToQuiz() {
+            document.getElementById('readingPhase').style.display = 'none';
+            loadNewQuestion();
+        }
+
+        function loadNewQuestion() {
+            document.getElementById('readingPhase').style.display = 'none';
+            document.getElementById('quizPhase').classList.add('active');
+            document.getElementById('allDonePhase').classList.add('hidden');
+
+            currentQuestion = currentArticle.qs[currentQuestionIndex - 1];
+            document.getElementById('qNumber').textContent = currentQuestionIndex;
+            document.getElementById('qWorth').textContent = fmt(perQuestionValue);
+            document.getElementById('questionText').textContent = currentQuestion.q;
+            document.getElementById('quizFeedback').innerHTML = '';
+
+            let optionsHTML = '';
+            currentQuestion.o.forEach((opt, i) => {
+                const isDisabled = currentQuestion._disabled && currentQuestion._disabled.includes(i);
+                optionsHTML += `<div class="opt-btn ${isDisabled ? 'disabled' : ''}" id="opt-${i}" onclick="selectOption(${i})">
+                    <span class="opt-letter">${'ABC'[i]}</span> ${opt}
+                </div>`;
+            });
+            document.getElementById('optionsList').innerHTML = optionsHTML;
+            document.getElementById('submitBtn').disabled = true;
+            if (!currentQuestion._disabled) currentQuestion._disabled = [];
+
+            updateProgress();
+        }
+
+        function selectOption(index) {
+            if (currentQuestion._disabled && currentQuestion._disabled.includes(index)) return;
+            document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('opt-' + index).classList.add('selected');
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        async function submitAnswer() {
+            const selected = document.querySelector('.opt-btn.selected');
+            if (!selected) return;
+            const selectedIndex = parseInt(selected.id.split('-')[1]);
+            const isCorrect = selectedIndex === currentQuestion.a;
+
+            if (isCorrect) {
+                document.getElementById('opt-' + selectedIndex).classList.add('correct');
+                document.getElementById('quizFeedback').innerHTML = `<div style="color:var(--success);font-weight:700;font-size:1.15em;animation:bounceIn 0.5s;">✅ Correct! +${fmt(perQuestionValue)} earned!</div>`;
+                todayTasks.push({ q: currentQuestionIndex, earned: perQuestionValue, done: true, retries: currentQuestion._disabled.length });
+                totalEarnedToday += perQuestionValue;
+
+                const today = getLocalDate();
+                await saveUserTasks(currentUser.id, today, todayTasks, true);
+
+                // Update balance
+                await sb.rpc('increment_user_field', {
+                    p_user_id: currentUser.id,
+                    p_field: 'balance',
+                    p_amount: perQuestionValue
+                });
+                await sb.rpc('increment_user_field', {
+                    p_user_id: currentUser.id,
+                    p_field: 'total_earned',
+                    p_amount: perQuestionValue
+                });
+                await sb.rpc('increment_user_field', {
+                    p_user_id: currentUser.id,
+                    p_field: 'tasks_completed',
+                    p_amount: 1
+                });
+
+                // Log payout
+                await sb.from('payout_ledger').insert({
+                    user_id: currentUser.id,
+                    amount: perQuestionValue,
+                    source: 'task'
+                });
+
+                currentUser.balance = (currentUser.balance || 0) + perQuestionValue;
+                currentUser.tasksCompleted = (currentUser.tasksCompleted || 0) + 1;
+                localStorage.setItem('scn_u', JSON.stringify(currentUser));
+
+                updateProgress();
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    if (currentQuestionIndex > TOTAL_QUESTIONS) {
+                        showAllDone();
+                    } else {
+                        loadNewQuestion();
+                    }
+                }, 1500);
+
+            } else {
+                if (!currentQuestion._disabled) currentQuestion._disabled = [];
+                currentQuestion._disabled.push(selectedIndex);
+                document.getElementById('opt-' + selectedIndex).classList.add('wrong');
+                document.getElementById('opt-' + selectedIndex).classList.add('disabled');
+                document.getElementById('quizFeedback').innerHTML = `<div style="color:var(--danger);font-weight:600;animation:shake 0.5s;">❌ Wrong! Option ${'ABC'[selectedIndex]} disabled. Try again!</div>
+                <div style="color:var(--text-dim);font-size:0.85em;margin-top:5px;">No penalty - full ₦${perQuestionValue} when correct!</div>`;
+                document.getElementById('submitBtn').disabled = true;
+                document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+            }
+        }
+
+        function showAllDone() {
+            document.getElementById('readingPhase').style.display = 'none';
+            document.getElementById('quizPhase').classList.remove('active');
+            document.getElementById('allDonePhase').classList.remove('hidden');
+            updateProgress();
+            document.getElementById('progressFill').style.width = '100%';
+            document.getElementById('totalEarned').textContent = fmt(totalEarnedToday);
+
+            let resultsHTML = '';
+            todayTasks.forEach(t => {
+                resultsHTML += `<div class="task-history-item"><span>Q${t.q}:</span><span style="color:var(--success);">✅ ₦${t.earned}</span></div>`;
+            });
+            if (readingRewardClaimed) {
+                resultsHTML = `<div class="task-history-item"><span>📖 Reading:</span><span style="color:var(--gold);">✅ ₦${siteSettings.readingReward || READING_REWARD}</span></div>` + resultsHTML;
+            }
+            document.getElementById('taskResults').innerHTML = resultsHTML;
+        }
+    </script>
+</body>
+</html>
