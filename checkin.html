@@ -12,7 +12,6 @@
     <style>
         .checkin-container { max-width: 600px; margin: 0 auto; }
 
-        /* Hero card */
         .checkin-hero {
             background: linear-gradient(135deg, rgba(255,184,0,0.15), rgba(0,229,255,0.08));
             border: 1px solid var(--gold);
@@ -23,7 +22,6 @@
             position: relative;
             overflow: hidden;
             box-shadow: 0 0 30px rgba(255,184,0,0.15);
-            transition: all 0.4s;
         }
         .checkin-hero.claimed {
             background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(0,229,255,0.05));
@@ -89,7 +87,6 @@
             text-shadow: 0 0 30px rgba(34,197,94,0.4);
         }
 
-        /* Article */
         .article-card {
             background: var(--card);
             border-radius: 16px;
@@ -110,7 +107,6 @@
             padding: 3px 10px; background: rgba(0,229,255,0.08); border-radius: 10px;
         }
 
-        /* Timer */
         .timer-section { text-align: center; margin-bottom: 20px; }
         .timer-display {
             font-size: 2.8em; font-weight: 800; color: var(--cyan);
@@ -121,12 +117,10 @@
         .timer-display.danger { color: var(--danger); animation: timerPulse 0.3s infinite; }
         @keyframes timerPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
 
-        /* Flow wrapper */
         .checkin-flow { display: none; }
         .checkin-flow.active { display: block; animation: fadeSlideUp 0.4s ease; }
         @keyframes fadeSlideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
-        /* Streak chip */
         .streak-chip {
             display: inline-flex;
             align-items: center;
@@ -141,7 +135,6 @@
             margin: 0 auto 14px;
         }
 
-        /* Confetti */
         .confetti-piece {
             position: fixed;
             width: 8px; height: 8px;
@@ -173,7 +166,6 @@
 
         <div class="checkin-container">
 
-            <!-- HERO CARD -->
             <div class="checkin-hero" id="checkinHero">
                 <div class="checkin-hero-icon" id="heroIcon"><i class="fas fa-gift"></i></div>
                 <div class="checkin-hero-title" id="heroTitle">Free Daily Reward</div>
@@ -184,14 +176,12 @@
                 </button>
             </div>
 
-            <!-- STREAK -->
             <div style="text-align:center;">
                 <div class="streak-chip" id="streakChip">
                     <i class="fas fa-fire"></i> <span id="streakText">0-day streak</span>
                 </div>
             </div>
 
-            <!-- FLOW (article → timer → claim) -->
             <div class="checkin-flow" id="checkinFlow">
 
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:0.9em;color:var(--cyan);font-weight:700;">
@@ -216,7 +206,6 @@
                 </button>
             </div>
 
-            <!-- Info box -->
             <div class="info-box" style="margin-top:20px;">
                 <h4><i class="fas fa-info-circle"></i> How it works</h4>
                 <ul>
@@ -232,8 +221,8 @@
     <nav class="bottom-nav">
         <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
         <a href="plans.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Plans</span></a>
-        <a href="deposit.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Deposit</span></a>
         <a href="checkin.html" class="nav-item active"><i class="fas fa-gift"></i><span>Check-in</span></a>
+        <a href="tasks.html" class="nav-item"><i class="fas fa-tasks"></i><span>Tasks</span></a>
         <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
     </nav>
 
@@ -256,21 +245,21 @@
             { title: 'Quantum Entanglement: Spooky Action at a Distance', category: 'Physics', difficulty: 'Intermediate',
               content: 'Quantum entanglement is one of the most fascinating and counterintuitive phenomena in modern physics. When two particles become entangled, their quantum states become intrinsically linked, no matter how far apart they are. Measuring one particle instantaneously affects the other, even if they are light-years apart. Einstein famously called this "spooky action at a distance". This phenomenon is now being used in quantum computing, quantum cryptography, and quantum teleportation.' },
             { title: 'CRISPR: The Future of Gene Editing', category: 'Biology', difficulty: 'Beginner',
-              content: 'CRISPR-Cas9 is a revolutionary gene-editing technology that allows scientists to precisely modify DNA sequences. Originally discovered as a bacterial immune system, CRISPR works by using a guide RNA to target specific DNA sequences and the Cas9 enzyme to cut them. This technology has enormous potential for treating genetic diseases like sickle cell anemia, cystic fibrosis, and Huntington\'s disease. In agriculture, CRISPR is being used to create drought-resistant crops and disease-resistant livestock.' },
+              content: 'CRISPR-Cas9 is a revolutionary gene-editing technology that allows scientists to precisely modify DNA sequences. Originally discovered as a bacterial immune system, CRISPR works by using a guide RNA to target specific DNA sequences and the Cas9 enzyme to cut them. This technology has enormous potential for treating genetic diseases like sickle cell anemia, cystic fibrosis, and Huntington\'s disease.' },
             { title: 'Black Holes: The Cosmic Vacuum Cleaners', category: 'Astronomy', difficulty: 'Beginner',
               content: 'Black holes are regions of space where gravity is so intense that nothing — not even light — can escape. They form when massive stars collapse at the end of their life cycles. The boundary around a black hole where escape velocity equals the speed of light is called the event horizon. Anything crossing this boundary is lost forever. In 2019, the Event Horizon Telescope captured the first image of a black hole.' },
             { title: 'Artificial Intelligence: How Machines Learn', category: 'AI', difficulty: 'Beginner',
-              content: 'Machine learning is a subset of artificial intelligence that enables computers to learn from data without being explicitly programmed. There are three main types: supervised, unsupervised, and reinforcement learning. Deep learning uses artificial neural networks with many layers to process complex data like images, text, and speech. Modern AI systems like ChatGPT and image generators are powered by these techniques.' },
+              content: 'Machine learning is a subset of artificial intelligence that enables computers to learn from data without being explicitly programmed. There are three main types: supervised, unsupervised, and reinforcement learning. Deep learning uses artificial neural networks with many layers to process complex data like images, text, and speech.' },
             { title: 'The Human Brain: Nature\'s Supercomputer', category: 'Neuroscience', difficulty: 'Intermediate',
-              content: 'The human brain contains approximately 86 billion neurons, each connected to thousands of others through synapses. This creates a network of trillions of connections. Neurons communicate through electrical and chemical signals, releasing neurotransmitters like dopamine and serotonin. Neuroplasticity allows the brain to reorganize itself by forming new neural connections throughout life. Sleep plays a critical role in memory consolidation.' },
+              content: 'The human brain contains approximately 86 billion neurons, each connected to thousands of others through synapses. This creates a network of trillions of connections. Neurons communicate through electrical and chemical signals, releasing neurotransmitters like dopamine and serotonin. Neuroplasticity allows the brain to reorganize itself by forming new neural connections throughout life.' },
             { title: 'Fusion Energy: Powering the Future', category: 'Engineering', difficulty: 'Advanced',
-              content: 'Nuclear fusion is the process that powers the sun and stars. It involves combining light atomic nuclei to form heavier ones, releasing enormous amounts of energy. Unlike nuclear fission, fusion produces minimal waste and uses abundant fuels like hydrogen isotopes. The challenge is that fusion requires temperatures of over 100 million degrees Celsius. In December 2022, the National Ignition Facility achieved the first-ever net energy gain from fusion.' },
+              content: 'Nuclear fusion is the process that powers the sun and stars. It involves combining light atomic nuclei to form heavier ones, releasing enormous amounts of energy. Unlike nuclear fission, fusion produces minimal waste and uses abundant fuels like hydrogen isotopes. In December 2022, the National Ignition Facility achieved the first-ever net energy gain from fusion.' },
             { title: 'Nanotechnology: Engineering at the Atomic Scale', category: 'Engineering', difficulty: 'Intermediate',
               content: 'Nanotechnology manipulates matter at the nanoscale — one billionth of a meter. At this scale, materials exhibit unique properties. Carbon forms either soft graphite, super-hard diamond, or revolutionary materials like graphene. Graphene is 200 times stronger than steel, conducts electricity better than copper, and is transparent and flexible.' },
             { title: 'Robotics: Machines That Think and Move', category: 'Robotics', difficulty: 'Beginner',
-              content: 'Robotics combines mechanical engineering, electronics, and computer science to create machines that perform tasks autonomously. Modern robots range from industrial arms welding cars to surgical robots performing precision operations, to humanoid robots exploring Mars. Key components include sensors, actuators, and controllers. AI is increasingly integrated into robotics.' },
+              content: 'Robotics combines mechanical engineering, electronics, and computer science to create machines that perform tasks autonomously. Modern robots range from industrial arms welding cars to surgical robots performing precision operations, to humanoid robots exploring Mars. AI is increasingly integrated into robotics.' },
             { title: 'Climate Change and Renewable Energy', category: 'Environment', difficulty: 'Beginner',
-              content: 'Climate change is driven primarily by greenhouse gas emissions from burning fossil fuels. Renewable sources — solar, wind, hydroelectric — offer sustainable alternatives. Solar photovoltaic costs have dropped by 90% since 2010, making it the cheapest electricity source in history in many regions. Battery storage is improving rapidly.' },
+              content: 'Climate change is driven primarily by greenhouse gas emissions from burning fossil fuels. Renewable sources — solar, wind, hydroelectric — offer sustainable alternatives. Solar photovoltaic costs have dropped by 90% since 2010, making it the cheapest electricity source in history in many regions.' },
             { title: 'The Internet of Things: Connecting Everything', category: 'Computing', difficulty: 'Beginner',
               content: 'The Internet of Things (IoT) refers to billions of physical devices connected to the internet, collecting and sharing data. From smart thermostats and fitness trackers to industrial sensors and connected cars, IoT is transforming how we live and work. By 2030, an estimated 50 billion IoT devices will be online.' }
         ];
@@ -335,7 +324,6 @@
         }
 
         async function renderStreak() {
-            // Compute streak from last 30 days of user_tasks
             try {
                 const { data } = await sb
                     .from('user_tasks')
@@ -354,7 +342,6 @@
                     if (row && row.reading_reward_claimed) {
                         streak++;
                     } else {
-                        // Allow "today" to be missing without breaking streak
                         if (i === 0) continue;
                         break;
                     }
@@ -362,7 +349,6 @@
                 document.getElementById('streakText').textContent = streak + '-day streak';
             } catch (e) {
                 console.error('Streak error:', e);
-                document.getElementById('streakText').textContent = '0-day streak';
             }
         }
 
