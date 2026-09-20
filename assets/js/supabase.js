@@ -7,22 +7,49 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// ============ SESSION CACHE ============
+const CACHE_TTL = 5 * 60 * 1000;
+function cacheSet(key, value) {
+    try {
+        sessionStorage.setItem('scn_cache_' + key, JSON.stringify({ v: value, t: Date.now() }));
+    } catch (e) {}
+}
+function cacheGet(key) {
+    try {
+        const raw = sessionStorage.getItem('scn_cache_' + key);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (Date.now() - parsed.t > CACHE_TTL) {
+            sessionStorage.removeItem('scn_cache_' + key);
+            return null;
+        }
+        return parsed.v;
+    } catch (e) { return null; }
+}
+function cacheClear(key) {
+    try {
+        if (key) sessionStorage.removeItem('scn_cache_' + key);
+        else Object.keys(sessionStorage)
+            .filter(k => k.startsWith('scn_cache_'))
+            .forEach(k => sessionStorage.removeItem(k));
+    } catch (e) {}
+}
+
 // ============ CONSTANTS ============
-const ADMIN_EMAIL = 'scinovatech@gmail.com';           // change later
+const ADMIN_EMAIL = 'scinovatech@gmail.com';
 const BRAND_NAME = 'SciNovaTech';
 const BRAND_TAGLINE = 'Learn Science. Earn Daily.';
 const DEPOSIT_BANK = 'Safe Haven Microfinance Bank';
 const DEPOSIT_ACCOUNT = '5012552807';
-const DEPOSIT_NAME = 'PEERPURSETECHNO';
+const DEPOSIT_NAME = 'PEERPURSER TECHNO';
 const WELCOME_BONUS = 500;
 const READING_REWARD = 100;
-const READING_MINUTES = 5;
 const TASKS_PER_DAY = 3;
 const WITHDRAWAL_FEE_PCT = 13;
 const MIN_DEPOSIT = 3000;
 const MIN_WITHDRAWAL = 600;
 const PAYOUT_CAP_MULTIPLIER = 3;
-const APP_BASE_URL = 'https://scinovatech.vercel.app'; // update after deploy
+const APP_BASE_URL = 'https://scinova-tech.vercel.app';
 
 // ============ DEFAULT PLANS ============
 const DEFAULT_PLANS = {
@@ -152,41 +179,34 @@ function hasActivePlan(user) {
     return true;
 }
 
-async function getActivePlans() {
-    try {
-        const { data, error } = await _supabase
-            .from('settings').select('value').eq('key', 'plans').maybeSingle();
-        if (error) throw error;
-        let allPlans = data?.value || {};
-        if (!allPlans || Object.keys(allPlans).length === 0) {
-            await _supabase.from('settings').upsert({ key: 'plans', value: DEFAULT_PLANS });
-            return DEFAULT_PLANS;
-        }
-        const active = {};
-        Object.keys(allPlans).forEach(key => {
-            if (allPlans[key].status === 'active') active[key] = allPlans[key];
-        });
-        return Object.keys(active).length > 0 ? active : DEFAULT_PLANS;
-    } catch (error) {
-        console.error('getActivePlans error:', error);
-        return DEFAULT_PLANS;
-    }
-}
-
 async function getAllPlans() {
+    const cached = cacheGet('plans');
+    if (cached) return cached;
+
     try {
         const { data, error } = await _supabase
             .from('settings').select('value').eq('key', 'plans').maybeSingle();
         if (error) throw error;
         if (!data || !data.value || Object.keys(data.value).length === 0) {
             await _supabase.from('settings').upsert({ key: 'plans', value: DEFAULT_PLANS });
+            cacheSet('plans', DEFAULT_PLANS);
             return DEFAULT_PLANS;
         }
+        cacheSet('plans', data.value);
         return data.value;
     } catch (error) {
         console.error('getAllPlans error:', error);
         return DEFAULT_PLANS;
     }
+}
+
+async function getActivePlans() {
+    const all = await getAllPlans();
+    const active = {};
+    Object.keys(all).forEach(key => {
+        if (all[key].status === 'active') active[key] = all[key];
+    });
+    return Object.keys(active).length > 0 ? active : DEFAULT_PLANS;
 }
 
 async function ensurePlansExist() {
@@ -195,20 +215,32 @@ async function ensurePlansExist() {
 }
 
 async function getSiteSettings() {
+    const cached = cacheGet('siteSettings');
+    if (cached) return cached;
+
     try {
         const { data } = await _supabase
             .from('settings').select('value').eq('key', 'site').maybeSingle();
-        return data?.value || {
+
+        const val = data?.value || {
             welcomeBonus: WELCOME_BONUS,
-            readingReward: READING_REWARD,
-            readingMinutes: READING_MINUTES,
+            checkinReward: READING_REWARD,
+            checkinReadSeconds: 60,
+            taskReadSeconds: 10,
             tasksPerDay: TASKS_PER_DAY,
+            starterDailyLimit: 20,
             withdrawalFeePct: WITHDRAWAL_FEE_PCT,
             minWithdrawal: MIN_WITHDRAWAL,
             minDeposit: MIN_DEPOSIT,
             payoutCapMultiplier: PAYOUT_CAP_MULTIPLIER,
-            emergencyStop: false
+            emergencyStop: false,
+            ref1: 10,
+            ref2: 3,
+            ref3: 1
         };
+
+        cacheSet('siteSettings', val);
+        return val;
     } catch (e) {
         console.error('getSiteSettings error:', e);
         return {};
@@ -225,7 +257,6 @@ async function getCategories() {
     }
 }
 
-// Daily earnings for a given plan price (per task)
 function calcTaskReward(planPrice, dailyRate = 15, tasksPerDay = TASKS_PER_DAY) {
     const daily = Number(planPrice) * (Number(dailyRate) / 100);
     return Math.floor(daily / tasksPerDay);
@@ -235,7 +266,6 @@ function calcDailyEarning(planPrice, dailyRate = 15) {
     return Math.floor(Number(planPrice) * (Number(dailyRate) / 100));
 }
 
-// Sum daily earning across all owned plans
 function calcTotalDailyEarning(user, plans) {
     if (!user || !user.ownedPlans || !plans) return 0;
     const planCounts = {};
@@ -249,7 +279,6 @@ function calcTotalDailyEarning(user, plans) {
     return total;
 }
 
-// Per-task reward for user's total owned plans
 function calculatePerQuestion(user, plans) {
     if (!user || !user.ownedPlans || !plans) return 0;
     const planCounts = {};
@@ -265,7 +294,7 @@ function calculatePerQuestion(user, plans) {
 }
 
 // ============ TASK HELPERS ============
-async function saveUserTasks(userId, date, tasks, readingClaimed = false) {
+async function saveUserTasks(userId, date, tasks, checkinClaimed = false) {
     try {
         const completedCount = tasks.filter(t => t.done).length;
         const totalEarned = tasks.reduce((sum, t) => sum + (t.earned || 0), 0);
@@ -275,7 +304,7 @@ async function saveUserTasks(userId, date, tasks, readingClaimed = false) {
             tasks: tasks,
             completed_count: completedCount,
             total_earned: totalEarned,
-            reading_reward_claimed: readingClaimed,
+            reading_reward_claimed: checkinClaimed,
             updated_at: new Date().toISOString()
         }, { onConflict: 'user_id,date' });
         if (error) throw error;
@@ -283,23 +312,6 @@ async function saveUserTasks(userId, date, tasks, readingClaimed = false) {
     } catch (error) {
         console.error('Save tasks error:', error);
         return false;
-    }
-}
-
-async function loadUserTasks(userId, date) {
-    try {
-        const { data, error } = await _supabase
-            .from('user_tasks').select('*')
-            .eq('user_id', userId).eq('date', date).maybeSingle();
-        if (error) throw error;
-        if (!data) return { tasks: [], readingRewardClaimed: false };
-        return {
-            tasks: data.tasks || [],
-            readingRewardClaimed: data.reading_reward_claimed || false
-        };
-    } catch (error) {
-        console.error('Load tasks error:', error);
-        return { tasks: [], readingRewardClaimed: false };
     }
 }
 
@@ -334,7 +346,7 @@ async function getAllUserTasksForDate(date) {
     }
 }
 
-// ============ DAILY SLOTS (First 20 daily for starter) ============
+// ============ DAILY SLOTS ============
 async function getStarterSlots() {
     try {
         const { data, error } = await _supabase.rpc('get_starter_slots');
@@ -491,6 +503,14 @@ async function addDoc(collection, data) {
     }
 }
 
+async function incrementUserField(userId, field, amount) {
+    const snakeField = field.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
+    const { error } = await _supabase.rpc('increment_user_field', {
+        p_user_id: userId, p_field: snakeField, p_amount: amount
+    });
+    if (error) console.error('incrementUserField error:', error);
+}
+
 // ============ EMAIL ============
 async function sendAdminEmail(subject, message) {
     try {
@@ -530,7 +550,7 @@ function staggerCards(selector, baseDelay = 0.05) {
 }
 
 // ============================================================
-// FIREBASE-COMPAT SHIM: db.collection(...)
+// FIREBASE-COMPAT SHIM
 // ============================================================
 class CompatQuery {
     constructor(table, filters = [], orderField = null, orderDir = 'asc', lim = null) {
@@ -609,9 +629,7 @@ function makeDocRef(table, id) {
             return makeDocSnap(table, row);
         },
         async set(data) { await setDoc(table, id, data); },
-        async update(data) {
-            await updateDoc(table, id, data);
-        },
+        async update(data) { await updateDoc(table, id, data); },
         async delete() { await deleteDoc(table, id); }
     };
 }
@@ -632,51 +650,6 @@ const FieldValueCompat = {
     serverTimestamp() { return new Date().toISOString(); }
 };
 
-// Override updateDoc to handle increment/arrayUnion sentinels
-const _origUpdateDoc = updateDoc;
-updateDoc = async function(collection, docId, data) {
-    const cleanData = {};
-    const increments = {};
-    const arrayUnions = {};
-
-    for (const k in data) {
-        const v = data[k];
-        if (v && typeof v === 'object' && v.__type === 'increment') {
-            increments[k] = v.value;
-        } else if (v && typeof v === 'object' && v.__type === 'arrayUnion') {
-            arrayUnions[k] = v.items;
-        } else {
-            cleanData[k] = v;
-        }
-    }
-
-    if (Object.keys(cleanData).length > 0) {
-        await _origUpdateDoc(collection, docId, cleanData);
-    }
-    for (const field in increments) {
-        const snakeField = field.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
-        const amount = increments[field];
-        const { error } = await _supabase.rpc('increment_field', {
-            p_table: collection, p_id: docId, p_field: snakeField, p_amount: amount
-        });
-        if (error) console.error('Increment error:', error);
-    }
-    for (const field in arrayUnions) {
-        const cur = await getDoc(collection, docId);
-        const curArr = cur ? (cur[field] || []) : [];
-        const newArr = [...curArr, ...arrayUnions[field]];
-        await _origUpdateDoc(collection, docId, { [field]: newArr });
-    }
-};
-
-async function incrementUserField(userId, field, amount) {
-    const snakeField = field.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
-    const { error } = await _supabase.rpc('increment_user_field', {
-        p_user_id: userId, p_field: snakeField, p_amount: amount
-    });
-    if (error) console.error('incrementUserField error:', error);
-}
-
 const db = new Proxy({}, {
     get(_, tableName) { return new CompatCollection(tableName); }
 });
@@ -687,6 +660,9 @@ const firebase = { firestore: { FieldValue: FieldValueCompat } };
 window.sb = _supabase;
 window.db = db;
 window.firebase = firebase;
+window.cacheSet = cacheSet;
+window.cacheGet = cacheGet;
+window.cacheClear = cacheClear;
 
 window.fmt = fmt;
 window.toast = toast;
@@ -720,9 +696,8 @@ window.animateCountUp = animateCountUp;
 window.staggerCards = staggerCards;
 
 window.saveUserTasks = saveUserTasks;
-window.loadUserTasks = loadUserTasks;
-window.getAllUserTasksForDate = getAllUserTasksForDate;
 window.syncUserTasks = syncUserTasks;
+window.getAllUserTasksForDate = getAllUserTasksForDate;
 
 window.getStarterSlots = getStarterSlots;
 window.claimStarterSlot = claimStarterSlot;
@@ -737,7 +712,6 @@ window.DEPOSIT_ACCOUNT = DEPOSIT_ACCOUNT;
 window.DEPOSIT_NAME = DEPOSIT_NAME;
 window.WELCOME_BONUS = WELCOME_BONUS;
 window.READING_REWARD = READING_REWARD;
-window.READING_MINUTES = READING_MINUTES;
 window.TASKS_PER_DAY = TASKS_PER_DAY;
 window.WITHDRAWAL_FEE_PCT = WITHDRAWAL_FEE_PCT;
 window.MIN_DEPOSIT = MIN_DEPOSIT;
