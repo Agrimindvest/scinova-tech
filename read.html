@@ -28,25 +28,6 @@
         }
         .read-hero p { color: var(--text-dim); font-size: 0.85em; }
 
-        .reset-row {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 12px;
-        }
-        .reset-btn {
-            background: transparent;
-            border: 1px solid var(--danger);
-            color: var(--danger);
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.75em;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-        }
-        .reset-btn:hover { background: rgba(239,68,68,0.1); }
-
         .filter-tabs {
             display: flex;
             flex-wrap: wrap;
@@ -61,19 +42,11 @@
             margin-bottom: 12px;
             border: 1px solid var(--border);
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: fadeSlideIn 0.4s ease forwards;
-            opacity: 0;
-            position: relative;
-        }
-        @keyframes fadeSlideIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+            transition: border-color 0.2s, transform 0.2s;
         }
         .article-preview-card:hover {
             border-color: var(--cyan);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(0,229,255,0.1);
+            transform: translateY(-2px);
         }
 
         .article-preview-card .category-badge {
@@ -97,106 +70,105 @@
             flex-wrap: wrap;
         }
 
-        .progress-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: rgba(34,197,94,0.15);
-            color: var(--success);
-            padding: 2px 8px;
-            border-radius: 8px;
-            font-size: 0.7em;
-            font-weight: 700;
-        }
-        .progress-chip.empty {
-            background: rgba(100,116,139,0.15);
-            color: var(--text-mute);
-        }
-
+        /* ============ MODAL ============ */
         .article-modal {
             position: fixed;
-            inset: 0;
-            background: var(--darker);
-            z-index: 1000;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #060819;
+            z-index: 9999;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 0;
+            display: block;
+        }
+        .article-modal-inner {
+            max-width: 700px;
+            margin: 0 auto;
             padding: 20px 20px 100px;
-            animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        @keyframes modalSlideIn {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .article-modal .modal-header {
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            padding: 15px 20px;
+            background: #0A0E27;
             border-bottom: 1px solid var(--border);
-            max-width: 720px;
-            margin-left: auto;
-            margin-right: auto;
             position: sticky;
             top: 0;
-            background: var(--darker);
             z-index: 10;
-            padding-top: 10px;
         }
-        .article-modal .modal-body {
-            max-width: 720px;
-            margin: 0 auto;
-            line-height: 1.9;
-            font-size: 0.95em;
-        }
-        .article-modal .modal-body h2 {
+        .modal-header .category-badge {
+            display: inline-block;
+            font-size: 0.7em;
+            padding: 3px 10px;
+            border-radius: 10px;
+            background: rgba(0,229,255,0.12);
             color: var(--cyan);
+            font-weight: 600;
+        }
+        .close-btn {
+            background: #1e2a52;
+            border: 1px solid var(--border);
+            color: #F8FAFC;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s;
+        }
+        .close-btn:hover {
+            background: #EF4444;
+            border-color: #EF4444;
+        }
+
+        .modal-body { line-height: 1.85; font-size: 0.95em; }
+        .modal-body h2 {
+            color: #00E5FF;
             margin-bottom: 15px;
             font-family: 'Space Grotesk', sans-serif;
             line-height: 1.3;
             font-size: 1.5em;
         }
-        .article-modal .modal-body .modal-meta {
+        .modal-meta {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
             margin-bottom: 25px;
             font-size: 0.75em;
-            color: var(--text-dim);
+            color: #94A3B8;
         }
-        .article-modal .modal-body .modal-meta span {
+        .modal-meta span {
             padding: 4px 12px;
             background: rgba(0,229,255,0.08);
             border-radius: 12px;
         }
-        .article-modal .modal-body h3 {
-            color: var(--cyan);
+        .modal-body h3 {
+            color: #00E5FF;
             margin-top: 25px;
             margin-bottom: 12px;
             font-family: 'Space Grotesk', sans-serif;
             font-size: 1.1em;
         }
-        .article-modal .modal-body p {
-            color: var(--text-dim);
-            margin-bottom: 15px;
-        }
-        .article-modal .modal-body ul,
-        .article-modal .modal-body ol {
-            color: var(--text-dim);
+        .modal-body p { color: #94A3B8; margin-bottom: 15px; }
+        .modal-body ul, .modal-body ol {
+            color: #94A3B8;
             margin-bottom: 15px;
             padding-left: 22px;
-            line-height: 1.9;
+            line-height: 1.85;
         }
-        .article-modal .modal-body li { margin-bottom: 6px; }
-        .article-modal .modal-body strong { color: var(--text); }
+        .modal-body li { margin-bottom: 6px; }
+        .modal-body strong { color: #F8FAFC; }
 
         .formula-box {
-            background: var(--deep);
-            border-left: 3px solid var(--gold);
+            background: #0A0E27;
+            border-left: 3px solid #FFB800;
             padding: 14px 18px;
             border-radius: 8px;
             margin: 15px 0;
             font-family: 'Space Grotesk', monospace;
-            color: var(--gold);
+            color: #FFB800;
             font-size: 1.05em;
             text-align: center;
             font-weight: 700;
@@ -204,123 +176,25 @@
 
         .hack-box {
             background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(0,229,255,0.06));
-            border: 1px solid var(--purple);
+            border: 1px solid #7C3AED;
             border-radius: 12px;
             padding: 16px;
             margin: 18px 0;
         }
         .hack-box h4 {
-            color: var(--purple);
+            color: #A78BFA;
             font-size: 0.9em;
             margin-bottom: 10px;
             font-family: 'Space Grotesk', sans-serif;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
-        .hack-box p,
-        .hack-box li { color: var(--text-dim); font-size: 0.88em; }
+        .hack-box p, .hack-box li { color: #94A3B8; font-size: 0.88em; }
 
-        /* ============ CHECKLIST ============ */
-        .takeaways {
-            background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(0,229,255,0.04));
-            border: 1px solid var(--success);
-            border-radius: 14px;
-            padding: 20px;
-            margin: 30px 0 20px;
-        }
-        .takeaways h4 {
-            color: var(--success);
-            font-size: 1em;
-            margin-bottom: 6px;
-            font-family: 'Space Grotesk', sans-serif;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .takeaways .tk-sub {
-            font-size: 0.78em;
-            color: var(--text-dim);
-            margin-bottom: 15px;
-        }
-        .check-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 10px 12px;
-            margin-bottom: 6px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.25s;
-            user-select: none;
-        }
-        .check-item:hover {
-            border-color: var(--cyan);
-            transform: translateX(2px);
-        }
-        .check-item input[type="checkbox"] {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-        }
-        .check-item .check-box {
-            width: 20px;
-            height: 20px;
-            border-radius: 6px;
-            border: 2px solid var(--border-hi);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            margin-top: 1px;
-            transition: all 0.25s;
-            color: transparent;
-            font-size: 0.7em;
-        }
-        .check-item.checked .check-box {
-            background: var(--success);
-            border-color: var(--success);
-            color: white;
-        }
-        .check-item.checked span {
-            text-decoration: line-through;
-            color: var(--text-mute);
-        }
-        .check-item span {
-            font-size: 0.88em;
-            color: var(--text);
-            line-height: 1.5;
-            transition: all 0.25s;
-        }
-
-        .close-btn {
-            background: var(--card);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 8px 16px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.85em;
-            font-weight: 600;
-            font-family: 'Inter', sans-serif;
-        }
-        .close-btn:hover {
-            background: var(--danger);
-            border-color: var(--danger);
-            color: white;
-        }
-
-        /* Bottom close button (bigger, easier on mobile) */
         .close-bottom-btn {
             display: block;
             width: 100%;
-            max-width: 720px;
-            margin: 30px auto 0;
+            margin: 30px 0 0;
             padding: 14px;
-            background: linear-gradient(135deg, var(--primary), var(--cyan));
+            background: linear-gradient(135deg, #0057FF, #00E5FF);
             color: white;
             border: none;
             border-radius: 12px;
@@ -328,9 +202,10 @@
             font-weight: 700;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
-            transition: all 0.3s;
         }
-        .close-bottom-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,229,255,0.3); }
+        .close-bottom-btn:hover { opacity: 0.9; }
+
+        body.modal-open { overflow: hidden; }
     </style>
 </head>
 <body>
@@ -349,25 +224,13 @@
         </a>
 
         <div class="read-container">
-
             <div class="read-hero">
                 <h3>📖 Free Reading Hub</h3>
-                <p>Explore science, math, and life hacks — tick off what you learn</p>
+                <p>Explore science, math, and life hacks — no rewards, just knowledge</p>
             </div>
 
-            <div class="reset-row">
-                <button class="reset-btn" onclick="resetAllProgress()">
-                    <i class="fas fa-undo"></i> Reset all progress
-                </button>
-            </div>
-
-            <div class="filter-tabs" id="filterTabs">
-                <button class="filter-tab active" data-cat="all" onclick="filterArticles('all')">🌐 All</button>
-            </div>
-
-            <div id="articlesList">
-                <div class="empty-state"><div class="spinner"></div><p>Loading articles...</p></div>
-            </div>
+            <div class="filter-tabs" id="filterTabs"></div>
+            <div id="articlesList"></div>
         </div>
     </div>
 
@@ -386,1154 +249,134 @@
         if (!user) window.location.href = 'login.html';
 
         let currentFilter = 'all';
-        let currentArticleIndex = -1;
 
-        // ============ CHECKLIST STATE (localStorage) ============
-        const CHECKLIST_KEY = 'scn_checklist_v1';
-
-        function loadChecklistState() {
-            try { return JSON.parse(localStorage.getItem(CHECKLIST_KEY) || '{}'); }
-            catch (e) { return {}; }
-        }
-        function saveChecklistState(state) {
-            try { localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state)); } catch (e) {}
-        }
-        function getCheckedItems(articleId) {
-            const state = loadChecklistState();
-            return state[articleId] || [];
-        }
-        function toggleCheckItem(articleId, itemIndex, checked) {
-            const state = loadChecklistState();
-            const arr = state[articleId] || [];
-            if (checked) {
-                if (!arr.includes(itemIndex)) arr.push(itemIndex);
-            } else {
-                state[articleId] = arr.filter(i => i !== itemIndex);
-            }
-            state[articleId] = arr;
-            saveChecklistState(state);
-        }
-        function resetAllProgress() {
-            if (!confirm('Reset all your reading checklist progress? This cannot be undone.')) return;
-            localStorage.removeItem(CHECKLIST_KEY);
-            toast('🔄 Progress reset');
-            renderArticles();
-        }
-
-        // ============ ARTICLES ============
         const ALL_ARTICLES = [
-            // ---- Category: Physics ----
             {
                 title: 'Newton\'s Laws of Motion Explained',
                 category: 'Physics',
                 difficulty: 'Beginner',
                 readMinutes: 6,
-                content: `
-<p>Isaac Newton's three laws of motion, published in 1687 in his masterpiece <em>Principia Mathematica</em>, form the foundation of classical mechanics. These laws describe how objects move, why they stop, and how forces interact. They remained the definitive description of motion for over 200 years, and they are still used today for everything from designing cars to launching rockets.</p>
-
-<h3>First Law — The Law of Inertia</h3>
-<p>An object at rest stays at rest, and an object in motion stays in motion at the same speed and direction, unless acted upon by an external force. In everyday terms: things don't change their motion by themselves. A ball rolling on a perfectly smooth, frictionless surface would roll forever. On Earth, friction and air resistance slow things down, which is why we rarely see perfect inertia.</p>
-
-<p><strong>Everyday example:</strong> When a bus suddenly stops, your body lurches forward. That's not a force pushing you — it's your body trying to keep moving while the bus slows down.</p>
-
-<h3>Second Law — Force = Mass × Acceleration</h3>
-<p>The acceleration of an object is directly proportional to the net force and inversely proportional to its mass. This is the most useful of the three laws because it lets us calculate things.</p>
-
-<div class="formula-box">F = m × a</div>
-
-<p>Where <strong>F</strong> is force in newtons (N), <strong>m</strong> is mass in kilograms (kg), and <strong>a</strong> is acceleration in meters per second squared (m/s²).</p>
-
-<p><strong>Example calculation:</strong> A 1,500 kg car accelerates at 3 m/s². What force is needed?</p>
-<p>F = 1,500 × 3 = <strong>4,500 N</strong> (about 460 kg of force).</p>
-
-<h3>Third Law — Action and Reaction</h3>
-<p>For every action, there is an equal and opposite reaction. When you push on a wall, the wall pushes back on you with the same force. This is why a rocket works in the vacuum of space — it pushes gas backward, and the gas pushes the rocket forward.</p>
-
-<p><strong>Common misconception:</strong> People think the two forces cancel. They don't, because they act on <em>different objects</em>. The rocket pushes gas (force on gas), the gas pushes rocket (force on rocket). Only the force on the rocket matters for the rocket's motion.</p>
-
-<h3>Why These Laws Matter</h3>
-<p>Newton's laws predict the path of a thrown ball, the landing of a spacecraft, and the crash safety of a car. They work flawlessly as long as you're not going near the speed of light or dealing with atomic scales — for those, you need Einstein's relativity or quantum mechanics. But for 99% of everyday engineering, Newton is still king.</p>
-
-<div class="hack-box">
-<h4>💡 Real-World Hack — Driving Safely</h4>
-<p>Understanding F = ma makes you a better driver. Doubling your speed quadruples your braking distance (kinetic energy = ½mv²). So going from 60 km/h to 120 km/h isn't twice as dangerous — it's 4× as dangerous. Leave double the gap you think you need at highway speeds.</p>
-</div>
-                `,
-                takeaways: [
-                    'First Law: Objects keep their motion unless a force acts on them',
-                    'Second Law: F = m × a (force in newtons = mass × acceleration)',
-                    'Third Law: Every action has an equal and opposite reaction',
-                    'Rocket works in space because of reaction to exhaust gases',
-                    'Newton\'s laws break down near speed of light or atomic scales'
-                ]
+                content: '<p>Isaac Newton\'s three laws of motion, published in 1687, form the foundation of classical mechanics. These laws describe how objects move, why they stop, and how forces interact.</p><h3>First Law — The Law of Inertia</h3><p>An object at rest stays at rest, and an object in motion stays in motion at the same speed and direction, unless acted upon by an external force. A ball rolling on a perfectly smooth, frictionless surface would roll forever.</p><p><strong>Everyday example:</strong> When a bus suddenly stops, your body lurches forward. That\'s not a force pushing you — it\'s your body trying to keep moving.</p><h3>Second Law — Force = Mass × Acceleration</h3><p>The acceleration of an object is directly proportional to the net force and inversely proportional to its mass.</p><div class="formula-box">F = m × a</div><p>Where F is force in newtons, m is mass in kilograms, and a is acceleration in m/s².</p><p><strong>Example:</strong> A 1,500 kg car accelerates at 3 m/s². F = 1,500 × 3 = 4,500 N.</p><h3>Third Law — Action and Reaction</h3><p>For every action, there is an equal and opposite reaction. When you push on a wall, the wall pushes back on you. This is why a rocket works in the vacuum of space — it pushes gas backward, and the gas pushes the rocket forward.</p><div class="hack-box"><h4>💡 Real-World Hack — Driving Safely</h4><p>Doubling your speed quadruples your braking distance. Going from 60 km/h to 120 km/h isn\'t twice as dangerous — it\'s 4× as dangerous.</p></div>'
             },
-
             {
                 title: 'The Physics of Sound and Music',
                 category: 'Physics',
                 difficulty: 'Intermediate',
                 readMinutes: 7,
-                content: `
-<p>Sound is a mechanical wave that travels through a medium — air, water, or solids. It's a vibration that causes pressure changes. Without a medium, sound cannot travel, which is why space is completely silent despite the explosions happening all the time.</p>
-
-<h3>How Sound Travels</h3>
-<p>When a guitar string vibrates, it pushes nearby air molecules together (compression) and pulls them apart (rarefaction). These waves travel outward at the speed of sound. In air at room temperature, that's <strong>343 m/s</strong> (1,235 km/h). In water, ~1,480 m/s. In steel, ~5,120 m/s. The denser and stiffer the medium, the faster sound travels.</p>
-
-<div class="formula-box">Speed = Frequency × Wavelength<br>v = f × λ</div>
-
-<p>Frequency (f) is measured in hertz (Hz) — the number of vibrations per second. Wavelength (λ) is the distance between two consecutive peaks.</p>
-
-<h3>The Range of Human Hearing</h3>
-<p>Humans hear frequencies from about <strong>20 Hz to 20,000 Hz</strong>. Below that is infrasound (elephants and whales use it to communicate over kilometers). Above that is ultrasound (bats, dolphins, and medical imaging equipment use it). As we age, our high-frequency hearing drops — most adults over 40 can't hear above 15,000 Hz.</p>
-
-<h3>Why Music Sounds Pleasing</h3>
-<p>A musical note contains not just its <em>fundamental frequency</em> but also <em>harmonics</em> — integer multiples of that frequency. A guitar string at 220 Hz also vibrates at 440, 660, 880 Hz and so on. The mix of these harmonics determines the <em>timbre</em> — why a violin sounds different from a flute even playing the same note.</p>
-
-<p>Two notes sound pleasing together when their frequencies form simple ratios:</p>
-<ul>
-<li>Octave: 2:1 (e.g., 440 Hz and 880 Hz)</li>
-<li>Perfect fifth: 3:2 (e.g., 440 Hz and 660 Hz)</li>
-<li>Perfect fourth: 4:3 (e.g., 440 Hz and 587 Hz)</li>
-</ul>
-
-<h3>The Doppler Effect</h3>
-<p>When a sound source moves toward you, the waves compress — you hear a higher pitch. When it moves away, the waves stretch — you hear a lower pitch. This is why an ambulance siren drops in pitch as it passes. The same effect applies to light, and astronomers use it to measure the motion of stars and galaxies.</p>
-
-<div class="hack-box">
-<h4>💡 Hack — Better Phone Recordings</h4>
-<p>Your phone's mic records in mono and compresses audio to save space. For podcasts or music, use a directional mic pointed at the source. Recording outdoors early morning or late evening gives clearer audio — less ambient noise from traffic and people. Cup your hands behind your phone mic to reduce wind noise by 50%+ (the "dead cat" effect without buying a dead cat).</p>
-</div>
-                `,
-                takeaways: [
-                    'Sound is a mechanical wave — needs a medium to travel',
-                    'Speed of sound in air ≈ 343 m/s at room temperature',
-                    'v = f × λ (speed = frequency × wavelength)',
-                    'Humans hear 20 Hz to 20,000 Hz',
-                    'Pleasing musical intervals have simple frequency ratios (2:1, 3:2, 4:3)',
-                    'Doppler effect: pitch rises as source approaches, falls as it moves away'
-                ]
+                content: '<p>Sound is a mechanical wave that travels through a medium — air, water, or solids. It\'s a vibration that causes pressure changes.</p><h3>How Sound Travels</h3><p>When a guitar string vibrates, it pushes nearby air molecules together (compression) and pulls them apart (rarefaction). In air at room temperature, sound travels at 343 m/s.</p><div class="formula-box">v = f × λ</div><p>Frequency (f) is in hertz. Wavelength (λ) is the distance between peaks.</p><h3>The Range of Human Hearing</h3><p>Humans hear 20 Hz to 20,000 Hz. Below that is infrasound (elephants, whales). Above is ultrasound (bats, medical imaging).</p><h3>Why Music Sounds Pleasing</h3><p>Two notes sound pleasing when their frequencies form simple ratios: octave = 2:1, perfect fifth = 3:2, perfect fourth = 4:3.</p><div class="hack-box"><h4>💡 Hack — Better Phone Recordings</h4><p>Cup your hands behind your phone mic to reduce wind noise by 50%+. Record outdoors early morning or late evening for clearer audio.</p></div>'
             },
-
             {
                 title: 'Einstein\'s Theory of Relativity in Plain English',
                 category: 'Physics',
                 difficulty: 'Advanced',
                 readMinutes: 9,
-                content: `
-<p>Albert Einstein published Special Relativity in 1905 and General Relativity in 1915. Together, they reshaped our understanding of space, time, gravity, and the universe itself. Here's the plain-English version without the tensor calculus.</p>
-
-<h3>Special Relativity (1905) — Two Postulates</h3>
-<p>Einstein's breakthrough came from two deceptively simple ideas:</p>
-<ol>
-<li>The laws of physics are the same for all non-accelerating observers.</li>
-<li>The speed of light in a vacuum is constant — always 299,792,458 m/s — no matter how fast you're moving.</li>
-</ol>
-
-<p>This second postulate sounds innocent but is deeply weird. If you run toward a beam of light at 100,000 km/s, you'd still measure the light as moving at 300,000 km/s. That's fundamentally different from throwing a ball — throw a ball from a moving train, and the speeds add.</p>
-
-<h3>Consequences of Constant Light Speed</h3>
-
-<p><strong>Time dilation:</strong> Time passes more slowly for fast-moving objects. A clock on a spaceship traveling at 87% the speed of light ticks at half the rate of a clock on Earth.</p>
-
-<div class="formula-box">t' = t ÷ √(1 - v²/c²)</div>
-
-<p>At v = 0.87c, the divisor √(1 - 0.76) = √0.24 ≈ 0.49, so t' ≈ t/0.49 ≈ 2.04t — time runs roughly twice as fast on Earth.</p>
-
-<p><strong>Length contraction:</strong> Fast-moving objects are measured shorter in the direction of motion.</p>
-
-<p><strong>Mass-energy equivalence:</strong> The famous E = mc². Mass and energy are the same thing in different forms.</p>
-
-<div class="formula-box">E = m × c²</div>
-
-<p>1 gram of matter converted to pure energy would release ~90 trillion joules — equivalent to about 21 kilotons of TNT, roughly the Hiroshima bomb.</p>
-
-<h3>General Relativity (1915) — Gravity as Curved Spacetime</h3>
-<p>Newton said gravity is a force. Einstein said gravity is not a force at all — it's the <em>curvature of spacetime</em> caused by mass and energy. Imagine a bowling ball on a stretched rubber sheet: it creates a dip. A marble rolling nearby curves toward the dip not because the ball pulls it, but because the sheet is curved.</p>
-
-<p>The Earth doesn't pull the Moon with a "force." The Moon is following the straightest possible path through a spacetime that the Earth has curved.</p>
-
-<h3>Predictions That Have Been Confirmed</h3>
-<ul>
-<li><strong>Gravitational lensing:</strong> Light bends around massive objects. Confirmed 1919 (eclipse observation).</li>
-<li><strong>GPS corrections:</strong> Satellites' clocks run 38 microseconds faster per day. Without correction, GPS would drift ~10 km per day.</li>
-<li><strong>Gravitational waves:</strong> Ripples in spacetime, predicted 1916, detected 2015 by LIGO.</li>
-<li><strong>Black holes:</strong> First imaged 2019 (M87), then 2022 (Sagittarius A*).</li>
-</ul>
-
-<div class="hack-box">
-<h4>💡 Einstein's Actual Productivity Hack</h4>
-<p>Einstein famously took 10 hours of sleep a night, plus daily walks and "thought experiments" instead of lab work. He believed the key to breakthrough thinking was <em>loafing deliberately</em> — letting the mind wander without pressure. Modern neuroscience agrees: the "default mode network" (active during daydreaming) is where novel connections form. Try 20 minutes of unstructured thinking a day — no phone, no agenda.</p>
-</div>
-                `,
-                takeaways: [
-                    'Speed of light is constant regardless of observer\'s motion',
-                    'Time dilation: fast-moving clocks tick slower',
-                    'E = mc² — mass and energy are equivalent',
-                    'General Relativity: gravity is curvature of spacetime, not a force',
-                    'GPS needs relativity corrections to stay accurate',
-                    'Gravitational waves detected in 2015 confirmed Einstein\'s 1916 prediction'
-                ]
+                content: '<p>Einstein published Special Relativity in 1905 and General Relativity in 1915. Together, they reshaped our understanding of space, time, gravity, and the universe itself.</p><h3>Special Relativity — Two Postulates</h3><ol><li>The laws of physics are the same for all non-accelerating observers.</li><li>The speed of light in a vacuum is constant — always 299,792,458 m/s.</li></ol><h3>Consequences</h3><p><strong>Time dilation:</strong> Time passes more slowly for fast-moving objects.</p><div class="formula-box">t\' = t ÷ √(1 - v²/c²)</div><p><strong>Mass-energy equivalence:</strong> The famous E = mc². Mass and energy are the same thing in different forms.</p><div class="formula-box">E = m × c²</div><h3>General Relativity — Gravity as Curved Spacetime</h3><p>Newton said gravity is a force. Einstein said gravity is the curvature of spacetime caused by mass and energy. The Earth doesn\'t pull the Moon — the Moon follows the straightest path through curved spacetime.</p><h3>Confirmed Predictions</h3><ul><li>Gravitational lensing (1919 eclipse)</li><li>GPS clock corrections (38 microseconds/day)</li><li>Gravitational waves (detected 2015)</li><li>Black holes (first imaged 2019)</li></ul><div class="hack-box"><h4>💡 Einstein\'s Productivity Hack</h4><p>Einstein took 10 hours of sleep a night plus daily walks. He believed in "deliberate loafing" — letting the mind wander. Modern neuroscience agrees: the default mode network is where novel connections form.</p></div>'
             },
-
-            // ---- Category: Math ----
             {
                 title: 'The Golden Ratio: Math Hidden in Nature',
                 category: 'Math',
                 difficulty: 'Intermediate',
                 readMinutes: 8,
-                content: `
-<p>The golden ratio, denoted by the Greek letter φ (phi), is approximately 1.618. It appears in art, architecture, biology, and geometry. It has fascinated mathematicians for over 2,400 years, since Euclid first described it around 300 BCE.</p>
-
-<h3>What Is the Golden Ratio?</h3>
-<p>Two quantities are in the golden ratio if their ratio is the same as the ratio of their sum to the larger quantity. Algebraically:</p>
-
-<div class="formula-box">a/b = (a+b)/a = φ ≈ 1.618033988...</div>
-
-<p>Solve for φ: φ² = φ + 1. Rearranging gives the quadratic φ² - φ - 1 = 0, whose positive root is φ = (1 + √5)/2 ≈ 1.6180339887.</p>
-
-<h3>The Fibonacci Connection</h3>
-<p>The Fibonacci sequence is 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144... where each number is the sum of the previous two. Divide each number by the previous one:</p>
-
-<ul>
-<li>5 / 3 = 1.667</li>
-<li>13 / 8 = 1.625</li>
-<li>34 / 21 = 1.619</li>
-<li>89 / 55 = 1.6181</li>
-<li>144 / 89 = 1.6179</li>
-</ul>
-
-<p>As you go further, the ratio converges exactly to φ. This is one of the most beautiful results in mathematics.</p>
-
-<h3>Where It Appears in Nature</h3>
-<ul>
-<li><strong>Sunflowers:</strong> Seeds are arranged in spirals of 34 and 55 (or 55 and 89). The ratio is φ.</li>
-<li><strong>Pinecones:</strong> Scale spirals follow consecutive Fibonacci numbers.</li>
-<li><strong>Nautilus shells:</strong> The chamber growth follows a logarithmic spiral related to φ.</li>
-<li><strong>Human body:</strong> The ratio of forearm to hand, or the distance from navel to floor divided by total height, is approximately φ (this claim is debated).</li>
-<li><strong>Galaxies:</strong> Spiral arm structure follows φ-based logarithmic spirals.</li>
-</ul>
-
-<h3>Why It Appears So Often</h3>
-<p>In many cases the golden ratio appears because it is the <em>most irrational</em> number — the one hardest to approximate with simple fractions. In plants, this means leaves grow at angles that never line up perfectly, so each leaf gets maximum sunlight. It's a natural optimization strategy.</p>
-
-<p>The angle between consecutive leaves is 360° / φ² ≈ 137.5° — called the "golden angle."</p>
-
-<div class="formula-box">Golden Angle = 360° / φ² ≈ 137.5°</div>
-
-<h3>Common Misconceptions</h3>
-<p>Many sources claim the Parthenon, Mona Lisa, and Pyramids were "designed" with the golden ratio. Rigorous measurement shows these claims are mostly overblown — people find φ where they want to. The genuine mathematical and biological appearances are impressive enough without exaggeration.</p>
-
-<div class="hack-box">
-<h4>💡 Mental Math Hack — Square Roots Fast</h4>
-<p>To estimate √n: find the nearest perfect square (call it k²), then add (n - k²) ÷ (2k). Example: √50. Nearest square: 49 = 7². So √50 ≈ 7 + (50-49)/(2×7) = 7 + 1/14 ≈ 7.07 (actual: 7.071). This works because the derivative of √x is 1/(2√x).</p>
-</div>
-                `,
-                takeaways: [
-                    'Golden ratio φ ≈ 1.618, defined by a/b = (a+b)/a',
-                    'φ = (1 + √5) / 2',
-                    'Fibonacci ratios converge to φ',
-                    'Golden angle ≈ 137.5° appears in leaf arrangements',
-                    'Golden ratio is the "most irrational" number, making it optimal for nature',
-                    'Fast square root trick: √n ≈ k + (n - k²)/(2k)'
-                ]
+                content: '<p>The golden ratio, denoted by the Greek letter φ (phi), is approximately 1.618. It appears in art, architecture, biology, and geometry.</p><h3>What Is the Golden Ratio?</h3><div class="formula-box">a/b = (a+b)/a = φ ≈ 1.618033988...</div><p>Solving: φ² = φ + 1. The positive root is φ = (1 + √5)/2.</p><h3>The Fibonacci Connection</h3><p>Fibonacci sequence: 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144... Divide each by the previous: 89/55 = 1.6181, 144/89 = 1.6179. Converges exactly to φ.</p><h3>Where It Appears in Nature</h3><ul><li>Sunflowers: spirals of 34 and 55</li><li>Pinecones: consecutive Fibonacci numbers</li><li>Nautilus shells: logarithmic spiral</li><li>Galaxies: spiral arm structure</li></ul><p>The golden angle ≈ 137.5° appears in leaf arrangements.</p><div class="formula-box">Golden Angle = 360° / φ² ≈ 137.5°</div><div class="hack-box"><h4>💡 Mental Math Hack — Square Roots Fast</h4><p>√50: nearest square is 49 = 7². So √50 ≈ 7 + (50-49)/(2×7) = 7 + 1/14 ≈ 7.07. Actual: 7.071.</p></div>'
             },
-
             {
                 title: 'Probability: How to Beat the Odds',
                 category: 'Math',
                 difficulty: 'Intermediate',
                 readMinutes: 8,
-                content: `
-<p>Probability is the mathematics of uncertainty. It's how we quantify how likely events are. Understanding it changes how you make decisions — from medical choices to investments to everyday gambling traps.</p>
-
-<h3>Basic Probability</h3>
-<p>The probability of an event is the number of favorable outcomes divided by the total number of possible outcomes (assuming all outcomes are equally likely).</p>
-
-<div class="formula-box">P(event) = favorable outcomes / total outcomes</div>
-
-<p>Example: rolling a 6 on a fair die → P = 1/6 ≈ 0.167 = 16.7%.</p>
-
-<h3>Independent Events — Multiply</h3>
-<p>If two events are independent (one doesn't affect the other), the probability they both happen is the product of their probabilities.</p>
-
-<div class="formula-box">P(A and B) = P(A) × P(B)</div>
-
-<p>Example: flipping two heads in a row = ½ × ½ = ¼ = 25%.</p>
-
-<h3>Mutually Exclusive Events — Add</h3>
-<p>If events can't both happen, the probability of either one is the sum.</p>
-
-<div class="formula-box">P(A or B) = P(A) + P(B)</div>
-
-<p>Example: rolling a 1 or a 2 = 1/6 + 1/6 = 2/6 = 33%.</p>
-
-<h3>The Complement Rule</h3>
-<p>Sometimes it's easier to calculate the probability that something <em>doesn't</em> happen, then subtract from 1.</p>
-
-<div class="formula-box">P(A happens at least once) = 1 - P(A never happens)</div>
-
-<p>Example: if you flip a coin 5 times, what's the chance you get at least one head? Instead of adding cases, use: 1 - P(all tails) = 1 - (½)⁵ = 1 - 1/32 = 31/32 ≈ 96.9%.</p>
-
-<h3>The Birthday Paradox</h3>
-<p>In a room of just <strong>23 people</strong>, there's a 50% chance two share a birthday. With 70 people, it's 99.9%. This feels impossible but it's true: there are 23×22/2 = 253 possible pairs, each with probability 1/365 of matching. The complement calculation confirms it.</p>
-
-<h3>Expected Value — What to Expect Long-Term</h3>
-<p>Expected value is the average outcome if you repeated the event many times.</p>
-
-<div class="formula-box">EV = Σ (probability × outcome)</div>
-
-<p>Example: a lottery ticket costs ₦100, has a 1-in-1,000,000 chance of paying ₦50,000,000. EV = (1/1,000,000) × 50,000,000 = ₦50. So EV is ₦50 but you pay ₦100 — the lottery has a negative expected value of ₦50 per ticket. Over time, you lose 50% per ticket.</p>
-
-<h3>Bayes' Theorem — Updating Beliefs</h3>
-<p>When you learn new evidence, how much should it change your belief?</p>
-
-<div class="formula-box">P(A|B) = P(B|A) × P(A) / P(B)</div>
-
-<p><strong>Classic example:</strong> A test for a rare disease (1 in 10,000) is 99% accurate. You test positive. What's the chance you actually have it?</p>
-<ul>
-<li>P(disease) = 0.0001</li>
-<li>P(positive | disease) = 0.99</li>
-<li>P(positive | no disease) = 0.01</li>
-<li>P(positive) = 0.99 × 0.0001 + 0.01 × 0.9999 ≈ 0.0101</li>
-<li>P(disease | positive) = 0.99 × 0.0001 / 0.0101 ≈ 0.0098 ≈ <strong>1%</strong></li>
-</ul>
-
-<p>Despite a "99% accurate" test, a positive result means only 1% chance of disease — because the disease is so rare. This is why doctors order confirmatory tests.</p>
-
-<div class="hack-box">
-<h4>💡 Hack — Avoid Gambler's Fallacy</h4>
-<p>After 10 reds in roulette, red is <em>not</em> "due." The wheel has no memory. Each spin is independent — P(red) = 18/37 ≈ 48.6% every time. Casinos profit because players believe in streaks. The only guaranteed strategy is not to play.</p>
-</div>
-                `,
-                takeaways: [
-                    'P = favorable / total outcomes',
-                    'Independent events: multiply probabilities',
-                    'Mutually exclusive events: add probabilities',
-                    'Use complement rule when "at least once" is involved',
-                    'Expected Value = Σ(probability × outcome) — negative EV means long-term loss',
-                    'Bayes\' theorem: rare diseases give surprising false-positive rates'
-                ]
+                content: '<p>Probability is the mathematics of uncertainty. Understanding it changes how you make decisions.</p><h3>Basic Probability</h3><div class="formula-box">P(event) = favorable outcomes / total outcomes</div><h3>Independent Events — Multiply</h3><div class="formula-box">P(A and B) = P(A) × P(B)</div><p>Two heads in a row: ½ × ½ = 25%.</p><h3>Mutually Exclusive Events — Add</h3><div class="formula-box">P(A or B) = P(A) + P(B)</div><h3>The Complement Rule</h3><div class="formula-box">P(at least once) = 1 - P(never)</div><h3>The Birthday Paradox</h3><p>In a room of just 23 people, there\'s a 50% chance two share a birthday. With 70 people, it\'s 99.9%.</p><h3>Expected Value</h3><div class="formula-box">EV = Σ (probability × outcome)</div><p>A ₦100 lottery ticket with 1-in-1,000,000 chance of ₦50M: EV = ₦50. You lose ₦50 per ticket on average.</p><h3>Bayes\' Theorem</h3><div class="formula-box">P(A|B) = P(B|A) × P(A) / P(B)</div><p>A 99%-accurate test for a 1-in-10,000 disease gives a positive result — but chance of actually having it is only ~1% because the disease is so rare.</p><div class="hack-box"><h4>💡 Avoid Gambler\'s Fallacy</h4><p>After 10 reds in roulette, red is not "due." The wheel has no memory. Each spin is independent.</p></div>'
             },
-
-            // ---- Category: Biology ----
             {
                 title: 'How Your Immune System Fights Disease',
                 category: 'Biology',
                 difficulty: 'Intermediate',
                 readMinutes: 9,
-                content: `
-<p>Every second of every day, your immune system is fighting a war against bacteria, viruses, fungi, and parasites. It's an incredibly sophisticated defense network involving trillions of cells, dozens of chemical signals, and multiple layers of protection.</p>
-
-<h3>First Line of Defense — Physical Barriers</h3>
-<p>Before pathogens even enter your body, they must get past:</p>
-<ul>
-<li><strong>Skin:</strong> A waterproof, slightly acidic barrier (pH ~5.5) that most microbes can't penetrate.</li>
-<li><strong>Mucus membranes:</strong> Sticky mucus in your nose, throat, and lungs traps particles, which are then swept out by cilia (tiny hair-like structures).</li>
-<li><strong>Stomach acid:</strong> Hydrochloric acid at pH 1.5-3.5 kills most swallowed bacteria.</li>
-<li><strong>Saliva and tears:</strong> Contain lysozyme, an enzyme that destroys bacterial cell walls.</li>
-</ul>
-
-<h3>Second Line — Innate Immunity (Fast, Non-Specific)</h3>
-<p>If pathogens get past the barriers, the innate immune system responds within minutes. It's not specific to the pathogen — it attacks anything that "looks foreign."</p>
-
-<ul>
-<li><strong>Macrophages:</strong> "Big eaters" that engulf and digest pathogens.</li>
-<li><strong>Neutrophils:</strong> The most abundant white blood cells; they swarm infection sites and release antimicrobial chemicals.</li>
-<li><strong>Natural killer cells:</strong> Destroy virus-infected cells and tumor cells.</li>
-<li><strong>Inflammation:</strong> Blood vessels widen, bringing more immune cells. This causes redness, heat, swelling, and pain.</li>
-<li><strong>Fever:</strong> Raising body temperature makes it harder for pathogens to reproduce and speeds up immune reactions.</li>
-</ul>
-
-<h3>Third Line — Adaptive Immunity (Slow, Specific)</h3>
-<p>If the innate system can't handle it, the adaptive system kicks in — but it takes 3-7 days to fully activate. This is why you feel sick for a few days before recovering.</p>
-
-<p><strong>Two arms:</strong></p>
-
-<ul>
-<li><strong>Humoral immunity (B cells):</strong> B cells produce antibodies — Y-shaped proteins that bind to specific antigens on pathogens. Antibodies neutralize viruses, tag bacteria for destruction, and activate other immune responses.</li>
-<li><strong>Cell-mediated immunity (T cells):</strong> Helper T cells coordinate the response and activate B cells and killer T cells. Killer T cells destroy infected cells directly.</li>
-</ul>
-
-<h3>Immunological Memory</h3>
-<p>After an infection, some B and T cells become "memory cells." They stick around for years (sometimes decades). If the same pathogen returns, memory cells respond within hours instead of days — often before you feel any symptoms.</p>
-
-<p>This is why:</p>
-<ul>
-<li>You rarely get chickenpox twice</li>
-<li>Vaccines work (they create memory without illness)</li>
-<li>Some diseases like measles give lifelong immunity</li>
-</ul>
-
-<h3>When the Immune System Goes Wrong</h3>
-<ul>
-<li><strong>Allergies:</strong> The immune system overreacts to harmless substances like pollen or peanuts.</li>
-<li><strong>Autoimmune diseases:</strong> The immune system attacks healthy tissue. Examples: type 1 diabetes, rheumatoid arthritis, lupus, multiple sclerosis.</li>
-<li><strong>Immunodeficiency:</strong> Weakened immune system. HIV destroys helper T cells, leading to AIDS.</li>
-<li><strong>Sepsis:</strong> An overreaction to infection that damages the body's own tissues.</li>
-</ul>
-
-<div class="hack-box">
-<h4>💡 Hack — Boost Your Immune System (Evidence-Based)</h4>
-<p>Forget supplements — evidence shows these actually work:</p>
-<ul>
-<li><strong>Sleep 7-9 hours:</strong> Sleep-deprived people are 4× more likely to catch colds.</li>
-<li><strong>Exercise moderately:</strong> 30-45 min/day boosts immune cell circulation.</li>
-<li><strong>Manage stress:</strong> Chronic stress raises cortisol, which suppresses immunity.</li>
-<li><strong>Eat fiber:</strong> Feeds gut bacteria that train your immune system.</li>
-<li><strong>Get sunlight:</strong> Vitamin D deficiency is linked to more infections.</li>
-</ul>
-</div>
-                `,
-                takeaways: [
-                    'First line of defense: skin, mucus, stomach acid, tears',
-                    'Innate immunity responds within minutes but is non-specific',
-                    'Adaptive immunity takes days but is specific and creates memory',
-                    'B cells make antibodies; T cells kill infected cells',
-                    'Memory cells give long-lasting immunity — the basis of vaccines',
-                    'Sleep, exercise, and stress management boost immunity more than supplements'
-                ]
+                content: '<p>Every second, your immune system is fighting bacteria, viruses, fungi, and parasites. It\'s an incredibly sophisticated defense network.</p><h3>First Line — Physical Barriers</h3><ul><li>Skin: waterproof, slightly acidic</li><li>Mucus membranes: trap particles</li><li>Stomach acid: pH 1.5-3.5</li><li>Tears: contain lysozyme</li></ul><h3>Second Line — Innate Immunity</h3><p>Responds within minutes, non-specific. Macrophages engulf pathogens. Neutrophils swarm infection. Inflammation brings more cells. Fever raises temperature to slow pathogens.</p><h3>Third Line — Adaptive Immunity</h3><p>Takes 3-7 days to fully activate. B cells produce antibodies. Helper T cells coordinate. Killer T cells destroy infected cells.</p><h3>Immunological Memory</h3><p>After infection, memory cells stick around for years. If the same pathogen returns, they respond within hours.</p><h3>When It Goes Wrong</h3><ul><li>Allergies: overreaction to harmless substances</li><li>Autoimmune: attacks healthy tissue</li><li>Immunodeficiency: HIV destroys helper T cells</li></ul><div class="hack-box"><h4>💡 Evidence-Based Immunity Boosters</h4><ul><li>Sleep 7-9 hours (sleep-deprived are 4× more likely to catch colds)</li><li>Moderate exercise 30-45 min/day</li><li>Manage chronic stress</li><li>Eat fiber for gut bacteria</li><li>Get sunlight for vitamin D</li></ul></div>'
             },
-
             {
                 title: 'DNA, Genes, and Heredity',
                 category: 'Biology',
                 difficulty: 'Beginner',
                 readMinutes: 7,
-                content: `
-<p>DNA is the instruction manual for life. Every cell in your body contains about 2 meters of DNA, coiled up so tightly it fits inside a nucleus just 6 micrometers wide. If you uncoiled all the DNA in your body, it would stretch to the Sun and back 600 times.</p>
-
-<h3>The Structure of DNA</h3>
-<p>DNA stands for deoxyribonucleic acid. It's a double helix — two strands twisted around each other like a spiral staircase. The "rails" are made of sugar (deoxyribose) and phosphate. The "steps" are pairs of nitrogen bases:</p>
-
-<ul>
-<li><strong>Adenine (A)</strong> pairs with <strong>Thymine (T)</strong></li>
-<li><strong>Guanine (G)</strong> pairs with <strong>Cytosine (C)</strong></li>
-</ul>
-
-<p>This strict pairing means each strand can serve as a template to rebuild the other. That's how DNA copies itself before cell division.</p>
-
-<h3>From DNA to Protein — The Central Dogma</h3>
-<p>DNA doesn't do work directly. It stores instructions to build proteins, which do everything in your body.</p>
-
-<ol>
-<li><strong>Transcription:</strong> A section of DNA (a gene) is copied into messenger RNA (mRNA).</li>
-<li><strong>Translation:</strong> The mRNA is read by ribosomes, which assemble amino acids into a protein based on the genetic code. Every 3 bases (a codon) specifies one amino acid.</li>
-</ol>
-
-<p>There are 4 bases, so 4³ = 64 possible codons, but only 20 amino acids. This means multiple codons can specify the same amino acid — the code is redundant, which protects against some mutations.</p>
-
-<h3>Genes and Chromosomes</h3>
-<p>A gene is a segment of DNA that codes for a protein. Humans have about 20,000 genes. These genes are arranged on 23 pairs of chromosomes (46 total). You inherited one chromosome of each pair from each parent.</p>
-
-<p>Chromosome 1 is the largest with ~2,500 genes. The Y chromosome is the smallest with only ~70 genes.</p>
-
-<h3>Heredity — Mendelian Genetics</h3>
-<p>Gregor Mendel, an Austrian monk, discovered the basic rules of inheritance in the 1860s using pea plants. His key insight: traits are controlled by "factors" (now called genes) that come in pairs.</p>
-
-<p><strong>Example — eye color (simplified):</strong> Brown eyes (B) are dominant over blue eyes (b). If you inherit B from one parent and b from the other, you have brown eyes but carry the blue allele. Two carriers (Bb × Bb) have a 25% chance of a blue-eyed child (bb).</p>
-
-<div class="formula-box">Punnett square: Bb × Bb → 25% BB, 50% Bb, 25% bb</div>
-
-<h3>Mutations — Errors and Opportunities</h3>
-<p>Mutations are changes in DNA sequence. They can be:</p>
-<ul>
-<li><strong>Silent:</strong> No change to the protein.</li>
-<li><strong>Missense:</strong> One amino acid changes. Sickle cell anemia is a single missense mutation.</li>
-<li><strong>Nonsense:</strong> A stop codon appears too early, truncating the protein.</li>
-<li><strong>Frameshift:</strong> Insertion/deletion shifts the reading frame, garbling everything downstream.</li>
-</ul>
-
-<p>Most mutations are neutral or harmful, but occasionally one gives an advantage — that's the raw material for evolution.</p>
-
-<div class="hack-box">
-<h4>💡 Hack — Understanding Genetic Risk</h4>
-<p>If a close relative has a genetic disease, that doesn't mean you'll get it. Most diseases are polygenic (many genes) plus environmental. For example, BRCA1 mutations raise breast cancer risk from ~12% to ~60% — significant, but not certain. Talk to a genetic counselor, not Google.</p>
-</div>
-                `,
-                takeaways: [
-                    'DNA is a double helix with base pairs A-T and G-C',
-                    'Central dogma: DNA → RNA → protein',
-                    'Every 3 bases (codon) specify one amino acid',
-                    'Humans have ~20,000 genes on 23 pairs of chromosomes',
-                    'Mendel discovered dominant/recessive inheritance',
-                    'Most diseases are polygenic + environmental, not single-gene'
-                ]
+                content: '<p>DNA is the instruction manual for life. Every cell contains about 2 meters of DNA, coiled to fit a nucleus just 6 micrometers wide.</p><h3>The Structure of DNA</h3><p>Double helix — two strands twisted like a spiral staircase. Base pairs: A-T and G-C.</p><h3>From DNA to Protein</h3><ol><li><strong>Transcription:</strong> DNA is copied into mRNA</li><li><strong>Translation:</strong> Ribosomes read mRNA and assemble amino acids</li></ol><p>Every 3 bases (codon) specify one amino acid. 4³ = 64 codons for 20 amino acids.</p><h3>Genes and Chromosomes</h3><p>Humans have ~20,000 genes on 23 pairs of chromosomes. You inherited one chromosome of each pair from each parent.</p><h3>Mendelian Genetics</h3><p>Gregor Mendel discovered rules of inheritance using peas. Traits are controlled by "factors" (genes) in pairs. Brown eyes (B) are dominant over blue (b).</p><div class="formula-box">Bb × Bb → 25% BB, 50% Bb, 25% bb</div><h3>Mutations</h3><ul><li>Silent: no protein change</li><li>Missense: one amino acid changes</li><li>Nonsense: early stop codon</li><li>Frameshift: reading frame shifted</li></ul><div class="hack-box"><h4>💡 Understanding Genetic Risk</h4><p>Most diseases are polygenic + environmental. BRCA1 mutations raise breast cancer risk from ~12% to ~60% — significant but not certain.</p></div>'
             },
-
-            // ---- Category: Chemistry ----
             {
                 title: 'The Chemistry of Cooking',
                 category: 'Chemistry',
                 difficulty: 'Beginner',
                 readMinutes: 8,
-                content: `
-<p>Cooking is chemistry you can eat. Every technique — boiling, frying, roasting, fermenting — is a controlled chemical reaction. Understanding the science makes you a better cook.</p>
-
-<h3>The Maillard Reaction</h3>
-<p>Named after French chemist Louis-Camille Maillard (1912), this is the reaction between amino acids and reducing sugars that gives browned food its distinctive flavor. It's what makes:</p>
-<ul>
-<li>Bread crust golden and flavorful</li>
-<li>Steak seared on the outside while juicy inside</li>
-<li>Coffee and chocolate aromatic</li>
-<li>Toasted nuts complex</li>
-</ul>
-
-<p>Maillard happens above 140°C (280°F) and speeds up in slightly alkaline environments (that's why pretzels are dipped in lye water).</p>
-
-<h3>Caramelization vs. Maillard</h3>
-<p>These are often confused. Caramelization is <em>only</em> sugar breaking down at high heat (~170°C). Maillard requires protein. Both produce browning and flavor, often at the same time.</p>
-
-<h3>Emulsions — Mixing Oil and Water</h3>
-<p>Oil and water don't mix. But with an emulsifier — a molecule with one end that loves water and one that loves oil — you can make them stable. Examples:</p>
-<ul>
-<li><strong>Mayonnaise:</strong> Egg yolk (lecithin) emulsifies oil into vinegar</li>
-<li><strong>Hollandaise:</strong> Same principle with butter</li>
-<li><strong>Milk:</strong> Naturally emulsified by casein proteins</li>
-</ul>
-
-<p>Emulsions break when heated too much or frozen — that's why mayo "splits."</p>
-
-<h3>Fermentation — Controlled Decay</h3>
-<p>Fermentation uses microorganisms to transform food. Yeast converts sugar to alcohol and CO2 (bread, beer, wine). Bacteria convert sugar to lactic acid (yogurt, kimchi, sauerkraut) or acetic acid (vinegar).</p>
-
-<div class="formula-box">C₆H₁₂O₆ → 2 C₂H₅OH + 2 CO₂<br>(Glucose → Ethanol + Carbon dioxide)</div>
-
-<p>Fermentation preserves food, enhances flavor, and creates entirely new products.</p>
-
-<h3>Denaturation — Why Heat Changes Protein</h3>
-<p>Heat, acid, and mechanical action unravel proteins. This is denaturation. It's why:</p>
-<ul>
-<li>Eggs turn from clear to white when cooked</li>
-<li>Meat becomes firm and loses moisture when overcooked</li>
-<li>Milk curdles when acid is added</li>
-</ul>
-
-<p>Denaturation usually can't be reversed — you can't uncook an egg.</p>
-
-<h3>Salt — The Most Powerful Ingredient</h3>
-<p>Salt doesn't just add saltiness. It:</p>
-<ul>
-<li>Enhances other flavors by suppressing bitterness</li>
-<li>Preserves food by drawing water out of bacteria</li>
-<li>Tenderizes meat by breaking down proteins</li>
-<li>Controls yeast in bread (slows fermentation)</li>
-</ul>
-
-<div class="hack-box">
-<h4>💡 Kitchen Hacks Backed by Science</h4>
-<ul>
-<li><strong>Salt pasta water heavily:</strong> Water should taste like the sea (~1% salt). Flavors the pasta from inside.</li>
-<li><strong>Let meat rest before cutting:</strong> Juices redistribute; cutting early loses moisture.</li>
-<li><strong>Add acid at the end:</strong> A squeeze of lemon at the end lifts flavors.</li>
-<li><strong>Use baking soda for crispy fries:</strong> A quick blanch with 1 tsp baking soda per liter roughens the surface.</li>
-<li><strong>Bake bacon on parchment:</strong> Even browning, no mess, easy cleanup.</li>
-</ul>
-</div>
-                `,
-                takeaways: [
-                    'Maillard reaction (proteins + sugars, ~140°C) browns and flavors food',
-                    'Caramelization is sugar-only breakdown (~170°C)',
-                    'Emulsions need emulsifiers — egg yolk (lecithin) is the classic',
-                    'Fermentation uses yeast or bacteria to transform food',
-                    'Salt enhances flavor, preserves, and tenderizes',
-                    'Add acid at the end of cooking for the biggest flavor lift'
-                ]
+                content: '<p>Cooking is chemistry you can eat. Every technique — boiling, frying, roasting, fermenting — is a controlled chemical reaction.</p><h3>The Maillard Reaction</h3><p>Reaction between amino acids and sugars that browns food. Above 140°C. Makes bread crust, seared steak, coffee flavor.</p><h3>Caramelization vs. Maillard</h3><p>Caramelization is sugar-only at ~170°C. Maillard requires protein.</p><h3>Emulsions</h3><p>Oil and water don\'t mix. Emulsifiers like egg yolk (lecithin) can make them stable. Examples: mayonnaise, hollandaise, milk.</p><h3>Fermentation</h3><div class="formula-box">C₆H₁₂O₆ → 2 C₂H₅OH + 2 CO₂</div><p>Yeast converts sugar to alcohol and CO₂.</p><h3>Denaturation</h3><p>Heat, acid, and mechanical action unravel proteins. Eggs turn white when cooked. Cannot be reversed.</p><h3>Salt — The Most Powerful Ingredient</h3><ul><li>Enhances other flavors</li><li>Preserves food</li><li>Tenderizes meat</li><li>Controls yeast</li></ul><div class="hack-box"><h4>💡 Kitchen Hacks Backed by Science</h4><ul><li>Salt pasta water heavily (~1%)</li><li>Let meat rest before cutting</li><li>Add acid at the end</li><li>Baking soda for crispy fries</li><li>Bake bacon on parchment</li></ul></div>'
             },
-
-            // ---- Category: Space ----
             {
                 title: 'The Scale of the Universe',
                 category: 'Space',
                 difficulty: 'Intermediate',
                 readMinutes: 8,
-                content: `
-<p>Our brains are terrible at imagining cosmic scales. The distances between planets are millions of kilometers; between stars, trillions. Let's use familiar references to make the numbers real.</p>
-
-<h3>Earth to Moon</h3>
-<p>The Moon is ~384,400 km away. Light takes 1.28 seconds to reach us. If you drove a car at 100 km/h nonstop, it would take 5.5 months to get there.</p>
-
-<h3>Earth to Sun</h3>
-<p>The Sun is ~149.6 million km away. Light takes 8 minutes 20 seconds. A car at 100 km/h would take 170 years. This distance is called one <strong>astronomical unit</strong> (AU).</p>
-
-<h3>Within the Solar System</h3>
-<ul>
-<li>Neptune: ~30 AU from Sun (4.5 billion km)</li>
-<li>Pluto: ~40 AU at its closest</li>
-<li>Voyager 1 (launched 1977): now ~165 AU, still inside the Oort Cloud</li>
-</ul>
-
-<h3>To the Nearest Star</h3>
-<p>Proxima Centauri is 4.24 light-years away — about 40 trillion km. At our current fastest spacecraft (Parker Solar Probe at 635,000 km/h), that would take ~6,300 years.</p>
-
-<h3>To the Center of the Galaxy</h3>
-<p>The Milky Way is a spiral galaxy about 100,000 light-years across. We're ~26,000 light-years from the center. Light from the galactic center takes 26,000 years to reach us.</p>
-
-<h3>To the Nearest Galaxy</h3>
-<p>Andromeda (M31) is ~2.5 million light-years away. It's on a collision course with the Milky Way — they'll merge in about 4.5 billion years. Don't worry: space is so empty that stars rarely collide.</p>
-
-<h3>To the Edge of the Observable Universe</h3>
-<p>The observable universe is ~93 billion light-years across (the edge is 46 billion light-years away). This sounds bigger than 13.8 billion years × speed of light (13.8 billion light-years) would allow — but the universe has been expanding while light was traveling, so the current distance is larger.</p>
-
-<div class="formula-box">Observable universe diameter ≈ 93 billion light-years<br>~8.8 × 10²⁶ meters</div>
-
-<h3>A Scale Analogy</h3>
-<p>If the Sun were a basketball (24 cm diameter), Earth would be a grain of sand 26 meters away. Proxima Centauri would be 7,000 km away (roughly Tokyo to New York). The Milky Way would be 21 million km across — half the distance to Mars.</p>
-
-<p>Space is overwhelmingly, terrifyingly empty.</p>
-
-<div class="hack-box">
-<h4>💡 Hack — Convert Light-Years in Your Head</h4>
-<p>1 light-year ≈ 9.46 trillion km (round to 10 trillion). To convert LY to km, multiply by 10 trillion and adjust down ~5%. Example: 4 LY ≈ 40 trillion km ≈ 38 trillion km. Actual: 37.8 trillion. Close enough for cosmic conversation.</p>
-</div>
-                `,
-                takeaways: [
-                    'Earth to Moon: 1.28 light-seconds',
-                    'Earth to Sun: 8 min 20 sec (1 AU ≈ 150 million km)',
-                    'Nearest star: 4.24 light-years',
-                    'Milky Way: ~100,000 light-years across',
-                    'Andromeda: 2.5 million light-years away, on collision course',
-                    'Observable universe: ~93 billion light-years across'
-                ]
+                content: '<p>Our brains are terrible at imagining cosmic scales. Let\'s use familiar references to make the numbers real.</p><h3>Earth to Moon</h3><p>~384,400 km. Light takes 1.28 seconds. Driving at 100 km/h: 5.5 months.</p><h3>Earth to Sun</h3><p>~149.6 million km. Light takes 8 min 20 sec. This is 1 astronomical unit (AU).</p><h3>Within the Solar System</h3><ul><li>Neptune: ~30 AU</li><li>Pluto: ~40 AU</li><li>Voyager 1: ~165 AU</li></ul><h3>To the Nearest Star</h3><p>Proxima Centauri: 4.24 light-years. At our fastest spacecraft speed, ~6,300 years.</p><h3>To the Center of the Galaxy</h3><p>Milky Way is 100,000 light-years across. We\'re ~26,000 LY from the center.</p><h3>To the Nearest Galaxy</h3><p>Andromeda: 2.5 million light-years. On collision course with us in 4.5 billion years.</p><h3>Edge of Observable Universe</h3><div class="formula-box">Diameter ≈ 93 billion light-years</div><h3>Scale Analogy</h3><p>If the Sun were a basketball, Earth would be a grain of sand 26 m away. Proxima Centauri would be 7,000 km away (Tokyo to New York).</p><div class="hack-box"><h4>💡 Convert Light-Years Fast</h4><p>1 LY ≈ 10 trillion km (minus 5%). 4 LY ≈ 40T km ≈ 38T km. Actual: 37.8T.</p></div>'
             },
-
-            // ---- Category: Life Hacks ----
             {
                 title: 'The Science of Sleep Hacks That Actually Work',
                 category: 'Life Hacks',
                 difficulty: 'Beginner',
                 readMinutes: 7,
-                content: `
-<p>Sleep is not optional — it's when your brain clears waste, consolidates memory, and repairs tissue. Chronic sleep deprivation is linked to obesity, diabetes, depression, and weakened immunity. But most "sleep hacks" online are nonsense. Here are the ones backed by real research.</p>
-
-<h3>1. Light Exposure — The Master Signal</h3>
-<p>Your circadian rhythm is set by light. Get 10-30 minutes of bright outdoor light within 1 hour of waking — even cloudy daylight (10,000+ lux) is 100× brighter than indoor lighting (100-500 lux). In the evening, dim lights 2-3 hours before bed. Blue light from screens suppresses melatonin for up to 90 minutes.</p>
-
-<p><strong>Fix:</strong> Night mode on devices from sunset. Blackout curtains in the bedroom. No bright lights on bathroom trips at night.</p>
-
-<h3>2. Temperature — Cooler Is Better</h3>
-<p>Core body temperature must drop ~1°C to initiate sleep. A bedroom at 16-19°C (60-67°F) is ideal. A warm shower 1-2 hours before bed paradoxically helps — it dilates blood vessels, dumping heat from your core.</p>
-
-<h3>3. Caffeine Timing</h3>
-<p>Caffeine has a half-life of 5-6 hours. A coffee at 4 PM still leaves half its caffeine in your system at 10 PM. Cut caffeine after 2 PM for best results.</p>
-
-<div class="formula-box">Caffeine remaining = dose × (0.5)^(hours / 5.5)</div>
-
-<p>Example: 200 mg at 4 PM → at 10 PM (6 hrs later): 200 × 0.5^(6/5.5) ≈ 200 × 0.47 ≈ 94 mg still active.</p>
-
-<h3>4. Consistent Schedule</h3>
-<p>Going to bed and waking at the same time (even weekends) is the single most effective sleep intervention. Your circadian rhythm loves predictability. Weekend "catch-up" sleep disrupts the following week.</p>
-
-<h3>5. The 10-3-2-1-0 Rule</h3>
-<ul>
-<li><strong>10 hours before bed:</strong> No more caffeine</li>
-<li><strong>3 hours before bed:</strong> No more food or alcohol</li>
-<li><strong>2 hours before bed:</strong> No more work</li>
-<li><strong>1 hour before bed:</strong> No more screens</li>
-<li><strong>0 snoozes:</strong> Get up when the alarm goes off</li>
-</ul>
-
-<h3>6. What Doesn't Work</h3>
-<p>Research debunks:</p>
-<ul>
-<li><strong>Alcohol:</strong> Helps you fall asleep but destroys REM sleep.</li>
-<li><strong>Melatonin supplements:</strong> Useful for jet lag, but not a general sleep aid. Dose matters — 0.5 mg works as well as 5 mg for most people.</li>
-<li><strong>Sleep trackers:</strong> Often inaccurate; can cause anxiety ("orthosomnia").</li>
-<li><strong>Warm milk:</strong> Comforting, but not chemically sleep-inducing.</li>
-</ul>
-
-<div class="hack-box">
-<h4>💡 The 4-7-8 Breathing Technique</h4>
-<p>Inhale through nose for 4 seconds. Hold for 7. Exhale slowly through mouth for 8. Repeat 4 times. This activates the parasympathetic nervous system, slowing heart rate. Used by Navy SEALs to fall asleep in 2 minutes in combat zones.</p>
-</div>
-                `,
-                takeaways: [
-                    'Get bright light within 1 hour of waking; dim lights before bed',
-                    'Ideal bedroom temperature: 16-19°C',
-                    'Cut caffeine after 2 PM (5-6 hour half-life)',
-                    'Consistent wake time is more important than consistent bedtime',
-                    '10-3-2-1-0 rule for pre-sleep routine',
-                    '4-7-8 breathing triggers the parasympathetic nervous system'
-                ]
+                content: '<p>Sleep is not optional — it\'s when your brain clears waste, consolidates memory, and repairs tissue.</p><h3>1. Light Exposure</h3><p>Get 10-30 min of bright outdoor light within 1 hour of waking. Dim lights 2-3 hours before bed. Blue light suppresses melatonin for up to 90 minutes.</p><h3>2. Temperature</h3><p>Core temperature must drop ~1°C to initiate sleep. Ideal bedroom: 16-19°C. Warm shower 1-2 hours before bed paradoxically helps.</p><h3>3. Caffeine Timing</h3><div class="formula-box">Caffeine remaining = dose × (0.5)^(hours / 5.5)</div><p>200 mg at 4 PM → ~94 mg still active at 10 PM.</p><h3>4. Consistent Schedule</h3><p>Same wake time every day (even weekends) is the single most effective intervention.</p><h3>5. The 10-3-2-1-0 Rule</h3><ul><li>10 hours: no caffeine</li><li>3 hours: no food/alcohol</li><li>2 hours: no work</li><li>1 hour: no screens</li><li>0 snoozes</li></ul><h3>6. What Doesn\'t Work</h3><ul><li>Alcohol (destroys REM)</li><li>Melatonin (only for jet lag)</li><li>Sleep trackers (inaccurate)</li><li>Warm milk (just comfort)</li></ul><div class="hack-box"><h4>💡 4-7-8 Breathing</h4><p>Inhale 4 seconds. Hold 7. Exhale 8. Repeat 4 times. Activates parasympathetic system. Used by Navy SEALs to sleep in 2 minutes.</p></div>'
             },
-
             {
                 title: 'Money Math: Compound Interest and Debt',
-                category: 'Life Hacks',
+                category: 'Money',
                 difficulty: 'Intermediate',
                 readMinutes: 9,
-                content: `
-<p>Albert Einstein allegedly called compound interest "the eighth wonder of the world." Whether he said it or not, the math is real: compound interest is the most powerful force in personal finance. Understanding it is the difference between building wealth and drowning in debt.</p>
-
-<h3>Simple Interest vs. Compound Interest</h3>
-<p><strong>Simple interest</strong> is paid only on the original principal. If you invest ₦100,000 at 10% simple interest, you earn ₦10,000 each year, forever.</p>
-
-<p><strong>Compound interest</strong> is paid on the principal <em>plus</em> previously earned interest. That ₦100,000 at 10% compounding annually:</p>
-<ul>
-<li>Year 1: ₦100,000 → ₦110,000</li>
-<li>Year 2: ₦110,000 → ₦121,000</li>
-<li>Year 3: ₦121,000 → ₦133,100</li>
-</ul>
-
-<p>The extra ₦100 in year 3 came from interest on interest. Small at first, but exponential over time.</p>
-
-<h3>The Compound Interest Formula</h3>
-<div class="formula-box">A = P × (1 + r/n)^(n×t)</div>
-
-<p>Where:</p>
-<ul>
-<li>A = final amount</li>
-<li>P = principal (starting amount)</li>
-<li>r = annual interest rate (as decimal)</li>
-<li>n = times compounded per year</li>
-<li>t = years</li>
-</ul>
-
-<h3>Real Example — Retirement Savings</h3>
-<p>Invest ₦50,000/month at 12% annual return (common for Nigerian mutual funds) for 30 years:</p>
-<ul>
-<li>Total contributed: ₦18,000,000</li>
-<li>Final value: ₦176,000,000+</li>
-<li>Interest earned: ₦158,000,000+</li>
-</ul>
-
-<p>Compounding turned ₦18M into ₦176M. But if you started just 10 years later (20 years instead of 30), the final amount drops to ~₦50M. Ten lost years cost you ₦126M.</p>
-
-<h3>The Rule of 72</h3>
-<p>Quick mental estimate for how long money takes to double:</p>
-
-<div class="formula-box">Years to double ≈ 72 ÷ interest rate</div>
-
-<ul>
-<li>At 6% → 12 years</li>
-<li>At 9% → 8 years</li>
-<li>At 12% → 6 years</li>
-<li>At 18% → 4 years</li>
-</ul>
-
-<h3>Compounding Works Against You — Debt</h3>
-<p>Credit card debt compounds monthly at 20-40% APR. ₦100,000 on a card at 24% APR with minimum payments can take 15+ years to pay off and cost more in interest than the original debt.</p>
-
-<h3>The Two Rules</h3>
-<ol>
-<li><strong>Start early.</strong> Time in market beats timing the market.</li>
-<li><strong>Never carry high-interest debt.</strong> Paying off a 24% credit card is the same as earning 24% guaranteed.</li>
-</ol>
-
-<div class="hack-box">
-<h4>💡 Mental Compounding Hack</h4>
-<p>To double your money at 10% takes 7.2 years (72/10). To 4× your money, double twice: 14.4 years. To 8×: 21.6 years. Approximate 3× by interpolating: ~11.5 years. This gives you quick intuition without a calculator.</p>
-</div>
-                `,
-                takeaways: [
-                    'Compound interest earns interest on interest',
-                    'A = P × (1 + r/n)^(n×t)',
-                    'Rule of 72: years to double ≈ 72 / interest rate',
-                    'Starting 10 years early can multiply your final wealth 3-4×',
-                    'High-interest debt (credit cards at 20-40%) compounds against you',
-                    'Paying off 24% debt = earning 24% guaranteed'
-                ]
+                content: '<p>Compound interest is the most powerful force in personal finance. Understanding it is the difference between wealth and debt.</p><h3>Simple vs. Compound Interest</h3><p>Simple: paid only on principal. Compound: paid on principal plus earned interest.</p><p>₦100,000 at 10% compound: Year 1 = ₦110k, Year 2 = ₦121k, Year 3 = ₦133k.</p><h3>The Formula</h3><div class="formula-box">A = P × (1 + r/n)^(n×t)</div><h3>Real Example</h3><p>₦50,000/month at 12% for 30 years: Total contributed ₦18M. Final value ₦176M+. Interest earned ₦158M+.</p><p>Start 10 years later and final drops to ~₦50M. Ten lost years cost ₦126M.</p><h3>The Rule of 72</h3><div class="formula-box">Years to double ≈ 72 ÷ interest rate</div><ul><li>At 6% → 12 years</li><li>At 9% → 8 years</li><li>At 12% → 6 years</li><li>At 18% → 4 years</li></ul><h3>Compounding Against You</h3><p>Credit card at 24% APR on ₦100,000 can take 15+ years to pay off.</p><div class="hack-box"><h4>💡 Mental Compounding</h4><p>10% doubles in 7.2 years. 4× = double twice = 14.4 years. 8× = 21.6 years. Quick intuition without calculator.</p></div>'
             },
-
-            // ---- Category: Neuroscience ----
             {
                 title: 'How Memory Works (and How to Improve It)',
                 category: 'Neuroscience',
                 difficulty: 'Intermediate',
                 readMinutes: 8,
-                content: `
-<p>Memory is the foundation of learning, identity, and intelligence. Yet most people never learn how memory actually works — they just complain about forgetting things. Here's the science, and the techniques that follow from it.</p>
-
-<h3>Three Stages of Memory</h3>
-<ol>
-<li><strong>Sensory memory:</strong> Lasts 1-2 seconds. Everything you see, hear, feel enters here, but almost none of it survives.</li>
-<li><strong>Short-term memory:</strong> Lasts 15-30 seconds, holds 4-7 items. This is why you forget a phone number before writing it down.</li>
-<li><strong>Long-term memory:</strong> Unlimited capacity, lasts from minutes to a lifetime.</li>
-</ol>
-
-<p>The bottleneck is <em>getting things from short-term to long-term</em>.</p>
-
-<h3>How Long-Term Memory Forms</h3>
-<p>Repeated or emotionally intense experiences trigger a process called <strong>long-term potentiation (LTP)</strong>. Neurons that fire together strengthen their connections. The hippocampus is the key hub that "consolidates" memories — transferring them to the cortex for long-term storage.</p>
-
-<p>Memory consolidation mainly happens during <strong>deep sleep</strong>, when the hippocampus replays the day's experiences to the cortex. Skip deep sleep, and you lose most of what you learned.</p>
-
-<h3>The Forgetting Curve</h3>
-<p>Hermann Ebbinghaus (1885) discovered that we forget most of what we learn within days — unless we review it. After learning new material:</p>
-<ul>
-<li>20 minutes: 42% retained</li>
-<li>1 hour: 36% retained</li>
-<li>1 day: 33% retained</li>
-<li>1 week: 25% retained</li>
-<li>1 month: 21% retained</li>
-</ul>
-
-<p>Every review resets the curve and slows future forgetting. Two or three well-timed reviews can push retention to 80%+.</p>
-
-<h3>Spaced Repetition — The Best Memory Hack</h3>
-<p>Instead of cramming, review information at increasing intervals:</p>
-<ul>
-<li>Day 1: Learn</li>
-<li>Day 2: Review (retention jumps to ~90%)</li>
-<li>Day 4: Review</li>
-<li>Day 8: Review</li>
-<li>Day 16: Review</li>
-<li>Day 32: Review</li>
-</ul>
-
-<p>Apps like Anki implement this automatically. Students using spaced repetition consistently outperform crammers by 2× on long-term tests.</p>
-
-<h3>Active Recall — The Second Big Hack</h3>
-<p>Most students "study" by re-reading notes. This is passive and inefficient. Active recall means testing yourself <em>before</em> checking the answer. The effort of retrieval strengthens memory more than any review.</p>
-
-<p>Methods: flashcards, blank-page brain dumps, quiz apps, teaching the material to someone else.</p>
-
-<h3>The Memory Palace Technique</h3>
-<p>Used by memory champions, this technique exploits your brain's superb spatial memory. Imagine a familiar place (your house). Place items to remember at specific spots. To recall, mentally walk through the house. This has been used for 2,500+ years and can dramatically improve recall.</p>
-
-<h3>Sleep, Exercise, and Nutrition</h3>
-<ul>
-<li><strong>Sleep 7-9 hours:</strong> Memory consolidation happens during deep and REM sleep.</li>
-<li><strong>Exercise daily:</strong> Raises BDNF (brain-derived neurotrophic factor), which promotes new connections.</li>
-<li><strong>Stay hydrated:</strong> 2% dehydration impairs memory and focus.</li>
-<li><strong>Eat omega-3s:</strong> DHA is a structural component of brain cell membranes.</li>
-</ul>
-
-<div class="hack-box">
-<h4>💡 The 3-2-1 Revision System</h4>
-<p>When you learn something new: review it 3 hours later, again 3 days later, and finally 3 weeks later. This schedule is practical for real life and captures most of the spaced-repetition benefit without an app.</p>
-</div>
-                `,
-                takeaways: [
-                    'Memory has 3 stages: sensory, short-term, long-term',
-                    'Long-term potentiation strengthens neural connections with repetition',
-                    'Forgetting curve: you lose ~75% within a week without review',
-                    'Spaced repetition at increasing intervals beats cramming 2×',
-                    'Active recall (self-testing) is more effective than re-reading',
-                    'Sleep 7-9 hours for optimal memory consolidation'
-                ]
+                content: '<p>Memory is the foundation of learning and identity. Yet most people never learn how it actually works.</p><h3>Three Stages</h3><ol><li>Sensory: 1-2 seconds</li><li>Short-term: 15-30 seconds, 4-7 items</li><li>Long-term: unlimited</li></ol><h3>Long-Term Potentiation</h3><p>Neurons that fire together strengthen connections. The hippocampus consolidates memories to the cortex during deep sleep.</p><h3>The Forgetting Curve</h3><p>Ebbinghaus (1885): after learning new material:</p><ul><li>20 min: 42% retained</li><li>1 day: 33%</li><li>1 week: 25%</li><li>1 month: 21%</li></ul><h3>Spaced Repetition</h3><p>Review at increasing intervals: Day 1, 2, 4, 8, 16, 32. Retention jumps to 80%+.</p><h3>Active Recall</h3><p>Testing yourself strengthens memory more than re-reading. Use flashcards, blank-page brain dumps, teaching others.</p><h3>The Memory Palace</h3><p>Place items to remember at spots in a familiar location. Used by memory champions for 2,500+ years.</p><div class="hack-box"><h4>💡 The 3-2-1 Revision System</h4><p>Review new material 3 hours later, 3 days later, 3 weeks later. Practical spaced repetition without apps.</p></div>'
             },
-
-            // ---- Category: Tech ----
             {
                 title: 'How the Internet Actually Works',
                 category: 'Tech',
                 difficulty: 'Beginner',
                 readMinutes: 8,
-                content: `
-<p>You use the internet every day, but do you know what actually happens when you open a website? It's a remarkable chain of technologies built over 50 years. Here's the plain-English explanation.</p>
-
-<h3>The Basic Picture</h3>
-<p>The internet is a global network of physical cables, routers, and data centers. Your device connects to a router, which connects to your Internet Service Provider (ISP), which connects to other networks around the world. Data is sent as tiny packets of information — each packet is a few hundred bytes — that are routed independently and reassembled at the destination.</p>
-
-<h3>Step-by-Step: What Happens When You Visit a Website</h3>
-
-<ol>
-<li><strong>DNS lookup:</strong> You type "google.com" — computers don't understand names, only numbers (IP addresses). Your computer asks a DNS server to translate the name into an IP address like 142.250.185.78.</li>
-<li><strong>TCP handshake:</strong> Your computer establishes a connection with Google's server through a 3-way handshake: SYN → SYN-ACK → ACK. This ensures both sides are ready.</li>
-<li><strong>TLS handshake:</strong> For HTTPS, an encrypted channel is set up so no one in between can read the data.</li>
-<li><strong>HTTP request:</strong> Your browser sends a request: "GET / HTTP/1.1" plus headers with your browser info.</li>
-<li><strong>Server response:</strong> Google's server sends back HTML, CSS, and JavaScript files.</li>
-<li><strong>Rendering:</strong> Your browser parses the HTML, styles it with CSS, executes JavaScript, and displays the page.</li>
-</ol>
-
-<p>The whole process usually takes 100-500 milliseconds.</p>
-
-<h3>Packets and Routing</h3>
-<p>Your data isn't sent as one big stream — it's chopped into packets. Each packet has a header (source, destination, sequence number) and a payload (the actual data). Packets can take different routes through the network and are reassembled at the destination. This makes the internet resilient — if one route fails, packets take another.</p>
-
-<h3>Layers of the Internet</h3>
-<p>The internet is built in layers, each solving a different problem:</p>
-<ul>
-<li><strong>Physical layer:</strong> Cables, fiber optics, Wi-Fi radio waves</li>
-<li><strong>Data link layer:</strong> Ethernet, Wi-Fi protocols</li>
-<li><strong>Network layer (IP):</strong> Addresses and routes packets</li>
-<li><strong>Transport layer (TCP/UDP):</strong> Ensures reliability or speed</li>
-<li><strong>Application layer (HTTP, DNS, SMTP):</strong> What apps use</li>
-</ul>
-
-<h3>HTTP vs HTTPS</h3>
-<p>HTTP sends data in plain text. HTTPS encrypts it, so your passwords, card numbers, and messages are safe from eavesdroppers. In 2024, ~95% of web traffic is HTTPS. Browsers now flag HTTP sites as "Not Secure."</p>
-
-<h3>IP Addresses and IPv6</h3>
-<p>Every device on the internet has an IP address. IPv4 addresses (like 192.168.1.1) are 32-bit — about 4.3 billion possible addresses, which ran out in 2011. IPv6 uses 128-bit addresses, providing 340 undecillion (3.4 × 10³⁸) possible addresses. The transition is ongoing.</p>
-
-<div class="hack-box">
-<h4>💡 Speed Up Your Internet</h4>
-<ul>
-<li><strong>Use Cloudflare DNS (1.1.1.1):</strong> Often faster and more private than your ISP's DNS.</li>
-<li><strong>Restart your router weekly:</strong> Clears memory leaks and refreshes connections.</li>
-<li><strong>Use 5 GHz Wi-Fi:</strong> Faster than 2.4 GHz but shorter range — good for close devices.</li>
-<li><strong>Ethernet beats Wi-Fi:</strong> For gaming and streaming, a cable is 5× more stable.</li>
-</ul>
-</div>
-                `,
-                takeaways: [
-                    'Internet = network of physical cables and routers',
-                    'DNS translates website names into IP addresses',
-                    'TCP handshake ensures reliable connections',
-                    'HTTPS encrypts traffic; HTTP does not',
-                    'Data travels as packets routed independently',
-                    'IPv6 provides 3.4 × 10³⁸ addresses vs IPv4\'s 4.3 billion'
-                ]
+                content: '<p>You use the internet every day, but do you know what happens when you open a website?</p><h3>The Basic Picture</h3><p>Global network of physical cables, routers, and data centers. Your device → router → ISP → global networks. Data sent as packets routed independently.</p><h3>Step-by-Step</h3><ol><li>DNS lookup: name to IP address</li><li>TCP handshake: SYN → SYN-ACK → ACK</li><li>TLS handshake: encrypted channel</li><li>HTTP request: browser sends GET</li><li>Server response: HTML, CSS, JS</li><li>Rendering: browser displays page</li></ol><p>Total time: 100-500 milliseconds.</p><h3>Layers</h3><ul><li>Physical: cables, Wi-Fi</li><li>Data link: Ethernet</li><li>Network (IP): addressing and routing</li><li>Transport (TCP/UDP): reliability or speed</li><li>Application: HTTP, DNS, SMTP</li></ul><h3>HTTP vs HTTPS</h3><p>HTTPS encrypts. ~95% of web traffic now HTTPS.</p><h3>IP Addresses</h3><p>IPv4: 4.3 billion addresses (ran out 2011). IPv6: 3.4 × 10³⁸ addresses.</p><div class="hack-box"><h4>💡 Speed Up Internet</h4><ul><li>Use Cloudflare DNS (1.1.1.1)</li><li>Restart router weekly</li><li>Use 5 GHz Wi-Fi for close devices</li><li>Ethernet beats Wi-Fi for gaming</li></ul></div>'
             },
-
             {
                 title: 'Artificial Intelligence: What It Can and Cannot Do',
                 category: 'Tech',
                 difficulty: 'Intermediate',
                 readMinutes: 9,
-                content: `
-<p>AI is the most over-hyped and under-understood technology of our time. Let's separate the reality from the marketing.</p>
-
-<h3>What AI Actually Is</h3>
-<p>Modern AI is pattern recognition at massive scale. That's it. It doesn't "think," "understand," or "want" anything. It takes input, finds statistical patterns learned from training data, and produces output.</p>
-
-<p>ChatGPT, for example, predicts the next word based on billions of examples. It has no model of the world — just a very good statistical approximation of how language is used.</p>
-
-<h3>Three Categories of AI</h3>
-<ul>
-<li><strong>Narrow AI (ANI):</strong> Does one thing well. Netflix recommendations, spam filters, voice assistants. All AI today is narrow.</li>
-<li><strong>General AI (AGI):</strong> Human-level across all tasks. Doesn't exist yet. May or may not be possible.</li>
-<li><strong>Superintelligence (ASI):</strong> Smarter than all humans combined. Theoretical.</li>
-</ul>
-
-<h3>What AI Is Good At</h3>
-<ul>
-<li>Recognizing patterns in massive datasets</li>
-<li>Generating fluent text, images, code</li>
-<li>Translating languages</li>
-<li>Playing games with clear rules (chess, Go)</li>
-<li>Speeding up repetitive tasks</li>
-</ul>
-
-<h3>What AI Is Bad At</h3>
-<ul>
-<li><strong>Common sense:</strong> AI doesn't understand physics, social norms, or causality intuitively.</li>
-<li><strong>Reasoning chains:</strong> It can produce confident-sounding nonsense (hallucination).</li>
-<li><strong>Novel situations:</strong> Struggles when outside its training distribution.</li>
-<li><strong>Long-term planning:</strong> No genuine goal-orientation.</li>
-<li><strong>Ethics:</strong> No moral reasoning — just pattern matching on moral text.</li>
-</ul>
-
-<h3>Where AI Is Already Changing Things</h3>
-<ul>
-<li><strong>Medicine:</strong> Detecting cancer in scans, drug discovery</li>
-<li><strong>Translation:</strong> Near-instant translation between 100+ languages</li>
-<li><strong>Code:</strong> GitHub Copilot writes 30-40% of new code in some projects</li>
-<li><strong>Art:</strong> Image generation tools (Midjourney, DALL-E)</li>
-<li><strong>Customer service:</strong> Chatbots handling 60-80% of tickets</li>
-</ul>
-
-<h3>The Real Risks</h3>
-<p>Forget sci-fi robot uprisings. Real risks today:</p>
-<ul>
-<li><strong>Misinformation:</strong> AI-generated deepfakes and fake news at scale</li>
-<li><strong>Job displacement:</strong> Routine cognitive work is being automated</li>
-<li><strong>Bias:</strong> AI trained on biased data produces biased outputs</li>
-<li><strong>Concentration of power:</strong> A few companies control most advanced AI</li>
-<li><strong>Environmental cost:</strong> Training GPT-4 used ~50 GWh of electricity</li>
-</ul>
-
-<h3>How to Use AI Well</h3>
-<ul>
-<li><strong>Verify everything.</strong> AI confidently states wrong facts.</li>
-<li><strong>Use for drafts, not finals.</strong> Editing AI output is faster than writing from scratch.</li>
-<li><strong>Give context.</strong> The more specific your prompt, the better the output.</li>
-<li><strong>Don't trust it with sensitive data.</strong> Your input may be used for training.</li>
-</ul>
-
-<div class="hack-box">
-<h4>💡 The 3-Step Prompt Formula</h4>
-<p>Good prompts have three parts: <strong>Role</strong> ("You are an experienced editor"), <strong>Task</strong> ("Rewrite this paragraph for clarity"), <strong>Constraints</strong> ("Keep it under 100 words, no jargon"). Adding examples of desired output makes results 2-3× better.</p>
-</div>
-                `,
-                takeaways: [
-                    'Modern AI is pattern recognition at massive scale',
-                    'All AI today is Narrow AI (ANI); AGI does not exist',
-                    'AI excels at patterns, generation, translation',
-                    'AI hallucinates confidently and lacks common sense',
-                    'Real risks: misinformation, bias, job displacement',
-                    'Good prompts have Role + Task + Constraints'
-                ]
+                content: '<p>AI is the most over-hyped and under-understood technology of our time.</p><h3>What AI Actually Is</h3><p>Pattern recognition at massive scale. It doesn\'t think or understand. ChatGPT predicts the next word based on billions of examples.</p><h3>Three Categories</h3><ul><li><strong>Narrow AI (ANI):</strong> Does one thing well. All AI today.</li><li><strong>General AI (AGI):</strong> Human-level across tasks. Doesn\'t exist.</li><li><strong>Superintelligence (ASI):</strong> Theoretical.</li></ul><h3>Good At</h3><ul><li>Recognizing patterns</li><li>Generating fluent text, images, code</li><li>Translating languages</li><li>Playing games with clear rules</li></ul><h3>Bad At</h3><ul><li>Common sense</li><li>Reasoning chains (hallucinates)</li><li>Novel situations</li><li>Long-term planning</li><li>Ethics</li></ul><h3>Real Risks</h3><ul><li>Misinformation at scale</li><li>Job displacement</li><li>Bias in outputs</li><li>Concentration of power</li><li>Environmental cost (GPT-4 training used ~50 GWh)</li></ul><div class="hack-box"><h4>💡 The 3-Step Prompt Formula</h4><p>Role ("You are an editor") + Task ("Rewrite this paragraph") + Constraints ("Under 100 words, no jargon"). Adding examples makes results 2-3× better.</p></div>'
             },
-
-            // ---- Category: Health ----
             {
                 title: 'Exercise Science: What Actually Works',
                 category: 'Health',
                 difficulty: 'Beginner',
                 readMinutes: 8,
-                content: `
-<p>The fitness industry sells complexity because simplicity doesn't sell gym memberships. But the science of exercise is remarkably clear. Here's what the research actually shows.</p>
-
-<h3>The Four Types of Exercise</h3>
-<ol>
-<li><strong>Cardiovascular (cardio):</strong> Running, cycling, swimming. Trains heart and lungs.</li>
-<li><strong>Strength training:</strong> Weights, bodyweight. Builds muscle, bone density, metabolism.</li>
-<li><strong>Mobility/flexibility:</strong> Yoga, stretching. Preserves joint range of motion.</li>
-<li><strong>Balance:</strong> Tai chi, single-leg stands. Prevents falls, especially after 60.</li>
-</ol>
-
-<p>You need all four. Most people only do one.</p>
-
-<h3>The Minimum Effective Dose</h3>
-<p>Health authorities (WHO, CDC) recommend:</p>
-<ul>
-<li><strong>150 min/week</strong> of moderate cardio, OR</li>
-<li><strong>75 min/week</strong> of vigorous cardio, PLUS</li>
-<li><strong>2 sessions/week</strong> of strength training</li>
-</ul>
-
-<p>That's the floor, not the ceiling. More is better up to a point (5-7 hours/week of moderate activity shows continued benefits).</p>
-
-<h3>Strength Training — The Underrated King</h3>
-<p>Building muscle:</p>
-<ul>
-<li>Raises resting metabolism (muscle burns calories even at rest)</li>
-<li>Improves insulin sensitivity (reduces diabetes risk)</li>
-<li>Preserves bone density (prevents osteoporosis)</li>
-<li>Improves mood and cognitive function</li>
-<li>Increases longevity (grip strength predicts lifespan)</li>
-</ul>
-
-<p>You don't need to lift heavy. Bodyweight work (push-ups, squats, planks) builds real strength. Beginners can start with 3 sets of 8-12 reps of basic movements 2-3× per week.</p>
-
-<h3>Cardio — How Much, What Kind</h3>
-<p>Best evidence for:</p>
-<ul>
-<li><strong>Zone 2 cardio (60-70% max HR):</strong> Builds mitochondrial density, endurance. 3-4× per week for 30-60 min. You can hold a conversation while doing it.</li>
-<li><strong>HIIT (high-intensity intervals):</strong> Short bursts at 85-95% max HR. 10-20 min sessions, 1-2× per week. Efficient but not a replacement for Zone 2.</li>
-</ul>
-
-<div class="formula-box">Max heart rate ≈ 220 - age</div>
-
-<p>For a 30-year-old: ~190 bpm max. Zone 2 = ~115-135 bpm.</p>
-
-<h3>Exercise and Mental Health</h3>
-<p>Exercise is as effective as antidepressants for mild-to-moderate depression in many studies. Mechanisms: increases BDNF (grows new brain connections), endorphins, and serotonin. 30 minutes of moderate cardio 3-5× per week matches the therapeutic effect of medication without side effects.</p>
-
-<h3>Common Myths</h3>
-<ul>
-<li><strong>"Spot reduction" works:</strong> False. You can't choose where fat is lost.</li>
-<li><strong>Cardio kills gains:</strong> Only in extreme amounts. Moderate cardio helps recovery.</li>
-<li><strong>You need 10,000 steps:</strong> 7,000-8,000 steps shows most of the benefit.</li>
-<li><strong>You can outrun a bad diet:</strong> A 30-minute run burns ~300 calories — one soda.</li>
-</ul>
-
-<div class="hack-box">
-<h4>💡 The Habit Stack</h4>
-<p>Attach exercise to an existing habit. "After I brush my teeth, I do 10 push-ups." "After I park the car, I walk 10 minutes before entering the house." This is called habit stacking and doubles the likelihood of sticking with exercise vs. trying to schedule it separately.</p>
-</div>
-                `,
-                takeaways: [
-                    'You need cardio + strength + mobility + balance',
-                    'Minimum: 150 min/week moderate cardio + 2 strength sessions',
-                    'Strength training boosts metabolism, bone density, longevity',
-                    'Zone 2 cardio (conversational pace) builds endurance mitochondria',
-                    'Max HR ≈ 220 - age',
-                    'Habit stacking: attach exercise to an existing daily habit'
-                ]
+                content: '<p>The fitness industry sells complexity because simplicity doesn\'t sell gym memberships. But the science is clear.</p><h3>Four Types of Exercise</h3><ol><li>Cardiovascular: running, cycling, swimming</li><li>Strength: weights, bodyweight</li><li>Mobility: yoga, stretching</li><li>Balance: tai chi, single-leg stands</li></ol><p>You need all four. Most people only do one.</p><h3>Minimum Effective Dose</h3><ul><li>150 min/week moderate cardio OR 75 min vigorous</li><li>2 strength sessions/week</li></ul><h3>Strength Training — Underrated</h3><ul><li>Raises resting metabolism</li><li>Improves insulin sensitivity</li><li>Preserves bone density</li><li>Grip strength predicts lifespan</li></ul><h3>Cardio Zones</h3><div class="formula-box">Max HR ≈ 220 - age</div><p>Zone 2 (60-70% max): builds mitochondria. HIIT (85-95%): efficient but not a replacement.</p><h3>Mental Health</h3><p>Exercise is as effective as antidepressants for mild-moderate depression. 30 min moderate cardio 3-5× per week.</p><h3>Myths</h3><ul><li>Spot reduction doesn\'t work</li><li>Cardio doesn\'t kill gains (in moderation)</li><li>7,000 steps is enough (not 10,000)</li><li>You can\'t outrun a bad diet</li></ul><div class="hack-box"><h4>💡 The Habit Stack</h4><p>"After I brush my teeth, I do 10 push-ups." Attach exercise to an existing habit — doubles stick rate.</p></div>'
             },
-
-            // ---- More Physics ----
             {
                 title: 'Energy: The Physics of Everything',
                 category: 'Physics',
                 difficulty: 'Beginner',
                 readMinutes: 7,
-                content: `
-<p>Energy is the most fundamental concept in physics. It powers stars, drives chemical reactions, and flows through every living thing. Despite its importance, "energy" is often misunderstood — even by physicists, who can't quite define what it <em>is</em>, only what it <em>does</em>.</p>
-
-<h3>The First Law — Energy Is Conserved</h3>
-<p>Energy cannot be created or destroyed, only transformed. The total energy of the universe is constant. When you burn gasoline, the chemical energy doesn't disappear — it becomes heat, motion, and exhaust.</p>
-
-<div class="formula-box">ΔE_total = 0 (energy is conserved)</div>
-
-<h3>Forms of Energy</h3>
-<ul>
-<li><strong>Kinetic (KE):</strong> Energy of motion. A moving car, a spinning top.</li>
-<li><strong>Potential (PE):</strong> Stored energy due to position. A ball on a shelf, water behind a dam.</li>
-<li><strong>Chemical:</strong> Energy stored in bonds. Food, fuel, batteries.</li>
-<li><strong>Thermal:</strong> Heat — random motion of atoms.</li>
-<li><strong>Nuclear:</strong> Energy stored in atomic nuclei.</li>
-<li><strong>Radiant:</strong> Light, radio waves, X-rays.</li>
-<li><strong>Electrical:</strong> Energy of moving electrons.</li>
-</ul>
-
-<h3>Key Formulas</h3>
-
-<div class="formula-box">
-KE = ½ m v²<br>
-PE = m g h<br>
-Work = F × d
-</div>
-
-<p>Where:</p>
-<ul>
-<li>m = mass (kg)</li>
-<li>v = velocity (m/s)</li>
-<li>g = gravitational acceleration (9.8 m/s²)</li>
-<li>h = height (m)</li>
-<li>F = force (N)</li>
-<li>d = distance (m)</li>
-</ul>
-
-<p><strong>Example:</strong> A 1,000 kg car traveling at 20 m/s has KE = ½ × 1000 × 20² = <strong>200,000 J</strong> (200 kJ). Double the speed to 40 m/s and KE = ½ × 1000 × 40² = 800,000 J — four times as much. This is why speeding is so dangerous.</p>
-
-<h3>The Second Law — Entropy Increases</h3>
-<p>The Second Law of Thermodynamics says energy transformations always increase total entropy (disorder). This is why perpetual motion machines are impossible, why heat flows from hot to cold (not the reverse), and why time has an arrow.</p>
-
-<p>Every energy conversion loses some energy as waste heat. A car engine converts only 20-30% of gasoline energy into motion; the rest becomes heat.</p>
-
-<h3>Energy in the Real World</h3>
-<p>Global primary energy consumption is ~600 exajoules (6 × 10²⁰ J) per year. Fossil fuels supply ~80%, renewables ~15%, nuclear ~5%. Every joule came originally from the Sun (or, for nuclear, from supernovae).
-
-The Sun delivers ~173,000 terawatts to Earth continuously — about 10,000× humanity's total power consumption. We use a tiny fraction.</p>
-
-<div class="hack-box">
-<h4>💡 Hack — Estimate Energy in Foods</h4>
-<p>Food labels use "Calories" (kcal). 1 kcal = 4,184 J. A typical adult needs 2,000 kcal/day = 8.4 million joules. To burn off one 250 kcal chocolate bar, you'd need to run ~25 minutes or climb ~2,000 steps. A 30-min jog burns ~300 kcal. Keep that math in mind at snack time.</p>
-</div>
-                `,
-                takeaways: [
-                    'Energy is conserved — cannot be created or destroyed',
-                    'KE = ½mv² — quadruple speed, sixteen times the energy',
-                    'PE = mgh — higher objects store more energy',
-                    'Entropy always increases — heat flows hot to cold',
-                    '1 kcal = 4,184 J',
-                    'Sun delivers 10,000× humanity\'s energy needs'
-                ]
+                content: '<p>Energy is the most fundamental concept in physics. It powers stars, drives chemical reactions, and flows through every living thing.</p><h3>First Law — Energy Is Conserved</h3><p>Energy cannot be created or destroyed, only transformed.</p><h3>Forms of Energy</h3><ul><li>Kinetic: motion</li><li>Potential: position</li><li>Chemical: bonds</li><li>Thermal: heat</li><li>Nuclear: atomic nuclei</li><li>Radiant: light</li><li>Electrical: electrons</li></ul><h3>Key Formulas</h3><div class="formula-box">KE = ½ m v²<br>PE = m g h<br>Work = F × d</div><p><strong>Example:</strong> A 1,000 kg car at 20 m/s has KE = 200,000 J. At 40 m/s, KE = 800,000 J — four times as much.</p><h3>Second Law — Entropy Increases</h3><p>Every energy conversion loses some energy as waste heat. A car engine converts only 20-30% of gasoline energy to motion.</p><h3>Global Energy</h3><p>Fossil fuels supply ~80%, renewables ~15%, nuclear ~5%. Sun delivers 173,000 TW continuously — 10,000× humanity\'s needs.</p><div class="hack-box"><h4>💡 Estimate Energy in Foods</h4><p>1 kcal = 4,184 J. A 250 kcal chocolate bar = ~25 min run or ~2,000 steps.</p></div>'
             }
         ];
 
         // ============ RENDERING ============
-        window.addEventListener('load', () => {
-            renderFilterTabs();
-            renderArticles();
-        });
-
         function renderFilterTabs() {
             const cats = ['all', ...new Set(ALL_ARTICLES.map(a => a.category))];
             const icons = {
-                Physics: '⚛️', Chemistry: '🧪', Biology: '🧬', Astronomy: '🌌', Space: '🚀',
-                'Artificial Intelligence': '🤖', AI: '🤖', Robotics: '🦾', Computing: '💻', Tech: '💻',
-                Engineering: '⚙️', Environment: '🌍', Neuroscience: '🧠', Math: '➗',
-                'Life Hacks': '💡', Health: '❤️', Money: '💰', Science: '🔬'
+                Physics: '⚛️', Chemistry: '🧪', Biology: '🧬', Space: '🚀', Math: '➗',
+                Tech: '💻', Neuroscience: '🧠', 'Life Hacks': '💡', Health: '❤️', Money: '💰'
             };
             let html = `<button class="filter-tab active" data-cat="all" onclick="filterArticles('all')">🌐 All</button>`;
             cats.filter(c => c !== 'all').forEach(c => {
                 html += `<button class="filter-tab" data-cat="${c}" onclick="filterArticles('${c}')">${icons[c] || '🔬'} ${c}</button>`;
             });
             document.getElementById('filterTabs').innerHTML = html;
-        }
-
-        function calcReadMinutes(content) {
-            const words = content.replace(/<[^>]+>/g, ' ').trim().split(/\s+/).length;
-            return Math.max(1, Math.round(words / 220));
-        }
-
-        function getProgressCount(articleIndex) {
-            return getCheckedItems(articleIndex).length;
         }
 
         function renderArticles() {
@@ -1548,25 +391,16 @@ The Sun delivers ~173,000 terawatts to Earth continuously — about 10,000× hum
             }
 
             let html = '';
-            filtered.forEach((article, i) => {
+            filtered.forEach((article) => {
                 const realIndex = ALL_ARTICLES.indexOf(article);
-                const checked = getProgressCount(realIndex);
-                const total = (article.takeaways || []).length;
-                const progressChip = total > 0
-                    ? `<span class="progress-chip ${checked === 0 ? 'empty' : ''}">
-                         <i class="fas fa-check-circle"></i> ${checked}/${total} learned
-                       </span>`
-                    : '';
                 const preview = article.content.replace(/<[^>]+>/g, ' ').trim().substring(0, 150);
-
                 html += `
-                <div class="article-preview-card" onclick="openArticle(${realIndex})" style="animation-delay:${i * 0.04}s;">
+                <div class="article-preview-card" onclick="openArticle(${realIndex})">
                     <span class="category-badge">${article.category} • ${article.difficulty}</span>
                     <h4>📖 ${article.title}</h4>
                     <p>${preview}...</p>
                     <div class="article-meta-row">
                         <span><i class="fas fa-clock"></i> ${article.readMinutes} min read</span>
-                        ${progressChip}
                     </div>
                 </div>`;
             });
@@ -1581,94 +415,57 @@ The Sun delivers ~173,000 terawatts to Earth continuously — about 10,000× hum
             renderArticles();
         }
 
+        // ============ MODAL ============
         function openArticle(index) {
-            currentArticleIndex = index;
+            if (document.getElementById('articleModal')) return;
+
             const article = ALL_ARTICLES[index];
             if (!article) return;
-
-            const checkedItems = getCheckedItems(index);
-
-            let takeawaysHTML = '';
-            if (article.takeaways && article.takeaways.length > 0) {
-                takeawaysHTML = `
-                <div class="takeaways">
-                    <h4><i class="fas fa-check-circle"></i> Key Takeaways</h4>
-                    <p class="tk-sub">Tap each item to mark it as learned. Progress is saved automatically.</p>
-                    ${article.takeaways.map((tk, i) => `
-                        <label class="check-item ${checkedItems.includes(i) ? 'checked' : ''}" data-index="${i}">
-                            <input type="checkbox" ${checkedItems.includes(i) ? 'checked' : ''}
-                                   onchange="handleCheckChange(${index}, ${i}, this.checked)">
-                            <span class="check-box"><i class="fas fa-check"></i></span>
-                            <span>${tk}</span>
-                        </label>
-                    `).join('')}
-                </div>`;
-            }
 
             const modal = document.createElement('div');
             modal.className = 'article-modal';
             modal.id = 'articleModal';
             modal.innerHTML = `
                 <div class="modal-header">
-                    <span class="category-badge" style="margin:0;">${article.category} • ${article.difficulty}</span>
-                    <button class="close-btn" onclick="closeArticleModal()">
+                    <span class="category-badge">${article.category} • ${article.difficulty}</span>
+                    <button class="close-btn" type="button" onclick="closeArticleModal()">
                         <i class="fas fa-times"></i> Close
                     </button>
                 </div>
-                <div class="modal-body">
-                    <h2>📖 ${article.title}</h2>
-                    <div class="modal-meta">
-                        <span>📊 ${article.difficulty}</span>
-                        <span>⏱️ ${article.readMinutes} min read</span>
-                        <span>🏷️ ${article.category}</span>
+                <div class="article-modal-inner">
+                    <div class="modal-body">
+                        <h2>📖 ${article.title}</h2>
+                        <div class="modal-meta">
+                            <span>📊 ${article.difficulty}</span>
+                            <span>⏱️ ${article.readMinutes} min read</span>
+                            <span>🏷️ ${article.category}</span>
+                        </div>
+                        ${article.content}
+                        <button class="close-bottom-btn" type="button" onclick="closeArticleModal()">
+                            <i class="fas fa-arrow-left"></i> Done reading — Back to articles
+                        </button>
                     </div>
-                    ${article.content}
-                    ${takeawaysHTML}
-                    <button class="close-bottom-btn" onclick="closeArticleModal()">
-                        <i class="fas fa-arrow-left"></i> Done reading — Back to articles
-                    </button>
                 </div>
             `;
             document.body.appendChild(modal);
-            document.body.style.overflow = 'hidden';
-
-            // Attach checkbox listeners
-            modal.querySelectorAll('.check-item input').forEach(input => {
-                input.addEventListener('change', function() {
-                    this.closest('.check-item').classList.toggle('checked', this.checked);
-                });
-            });
-
-            // Click on label toggles input
-            modal.querySelectorAll('.check-item').forEach(label => {
-                label.addEventListener('click', function(e) {
-                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') return;
-                    const input = label.querySelector('input');
-                    input.checked = !input.checked;
-                    input.dispatchEvent(new Event('change'));
-                });
-            });
+            document.body.classList.add('modal-open');
         }
 
         function closeArticleModal() {
             const modal = document.getElementById('articleModal');
             if (modal) modal.remove();
-            document.body.style.overflow = '';
-            renderArticles(); // refresh progress chips
+            document.body.classList.remove('modal-open');
         }
 
-        function handleCheckChange(articleIndex, itemIndex, checked) {
-            toggleCheckItem(articleIndex, itemIndex, checked);
-        }
-
-        // Close modal on Escape key
+        // Escape key
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') closeArticleModal();
         });
 
-        // Close modal when clicking outside content
-        document.addEventListener('click', e => {
-            if (e.target.classList.contains('article-modal')) closeArticleModal();
+        // ============ INIT ============
+        window.addEventListener('load', () => {
+            renderFilterTabs();
+            renderArticles();
         });
     </script>
 </body>
