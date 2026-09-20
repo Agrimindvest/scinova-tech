@@ -1,1 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found | SciNovaTech</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: var(--darker);
+            background-image:
+                radial-gradient(circle at 30% 30%, rgba(0,229,255,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(124,58,237,0.08) 0%, transparent 50%);
+        }
+        .error-container {
+            text-align: center;
+            max-width: 420px;
+        }
+        .error-logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .error-code {
+            font-size: 5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1;
+        }
+        .error-title {
+            color: var(--cyan);
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .error-msg {
+            color: var(--text-dim);
+            font-size: 0.9em;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
 
+    <div class="error-container">
+        <img src="assets/img/logo.svg" alt="SciNovaTech" class="error-logo">
+        <div class="error-code">404</div>
+        <h1 class="error-title">Page Not Found</h1>
+        <p class="error-msg">
+            The page you're looking for doesn't exist, or has been moved.
+            Let's get you back on track.
+        </p>
+        <a href="index.html" class="btn btn-primary btn-block" style="text-decoration:none;">
+            <i class="fas fa-home"></i> Back to Home
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+</body>
+</html>
