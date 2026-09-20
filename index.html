@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SciNovaTech - Learn Science. Earn Daily.</title>
     <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
@@ -52,11 +54,11 @@
             </div>
 
             <div class="feature-list">
-                <p><i class="fas fa-atom"></i> <strong>Read daily</strong> science & tech articles</p>
+                <p><i class="fas fa-gift"></i> <strong>Free ₦100 daily</strong> check-in reward</p>
+                <p><i class="fas fa-atom"></i> <strong>Read science & tech</strong> articles daily</p>
                 <p><i class="fas fa-brain"></i> <strong>Answer 3 questions</strong> and earn per correct answer</p>
                 <p><i class="fas fa-coins"></i> <strong>15% daily returns</strong> on active plans</p>
                 <p><i class="fas fa-users"></i> <strong>Refer friends</strong> and earn 10% bonus</p>
-                <p><i class="fas fa-wallet"></i> <strong>Withdraw earnings</strong> directly to your bank</p>
                 <p><i class="fas fa-gift"></i> <strong>₦500 welcome bonus</strong> on signup</p>
             </div>
 
@@ -119,7 +121,6 @@
         window.addEventListener('load', () => {
             setTimeout(typeWriter, 500);
 
-            // If already logged in, show continue
             const savedUser = localStorage.getItem('scn_u');
             if (savedUser) {
                 try {
