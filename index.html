@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SciNovaTech - Learn Science. Earn Daily.</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        body { overflow-x: hidden; }
+        .hero-cta { margin-top: 25px; }
+        .hero-cta .btn {
+            font-size: 1.05em;
+            padding: 16px 35px;
+            animation: btnPulse 2.5s infinite;
+        }
+        .login-link {
+            color: var(--cyan);
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-size: 0.9em;
+            margin-top: 15px;
+            display: inline-block;
+        }
+        .login-link:hover {
+            color: var(--purple);
+            transform: translateY(-2px);
+            filter: drop-shadow(0 0 8px var(--cyan-glow));
+        }
+        .feature-list p i { width: 25px; text-align: center; }
+        .hero-logo svg { width: 130px; height: 130px; }
+    </style>
+</head>
+<body>
+
+    <div class="hero">
+        <div class="hero-content">
+
+            <div class="hero-logo">
+                <img src="assets/img/logo.svg" alt="SciNovaTech Logo">
+            </div>
+
+            <h1 class="hero-title">SciNovaTech</h1>
+            <p class="hero-tagline">Learn Science. Earn Daily.</p>
+
+            <div class="typewriter-box">
+                <span class="typewriter-text" id="typewriter"></span>
+                <span class="cursor">|</span>
+            </div>
+
+            <div class="feature-list">
+                <p><i class="fas fa-atom"></i> <strong>Read daily</strong> science & tech articles</p>
+                <p><i class="fas fa-brain"></i> <strong>Answer 3 questions</strong> and earn per correct answer</p>
+                <p><i class="fas fa-coins"></i> <strong>15% daily returns</strong> on active plans</p>
+                <p><i class="fas fa-users"></i> <strong>Refer friends</strong> and earn 10% bonus</p>
+                <p><i class="fas fa-wallet"></i> <strong>Withdraw earnings</strong> directly to your bank</p>
+                <p><i class="fas fa-gift"></i> <strong>₦500 welcome bonus</strong> on signup</p>
+            </div>
+
+            <div class="hero-cta">
+                <a href="register.html" class="btn btn-primary btn-lg btn-block">
+                    <i class="fas fa-rocket"></i> CREATE FREE ACCOUNT
+                </a>
+            </div>
+
+            <a href="login.html" class="login-link">
+                Already a member? Login <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+    <script>
+        const phrases = [
+            "Read about quantum physics...",
+            "Learn AI fundamentals...",
+            "Explore the human brain...",
+            "Discover black holes...",
+            "Understand CRISPR...",
+            "Decode electrical circuits...",
+            "Earn daily from science...",
+            "Build your tech knowledge..."
+        ];
+
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typewriterElement = document.getElementById('typewriter');
+
+        function typeWriter() {
+            const currentPhrase = phrases[phraseIndex];
+
+            if (isDeleting) {
+                typewriterElement.textContent = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typewriterElement.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeed = isDeleting ? 40 : 80;
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                typeSpeed = 2000;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                typeSpeed = 500;
+            }
+
+            setTimeout(typeWriter, typeSpeed);
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(typeWriter, 500);
+
+            // If already logged in, show continue
+            const savedUser = localStorage.getItem('scn_u');
+            if (savedUser) {
+                try {
+                    const user = JSON.parse(savedUser);
+                    if (user && user.id) {
+                        const loginLink = document.querySelector('.login-link');
+                        if (loginLink) {
+                            loginLink.innerHTML = 'Continue to Dashboard <i class="fas fa-arrow-right"></i>';
+                            loginLink.href = 'home.html';
+                        }
+                    }
+                } catch (e) {}
+            }
+        });
+    </script>
+</body>
+</html>
