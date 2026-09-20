@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Plans - SciNovaTech</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .starter-slot-banner {
+            background: linear-gradient(135deg, rgba(255,184,0,0.12), rgba(0,229,255,0.08));
+            border: 1px solid var(--gold);
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            animation: softPulse 3s infinite;
+        }
+        .starter-slot-banner .slot-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .starter-slot-banner .slot-title {
+            font-size: 0.85em;
+            color: var(--gold);
+            font-weight: 700;
+        }
+        .starter-slot-banner .slot-desc {
+            font-size: 0.72em;
+            color: var(--text-dim);
+        }
+        .starter-slot-banner .slot-count {
+            font-size: 1.3em;
+            font-weight: 800;
+            color: var(--gold);
+            font-family: 'Space Grotesk', sans-serif;
+            white-space: nowrap;
+        }
+        .starter-slot-banner.sold-out {
+            border-color: var(--danger);
+            background: rgba(239,68,68,0.08);
+        }
+        .starter-slot-banner.sold-out .slot-title,
+        .starter-slot-banner.sold-out .slot-count { color: var(--danger); }
+
+        .plan-badge-custom {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+        .badge-hot { background: rgba(255,184,0,0.2); color: var(--gold); }
+        .badge-limited { background: rgba(239,68,68,0.2); color: var(--danger); }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <a href="home.html" class="logo">
+            <img src="assets/img/logo.svg" alt="SciNovaTech">
+            <span>SciNovaTech</span>
+        </a>
+        <div class="icons">
+            <a href="profile.html"><i class="fas fa-user-circle"></i></a>
+        </div>
+    </header>
+
+    <div class="main-content">
+
+        <a href="home.html" style="color:var(--cyan);text-decoration:none;display:flex;align-items:center;gap:5px;margin-bottom:15px;font-size:0.9em;">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+
+        <h3 style="color:var(--cyan);margin-bottom:15px;">📋 Investment Plans</h3>
+
+        <div id="starterSlotBanner" class="starter-slot-banner hidden">
+            <div class="slot-info">
+                <span class="slot-title">⚡ STARTER SLOT — FIRST 20 DAILY</span>
+                <span class="slot-desc" id="slotDesc">Limited availability</span>
+            </div>
+            <div class="slot-count" id="slotCount">--</div>
+        </div>
+
+        <div id="myPlanSection" style="display:none;">
+            <h4 style="color:var(--text-dim);margin-bottom:8px;font-size:0.85em;">🌟 YOUR ACTIVE PLANS</h4>
+            <div class="card" id="myPlanCard"></div>
+        </div>
+
+        <h4 style="color:var(--text-dim);margin-bottom:8px;font-size:0.85em;">📊 AVAILABLE PLANS</h4>
+        <div id="allPlansContainer">
+            <div style="text-align:center;padding:30px;">
+                <div class="spinner"></div>
+                <p style="color:var(--text-dim);margin-top:10px;">Loading plans...</p>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="plans.html" class="nav-item active"><i class="fas fa-layer-group"></i><span>Plans</span></a>
+        <a href="deposit.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Deposit</span></a>
+        <a href="tasks.html" class="nav-item"><i class="fas fa-tasks"></i><span>Tasks</span></a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+    <script>
+        const user = checkAuth();
+        if (!user) { window.location.href = 'login.html'; }
+
+        let currentUser = user;
+        let allPlans = {};
+        let starterSlots = { remaining: 0, limit: 20, used: 0 };
+
+        function getPlanLimitText(planKey, plan) {
+            if (planKey === 'starter') return '1× per day (first 20 daily)';
+            if (plan.limitType === 'total') return (plan.totalLimit || 1) + '× total';
+            return '1×';
+        }
+
+        function getUserPurchaseCount(key) {
+            return (currentUser.ownedPlans || []).filter(x => x === key).length;
+        }
+
+        async function loadStarterSlots() {
+            try {
+                starterSlots = await getStarterSlots();
+                const banner = document.getElementById('starterSlotBanner');
+                const countEl = document.getElementById('slotCount');
+                const descEl = document.getElementById('slotDesc');
+
+                banner.classList.remove('hidden');
+                countEl.textContent = starterSlots.remaining + '/' + starterSlots.limit;
+
+                if (starterSlots.remaining <= 0) {
+                    banner.classList.add('sold-out');
+                    descEl.textContent = 'Sold out for today. Resets at midnight WAT.';
+                    countEl.textContent = 'SOLD OUT';
+                } else {
+                    banner.classList.remove('sold-out');
+                    descEl.textContent = starterSlots.remaining + ' slots left for today';
+                }
+            } catch (e) {
+                console.error('loadStarterSlots error:', e);
+            }
+        }
+
+        function renderPageContent() {
+            // Show user's active plans
+            if (currentUser.ownedPlans && currentUser.ownedPlans.length > 0) {
+                document.getElementById('myPlanSection').style.display = 'block';
+                const planCounts = {};
+                (currentUser.ownedPlans || []).forEach(p => { planCounts[p] = (planCounts[p] || 0) + 1; });
+
+                let activeHTML = '';
+                let totalDaily = 0;
+                Object.keys(planCounts).forEach(key => {
+                    if (allPlans[key]) {
+                        const p = allPlans[key];
+                        const daily = calcDailyEarning(p.price, p.dailyRate || 15);
+                        const contribution = daily * planCounts[key];
+                        totalDaily += contribution;
+                        activeHTML += `
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+                            <span style="color:var(--cyan);">✅ ${p.name} x${planCounts[key]}</span>
+                            <span style="color:var(--gold);">₦${contribution.toLocaleString()}/day</span>
+                        </div>`;
+                    }
+                });
+                activeHTML += `<div style="display:flex;justify-content:space-between;padding-top:10px;font-weight:700;">
+                    <span>💰 Total Daily:</span><span style="color:var(--gold);">₦${totalDaily.toLocaleString()}/day</span>
+                </div>`;
+                activeHTML += `<div style="display:flex;justify-content:space-between;padding-top:6px;font-size:0.85em;color:var(--text-dim);">
+                    <span>📅 90-Day Estimate:</span><span style="color:var(--cyan);">₦${(totalDaily * 90).toLocaleString()}</span>
+                </div>`;
+                document.getElementById('myPlanCard').innerHTML = activeHTML;
+            } else {
+                document.getElementById('myPlanSection').style.display = 'none';
+            }
+
+            // Show all plans
+            const sortedKeys = Object.keys(allPlans).sort((a, b) => (allPlans[a].price || 0) - (allPlans[b].price || 0));
+            let plansHTML = '';
+
+            if (sortedKeys.length === 0) {
+                plansHTML = `
+                <div class="card" style="text-align:center;padding:30px;">
+                    <i class="fas fa-exclamation-circle" style="font-size:3em;color:var(--warning);margin-bottom:15px;"></i>
+                    <h4 style="color:var(--warning);">No Plans Available</h4>
+                    <p style="color:var(--text-dim);">Please check back later or contact admin.</p>
+                    <button class="btn btn-primary btn-sm" onclick="loadPlans()" style="margin-top:10px;">
+                        <i class="fas fa-sync"></i> Refresh Plans
+                    </button>
+                </div>`;
+            } else {
+                sortedKeys.forEach(key => {
+                    const p = allPlans[key];
+                    const purchased = getUserPurchaseCount(key);
+                    const status = p.status || 'active';
+
+                    let limitReached = false;
+                    if (key === 'starter') {
+                        // starter: 1 per day
+                        const today = getLocalDate();
+                        // Check if user already purchased starter today - use purchased count from plan history
+                        // For simplicity, use 1 per day limit
+                        limitReached = purchased >= 1 && (currentUser.lastStarterPurchase === today);
+                    } else if (p.limitType === 'total') {
+                        limitReached = purchased >= (p.totalLimit || 1);
+                    }
+
+                    let statusIcon, statusClass, buttonHTML, badges = '';
+
+                    if (status === 'disabled') {
+                        statusIcon = '🔒'; statusClass = 'locked';
+                        buttonHTML = '<span class="plan-badge badge-locked">Coming Soon</span>';
+                    } else if (status === 'soldout') {
+                        statusIcon = '🔴'; statusClass = 'sold-out';
+                        buttonHTML = '<span class="plan-badge badge-sold">Sold Out</span>';
+                    } else if (limitReached) {
+                        statusIcon = '✅'; statusClass = '';
+                        buttonHTML = `<span class="plan-badge badge-active">Maxed ${purchased}</span>`;
+                    } else {
+                        statusIcon = '🟢'; statusClass = '';
+                        const btnText = purchased > 0 ? 'Invest Again' : 'Invest Now';
+                        buttonHTML = `<button class="btn btn-primary btn-sm" onclick="invest('${key}')">${btnText}</button>`;
+                    }
+
+                    // Special badges for starter
+                    if (key === 'starter') {
+                        badges = '<span class="plan-badge-custom badge-limited">⚡ LIMITED 20/DAY</span>';
+                    }
+
+                    const daily = calcDailyEarning(p.price, p.dailyRate || 15);
+                    const perTask = calcTaskReward(p.price, p.dailyRate || 15);
+                    const total90 = daily * 90;
+
+                    plansHTML += `
+                    <div class="plan-card ${statusClass}" style="animation-delay:${sortedKeys.indexOf(key) * 0.05}s;">
+                        <div class="plan-row">
+                            <span class="plan-name">${statusIcon} ${p.name}${badges}</span>
+                            <span class="plan-price">${fmt(p.price)}</span>
+                        </div>
+                        <div class="plan-info">
+                            <div>Daily (${p.dailyRate || 15}%): <span style="color:var(--gold);">${fmt(daily)}</span></div>
+                            <div>Per Task: <span style="color:var(--cyan);">${fmt(perTask)}</span></div>
+                            <div>Validity: <span>${p.daysValid || 90} days</span></div>
+                            <div>Total Return: <span>${fmt(total90)}</span></div>
+                        </div>
+                        <div class="plan-info">
+                            <div>Purchase Limit: <span>${getPlanLimitText(key, p)}</span></div>
+                            <div>Your Purchases: <span>${purchased}</span></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+                            ${buttonHTML}
+                        </div>
+                    </div>`;
+                });
+            }
+
+            document.getElementById('allPlansContainer').innerHTML = plansHTML;
+            staggerCards('.plan-card', 0.06);
+        }
+
+        async function loadPlans() {
+            try {
+                document.getElementById('allPlansContainer').innerHTML = `
+                    <div style="text-align:center;padding:30px;">
+                        <div class="spinner"></div>
+                        <p style="color:var(--text-dim);margin-top:10px;">Loading plans...</p>
+                    </div>`;
+
+                currentUser = await refreshUser();
+                allPlans = await getAllPlans();
+                await loadStarterSlots();
+                renderPageContent();
+
+            } catch (error) {
+                console.error('Load plans error:', error);
+                allPlans = DEFAULT_PLANS;
+                renderPageContent();
+                toast('⚠️ Using default plans - check your connection');
+            }
+        }
+
+        // ============ INVEST ============
+        async function invest(planKey) {
+            const plan = allPlans[planKey];
+            if (!plan) return toast('Plan not found');
+            if (plan.status === 'disabled') return toast('This plan is currently unavailable');
+            if (plan.status === 'soldout') return toast('This plan is sold out');
+
+            // Check limit
+            const purchased = getUserPurchaseCount(planKey);
+            if (planKey === 'starter' && purchased >= 1) {
+                return toast('Starter plan is limited to 1 purchase per day');
+            }
+            if (planKey !== 'starter' && plan.limitType === 'total' && purchased >= (plan.totalLimit || 1)) {
+                return toast('You have reached the maximum purchases for this plan');
+            }
+
+            // Starter slot check
+            if (planKey === 'starter') {
+                const slots = await getStarterSlots();
+                if (slots.remaining <= 0) {
+                    return toast('❌ Starter slots sold out for today. Try again tomorrow at 12 AM WAT.');
+                }
+            }
+
+            // Refresh user data
+            currentUser = await refreshUser();
+            const userBalance = currentUser.balance || 0;
+
+            if (userBalance < plan.price) {
+                return toast('❌ Insufficient balance. Need: ' + fmt(plan.price) + '. You have: ' + fmt(userBalance));
+            }
+
+            const daily = calcDailyEarning(plan.price, plan.dailyRate || 15);
+            const perTask = calcTaskReward(plan.price, plan.dailyRate || 15);
+            const confirmMsg = `Invest ${fmt(plan.price)} for ${plan.name}?\n\n` +
+                `Daily (${plan.dailyRate || 15}%): ${fmt(daily)}\n` +
+                `Per Task (3/day): ${fmt(perTask)}\n` +
+                `Validity: ${plan.daysValid || 90} days\n` +
+                `Total Return: ${fmt(daily * (plan.daysValid || 90))}\n\n` +
+                `Your balance: ${fmt(userBalance)}`;
+
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                // ===== If starter, claim slot first (atomic) =====
+                if (planKey === 'starter') {
+                    const slotResult = await claimStarterSlot();
+                    if (!slotResult.ok) {
+                        return toast('❌ ' + slotResult.message);
+                    }
+                }
+
+                // ===== Deduct balance =====
+                const { error: incErr } = await sb.rpc('increment_user_field', {
+                    p_user_id: currentUser.id,
+                    p_field: 'balance',
+                    p_amount: -plan.price
+                });
+                if (incErr) throw incErr;
+
+                // ===== Update user plan fields =====
+                const ownedPlans = [...(currentUser.ownedPlans || []), planKey];
+                const expiryDate = new Date();
+                expiryDate.setDate(expiryDate.getDate() + (plan.daysValid || 90));
+
+                await sb.from('users').update({
+                    owned_plans: ownedPlans,
+                    plan: planKey,
+                    expiry_date: expiryDate.toISOString(),
+                    invested: true,
+                    investment_amount: (currentUser.investmentAmount || 0) + plan.price
+                }).eq('id', currentUser.id);
+
+                // ===== Record payment =====
+                await sb.from('payments').insert({
+                    user_id: currentUser.id,
+                    user_name: currentUser.name,
+                    amount: plan.price,
+                    package: planKey,
+                    status: 'approved',
+                    type: 'balance',
+                    daily_rate: plan.dailyRate || 15,
+                    days_valid: plan.daysValid || 90,
+                    expires_at: expiryDate.toISOString()
+                });
+
+                // ===== Referral bonus (10% / 3% / 1%) =====
+                await processReferralBonus(currentUser, plan.price, planKey);
+
+                // ===== Update local state =====
+                currentUser.balance = (currentUser.balance || 0) - plan.price;
+                currentUser.ownedPlans = ownedPlans;
+                localStorage.setItem('scn_u', JSON.stringify(currentUser));
+
+                toast('✅ Invested in ' + plan.name + '! Daily: ' + fmt(daily));
+                loadPlans();
+
+            } catch (error) {
+                console.error('Invest error:', error);
+                toast(error.message || 'Investment failed. Please try again.');
+            }
+        }
+
+        // ============ REFERRAL BONUS LOGIC ============
+        async function processReferralBonus(buyer, amount, planKey) {
+            if (!buyer.referredBy || buyer.referredBy === 'ADMIN') return;
+
+            try {
+                // ----- L1: 10% to direct referrer -----
+                const { data: l1 } = await sb.from('users')
+                    .select('*').eq('id', buyer.referredBy).maybeSingle();
+
+                if (l1) {
+                    const l1Bonus = Math.floor(amount * 0.10);
+                    await sb.rpc('increment_user_field', {
+                        p_user_id: l1.id, p_field: 'balance', p_amount: l1Bonus
+                    });
+                    await sb.rpc('increment_user_field', {
+                        p_user_id: l1.id, p_field: 'ref_earnings', p_amount: l1Bonus
+                    });
+
+                    await sb.from('referrals').insert({
+                        referrer_id: l1.id,
+                        referee_id: buyer.id,
+                        referee_name: buyer.name,
+                        package: planKey,
+                        earned: l1Bonus,
+                        level: 1,
+                        status: 'credited'
+                    });
+
+                    await sb.from('payout_ledger').insert({
+                        user_id: l1.id,
+                        amount: l1Bonus,
+                        source: 'referral'
+                    });
+
+                    // ----- L2: 3% to L1's referrer -----
+                    if (l1.referred_by && l1.referred_by !== 'ADMIN') {
+                        const { data: l2 } = await sb.from('users')
+                            .select('*').eq('id', l1.referred_by).maybeSingle();
+
+                        if (l2) {
+                            const l2Bonus = Math.floor(amount * 0.03);
+                            await sb.rpc('increment_user_field', {
+                                p_user_id: l2.id, p_field: 'balance', p_amount: l2Bonus
+                            });
+                            await sb.rpc('increment_user_field', {
+                                p_user_id: l2.id, p_field: 'ref_earnings', p_amount: l2Bonus
+                            });
+                            await sb.from('referrals').insert({
+                                referrer_id: l2.id,
+                                referee_id: buyer.id,
+                                referee_name: buyer.name,
+                                package: planKey,
+                                earned: l2Bonus,
+                                level: 2,
+                                status: 'credited'
+                            });
+                            await sb.from('payout_ledger').insert({
+                                user_id: l2.id, amount: l2Bonus, source: 'referral'
+                            });
+
+                            // ----- L3: 1% to L2's referrer -----
+                            if (l2.referred_by && l2.referred_by !== 'ADMIN') {
+                                const { data: l3 } = await sb.from('users')
+                                    .select('*').eq('id', l2.referred_by).maybeSingle();
+                                if (l3) {
+                                    const l3Bonus = Math.floor(amount * 0.01);
+                                    await sb.rpc('increment_user_field', {
+                                        p_user_id: l3.id, p_field: 'balance', p_amount: l3Bonus
+                                    });
+                                    await sb.rpc('increment_user_field', {
+                                        p_user_id: l3.id, p_field: 'ref_earnings', p_amount: l3Bonus
+                                    });
+                                    await sb.from('referrals').insert({
+                                        referrer_id: l3.id,
+                                        referee_id: buyer.id,
+                                        referee_name: buyer.name,
+                                        package: planKey,
+                                        earned: l3Bonus,
+                                        level: 3,
+                                        status: 'credited'
+                                    });
+                                    await sb.from('payout_ledger').insert({
+                                        user_id: l3.id, amount: l3Bonus, source: 'referral'
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Referral bonus error:', err);
+            }
+        }
+
+        function refreshPlans() {
+            toast('🔄 Refreshing plans...');
+            loadPlans();
+        }
+
+        window.addEventListener('load', loadPlans);
+    </script>
+</body>
+</html>
