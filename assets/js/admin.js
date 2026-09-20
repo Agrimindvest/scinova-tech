@@ -13,7 +13,6 @@ let emergencyStopState = false;
 // ============ DASHBOARD ============
 async function loadDashboard() {
     try {
-        // Load starter slots
         await loadStarterSlotsAdmin();
 
         const { data: users, error: uErr } = await sb.from('users').select('*');
@@ -418,12 +417,10 @@ async function showAddArticle() {
     document.getElementById('aTitle').value = '';
     document.getElementById('aContent').value = '';
 
-    // Populate categories
     const cats = await getCategories();
     const catSel = document.getElementById('aCategory');
     catSel.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
 
-    // 3 questions
     let qHTML = '';
     for (let i = 1; i <= 3; i++) {
         qHTML += `<div class="card" style="margin-bottom:10px;">
@@ -570,7 +567,7 @@ async function loadTaskReports() {
                 <div class="task-report-item">
                     <div class="user-info">
                         <span class="name">${task.userId || task.user_id}</span>
-                        <span class="id">${completed}/3 questions completed${task.readingRewardClaimed ? ' • ✅ Reading' : ''}</span>
+                        <span class="id">${completed}/3 questions${task.readingRewardClaimed ? ' • ✅ Check-in' : ''}</span>
                     </div>
                     <div class="task-stats">
                         <span class="completed">✅ ${completed}/3</span>
@@ -658,6 +655,7 @@ async function togglePlan(key, status) {
         if (plans[key]) {
             plans[key].status = status;
             await sb.from('settings').upsert({ key: 'plans', value: plans });
+            cacheClear('plans');
             loadPlansAdmin();
             toast('✅ Plan status: ' + status);
         }
@@ -680,6 +678,7 @@ async function editPlanValues(key) {
 
         plans[key] = { ...p, name, price, dailyRate, daysValid };
         await sb.from('settings').upsert({ key: 'plans', value: plans });
+        cacheClear('plans');
         loadPlansAdmin();
         toast('✅ Plan updated!');
     } catch (error) {
@@ -705,6 +704,7 @@ function showAddPlan() {
         };
         return sb.from('settings').upsert({ key: 'plans', value: plans });
     }).then(() => {
+        cacheClear('plans');
         loadPlansAdmin();
         toast('✅ Plan added!');
     }).catch(error => {
@@ -780,11 +780,16 @@ async function loadSettingsData() {
         const p = await getDoc('settings', 'site');
         if (p) {
             document.getElementById('setBonus').value = p.welcomeBonus || 500;
-            document.getElementById('setReadingReward').value = p.readingReward || 100;
-            document.getElementById('setReadingMinutes').value = p.readingMinutes || 5;
+            document.getElementById('setCheckinReward').value = p.checkinReward || 100;
+            document.getElementById('setCheckinReadSeconds').value = p.checkinReadSeconds || 60;
+            document.getElementById('setTaskReadSeconds').value = p.taskReadSeconds || 10;
             document.getElementById('setTasksPerDay').value = p.tasksPerDay || 3;
+            document.getElementById('setStarterLimit').value = p.starterDailyLimit || 20;
             document.getElementById('setWithdrawalFee').value = p.withdrawalFeePct || 13;
             document.getElementById('setPayoutCap').value = p.payoutCapMultiplier || 3;
+            document.getElementById('setRef1').value = p.ref1 || 10;
+            document.getElementById('setRef2').value = p.ref2 || 3;
+            document.getElementById('setRef3').value = p.ref3 || 1;
             emergencyStopState = p.emergencyStop || false;
             updateEmergencyToggleUI();
         }
@@ -797,14 +802,9 @@ async function loadSettingsData() {
             document.getElementById('setWithdrawalWeekday').value = w.max_weekday || 1;
             document.getElementById('setWithdrawalWeekend').value = w.max_weekend || 2;
         }
-
-        const r = await getDoc('settings', 'site');
-        if (r) {
-            document.getElementById('setRef1').value = r.ref1 || 10;
-            document.getElementById('setRef2').value = r.ref2 || 3;
-            document.getElementById('setRef3').value = r.ref3 || 1;
-        }
-    } catch (error) { console.error('Load settings error:', error); }
+    } catch (error) {
+        console.error('Load settings error:', error);
+    }
 }
 
 function updateEmergencyToggleUI() {
@@ -841,9 +841,11 @@ async function saveSettings() {
                 key: 'site',
                 value: {
                     welcomeBonus: parseInt(document.getElementById('setBonus').value) || 500,
-                    readingReward: parseInt(document.getElementById('setReadingReward').value) || 100,
-                    readingMinutes: parseInt(document.getElementById('setReadingMinutes').value) || 5,
+                    checkinReward: parseInt(document.getElementById('setCheckinReward').value) || 100,
+                    checkinReadSeconds: parseInt(document.getElementById('setCheckinReadSeconds').value) || 60,
+                    taskReadSeconds: parseInt(document.getElementById('setTaskReadSeconds').value) || 10,
                     tasksPerDay: parseInt(document.getElementById('setTasksPerDay').value) || 3,
+                    starterDailyLimit: parseInt(document.getElementById('setStarterLimit').value) || 20,
                     withdrawalFeePct: parseInt(document.getElementById('setWithdrawalFee').value) || 13,
                     minWithdrawal: parseInt(document.getElementById('setWithdrawalMin').value) || 600,
                     minDeposit: 3000,
@@ -867,15 +869,13 @@ async function saveSettings() {
                 updated_at: new Date().toISOString()
             }
         ]);
+
+        cacheClear();
         toast('✅ Settings saved!');
     } catch (error) {
         console.error('Save settings error:', error);
         toast('❌ Failed');
     }
 }
-
-document.addEventListener('click', e => {
-    if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('active');
-});
 
 console.log('🛡️ SciNovaTech Admin JS Ready');
