@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Daily Check-in - SciNovaTech</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .checkin-container { max-width: 600px; margin: 0 auto; }
+
+        /* Hero card */
+        .checkin-hero {
+            background: linear-gradient(135deg, rgba(255,184,0,0.15), rgba(0,229,255,0.08));
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            padding: 28px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(255,184,0,0.15);
+            transition: all 0.4s;
+        }
+        .checkin-hero.claimed {
+            background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(0,229,255,0.05));
+            border-color: var(--success);
+            box-shadow: 0 0 30px rgba(34,197,94,0.15);
+        }
+        .checkin-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle at center, rgba(255,184,0,0.15) 0%, transparent 60%);
+            animation: nucleusPulse 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes nucleusPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+        .checkin-hero-icon {
+            font-size: 4em;
+            color: var(--gold);
+            margin-bottom: 12px;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(255,184,0,0.5));
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+        .checkin-hero.claimed .checkin-hero-icon {
+            color: var(--success);
+            filter: drop-shadow(0 0 20px rgba(34,197,94,0.5));
+            animation: none;
+        }
+        .checkin-hero-title {
+            color: var(--gold);
+            font-size: 1.4em;
+            font-weight: 800;
+            margin-bottom: 6px;
+            font-family: 'Space Grotesk', sans-serif;
+            position: relative;
+        }
+        .checkin-hero.claimed .checkin-hero-title { color: var(--success); }
+        .checkin-hero-sub {
+            color: var(--text-dim);
+            font-size: 0.85em;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .checkin-hero-amount {
+            font-size: 2.6em;
+            font-weight: 900;
+            color: var(--gold);
+            margin: 12px 0;
+            font-family: 'Space Grotesk', sans-serif;
+            position: relative;
+            text-shadow: 0 0 30px rgba(255,184,0,0.4);
+        }
+        .checkin-hero.claimed .checkin-hero-amount {
+            color: var(--success);
+            text-shadow: 0 0 30px rgba(34,197,94,0.4);
+        }
+
+        /* Article */
+        .article-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            max-height: 340px;
+            overflow-y: auto;
+            line-height: 1.8;
+            font-size: 0.95em;
+        }
+        .article-card h4 { color: var(--cyan); margin-bottom: 10px; font-size: 1em; }
+        .article-card .article-meta {
+            display: flex; gap: 12px; margin-bottom: 12px;
+            font-size: 0.72em; color: var(--text-dim); flex-wrap: wrap;
+        }
+        .article-card .article-meta span {
+            padding: 3px 10px; background: rgba(0,229,255,0.08); border-radius: 10px;
+        }
+
+        /* Timer */
+        .timer-section { text-align: center; margin-bottom: 20px; }
+        .timer-display {
+            font-size: 2.8em; font-weight: 800; color: var(--cyan);
+            margin: 10px 0; transition: color 0.3s;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .timer-display.warning { color: var(--warning); animation: timerPulse 0.5s infinite; }
+        .timer-display.danger { color: var(--danger); animation: timerPulse 0.3s infinite; }
+        @keyframes timerPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+
+        /* Flow wrapper */
+        .checkin-flow { display: none; }
+        .checkin-flow.active { display: block; animation: fadeSlideUp 0.4s ease; }
+        @keyframes fadeSlideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+        /* Streak chip */
+        .streak-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,184,0,0.12);
+            border: 1px solid var(--gold);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            color: var(--gold);
+            font-weight: 700;
+            margin: 0 auto 14px;
+        }
+
+        /* Confetti */
+        .confetti-piece {
+            position: fixed;
+            width: 8px; height: 8px;
+            opacity: 0;
+            animation: confettiFall 1.8s ease-out forwards;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <a href="home.html" class="logo">
+            <img src="assets/img/logo.svg" alt="SciNovaTech">
+            <span>SciNovaTech</span>
+        </a>
+        <div class="icons"><a href="profile.html"><i class="fas fa-user-circle"></i></a></div>
+    </header>
+
+    <div class="main-content">
+        <a href="home.html" style="color:var(--cyan);text-decoration:none;display:flex;align-items:center;gap:5px;margin-bottom:15px;font-size:0.9em;">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+
+        <div class="checkin-container">
+
+            <!-- HERO CARD -->
+            <div class="checkin-hero" id="checkinHero">
+                <div class="checkin-hero-icon" id="heroIcon"><i class="fas fa-gift"></i></div>
+                <div class="checkin-hero-title" id="heroTitle">Free Daily Reward</div>
+                <div class="checkin-hero-sub" id="heroSub">Tap the button below to start</div>
+                <div class="checkin-hero-amount" id="heroAmount">₦100</div>
+                <button class="btn btn-gold btn-block" id="startBtn" onclick="startCheckin()" style="margin-top:12px;position:relative;">
+                    <i class="fas fa-hand-holding-heart"></i> START CHECK-IN
+                </button>
+            </div>
+
+            <!-- STREAK -->
+            <div style="text-align:center;">
+                <div class="streak-chip" id="streakChip">
+                    <i class="fas fa-fire"></i> <span id="streakText">0-day streak</span>
+                </div>
+            </div>
+
+            <!-- FLOW (article → timer → claim) -->
+            <div class="checkin-flow" id="checkinFlow">
+
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:0.9em;color:var(--cyan);font-weight:700;">
+                    <span style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--cyan));color:white;display:flex;align-items:center;justify-content:center;font-size:0.75em;font-weight:800;">1</span>
+                    Read this article
+                </div>
+
+                <div class="article-card">
+                    <h4 id="articleTitle">Loading...</h4>
+                    <div class="article-meta" id="articleMeta"></div>
+                    <p id="articleBody">Please wait...</p>
+                </div>
+
+                <div class="timer-section">
+                    <p style="color:var(--text-dim);font-size:0.85em;">⏰ Claim unlocks in:</p>
+                    <div class="timer-display" id="timerDisplay">60</div>
+                    <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%;"></div></div>
+                </div>
+
+                <button class="btn btn-gold btn-block" id="claimBtn" disabled onclick="claimReward()">
+                    <i class="fas fa-lock"></i> WAIT FOR TIMER
+                </button>
+            </div>
+
+            <!-- Info box -->
+            <div class="info-box" style="margin-top:20px;">
+                <h4><i class="fas fa-info-circle"></i> How it works</h4>
+                <ul>
+                    <li><i class="fas fa-gift"></i> Tap "Start Check-in" once per day</li>
+                    <li><i class="fas fa-book-open"></i> Read a random science article</li>
+                    <li><i class="fas fa-clock"></i> Wait for the timer to finish</li>
+                    <li><i class="fas fa-coins"></i> Claim your free reward — no plan needed</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="plans.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Plans</span></a>
+        <a href="deposit.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Deposit</span></a>
+        <a href="checkin.html" class="nav-item active"><i class="fas fa-gift"></i><span>Check-in</span></a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+    <script>
+        const user = checkAuth();
+        if (!user) window.location.href = 'login.html';
+
+        let currentUser = user;
+        let siteSettings = {};
+        let checkinSeconds = 60;
+        let checkinReward = 100;
+        let checkinClaimed = false;
+        let checkinBusy = false;
+        let secondsLeft = 60;
+        let timerInterval = null;
+
+        const ARTICLES = [
+            { title: 'Quantum Entanglement: Spooky Action at a Distance', category: 'Physics', difficulty: 'Intermediate',
+              content: 'Quantum entanglement is one of the most fascinating and counterintuitive phenomena in modern physics. When two particles become entangled, their quantum states become intrinsically linked, no matter how far apart they are. Measuring one particle instantaneously affects the other, even if they are light-years apart. Einstein famously called this "spooky action at a distance". This phenomenon is now being used in quantum computing, quantum cryptography, and quantum teleportation.' },
+            { title: 'CRISPR: The Future of Gene Editing', category: 'Biology', difficulty: 'Beginner',
+              content: 'CRISPR-Cas9 is a revolutionary gene-editing technology that allows scientists to precisely modify DNA sequences. Originally discovered as a bacterial immune system, CRISPR works by using a guide RNA to target specific DNA sequences and the Cas9 enzyme to cut them. This technology has enormous potential for treating genetic diseases like sickle cell anemia, cystic fibrosis, and Huntington\'s disease. In agriculture, CRISPR is being used to create drought-resistant crops and disease-resistant livestock.' },
+            { title: 'Black Holes: The Cosmic Vacuum Cleaners', category: 'Astronomy', difficulty: 'Beginner',
+              content: 'Black holes are regions of space where gravity is so intense that nothing — not even light — can escape. They form when massive stars collapse at the end of their life cycles. The boundary around a black hole where escape velocity equals the speed of light is called the event horizon. Anything crossing this boundary is lost forever. In 2019, the Event Horizon Telescope captured the first image of a black hole.' },
+            { title: 'Artificial Intelligence: How Machines Learn', category: 'AI', difficulty: 'Beginner',
+              content: 'Machine learning is a subset of artificial intelligence that enables computers to learn from data without being explicitly programmed. There are three main types: supervised, unsupervised, and reinforcement learning. Deep learning uses artificial neural networks with many layers to process complex data like images, text, and speech. Modern AI systems like ChatGPT and image generators are powered by these techniques.' },
+            { title: 'The Human Brain: Nature\'s Supercomputer', category: 'Neuroscience', difficulty: 'Intermediate',
+              content: 'The human brain contains approximately 86 billion neurons, each connected to thousands of others through synapses. This creates a network of trillions of connections. Neurons communicate through electrical and chemical signals, releasing neurotransmitters like dopamine and serotonin. Neuroplasticity allows the brain to reorganize itself by forming new neural connections throughout life. Sleep plays a critical role in memory consolidation.' },
+            { title: 'Fusion Energy: Powering the Future', category: 'Engineering', difficulty: 'Advanced',
+              content: 'Nuclear fusion is the process that powers the sun and stars. It involves combining light atomic nuclei to form heavier ones, releasing enormous amounts of energy. Unlike nuclear fission, fusion produces minimal waste and uses abundant fuels like hydrogen isotopes. The challenge is that fusion requires temperatures of over 100 million degrees Celsius. In December 2022, the National Ignition Facility achieved the first-ever net energy gain from fusion.' },
+            { title: 'Nanotechnology: Engineering at the Atomic Scale', category: 'Engineering', difficulty: 'Intermediate',
+              content: 'Nanotechnology manipulates matter at the nanoscale — one billionth of a meter. At this scale, materials exhibit unique properties. Carbon forms either soft graphite, super-hard diamond, or revolutionary materials like graphene. Graphene is 200 times stronger than steel, conducts electricity better than copper, and is transparent and flexible.' },
+            { title: 'Robotics: Machines That Think and Move', category: 'Robotics', difficulty: 'Beginner',
+              content: 'Robotics combines mechanical engineering, electronics, and computer science to create machines that perform tasks autonomously. Modern robots range from industrial arms welding cars to surgical robots performing precision operations, to humanoid robots exploring Mars. Key components include sensors, actuators, and controllers. AI is increasingly integrated into robotics.' },
+            { title: 'Climate Change and Renewable Energy', category: 'Environment', difficulty: 'Beginner',
+              content: 'Climate change is driven primarily by greenhouse gas emissions from burning fossil fuels. Renewable sources — solar, wind, hydroelectric — offer sustainable alternatives. Solar photovoltaic costs have dropped by 90% since 2010, making it the cheapest electricity source in history in many regions. Battery storage is improving rapidly.' },
+            { title: 'The Internet of Things: Connecting Everything', category: 'Computing', difficulty: 'Beginner',
+              content: 'The Internet of Things (IoT) refers to billions of physical devices connected to the internet, collecting and sharing data. From smart thermostats and fitness trackers to industrial sensors and connected cars, IoT is transforming how we live and work. By 2030, an estimated 50 billion IoT devices will be online.' }
+        ];
+
+        window.addEventListener('load', async () => {
+            try {
+                const [refreshed, settings] = await Promise.all([
+                    refreshUser(),
+                    getSiteSettings()
+                ]);
+                currentUser = refreshed;
+                siteSettings = settings;
+
+                checkinSeconds = Number(siteSettings.checkinReadSeconds) || 60;
+                checkinReward = Number(siteSettings.checkinReward) || 100;
+
+                document.getElementById('heroAmount').textContent = fmt(checkinReward);
+
+                const today = getLocalDate();
+                const taskData = await syncUserTasks(currentUser.id, today);
+                checkinClaimed = taskData.readingRewardClaimed || false;
+
+                renderHero();
+                await renderStreak();
+
+            } catch (e) {
+                console.error('Init error:', e);
+                toast('Error loading page');
+            }
+        });
+
+        function renderHero() {
+            const hero = document.getElementById('checkinHero');
+            const icon = document.getElementById('heroIcon');
+            const title = document.getElementById('heroTitle');
+            const sub = document.getElementById('heroSub');
+            const amount = document.getElementById('heroAmount');
+            const btn = document.getElementById('startBtn');
+            const flow = document.getElementById('checkinFlow');
+
+            if (checkinClaimed) {
+                hero.classList.add('claimed');
+                icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+                title.textContent = 'Claimed Today!';
+                sub.textContent = 'Come back tomorrow at 12 AM WAT';
+                amount.textContent = '+' + fmt(checkinReward);
+                btn.disabled = true;
+                btn.innerHTML = '✅ ALREADY CLAIMED TODAY';
+                btn.classList.remove('btn-pulse');
+                flow.classList.remove('active');
+            } else {
+                hero.classList.remove('claimed');
+                icon.innerHTML = '<i class="fas fa-gift"></i>';
+                title.textContent = 'Free Daily Reward';
+                sub.textContent = 'Read for ' + checkinSeconds + 's, then claim';
+                amount.textContent = fmt(checkinReward);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-hand-holding-heart"></i> START CHECK-IN';
+                btn.classList.add('btn-pulse');
+                flow.classList.remove('active');
+            }
+        }
+
+        async function renderStreak() {
+            // Compute streak from last 30 days of user_tasks
+            try {
+                const { data } = await sb
+                    .from('user_tasks')
+                    .select('date, reading_reward_claimed')
+                    .eq('user_id', currentUser.id)
+                    .order('date', { ascending: false })
+                    .limit(60);
+
+                let streak = 0;
+                const today = new Date();
+                for (let i = 0; i < 60; i++) {
+                    const d = new Date(today);
+                    d.setDate(d.getDate() - i);
+                    const dateStr = d.toISOString().split('T')[0];
+                    const row = (data || []).find(r => r.date === dateStr);
+                    if (row && row.reading_reward_claimed) {
+                        streak++;
+                    } else {
+                        // Allow "today" to be missing without breaking streak
+                        if (i === 0) continue;
+                        break;
+                    }
+                }
+                document.getElementById('streakText').textContent = streak + '-day streak';
+            } catch (e) {
+                console.error('Streak error:', e);
+                document.getElementById('streakText').textContent = '0-day streak';
+            }
+        }
+
+        function startCheckin() {
+            if (checkinClaimed || checkinBusy) return;
+
+            const article = ARTICLES[Math.floor(Math.random() * ARTICLES.length)];
+            document.getElementById('articleTitle').textContent = '📖 ' + article.title;
+            document.getElementById('articleMeta').innerHTML = `
+                <span>🔬 ${article.category}</span>
+                <span>📊 ${article.difficulty}</span>
+                <span>⏱️ ${checkinSeconds}s read</span>
+            `;
+            document.getElementById('articleBody').textContent = article.content;
+
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('checkinFlow').classList.add('active');
+
+            secondsLeft = checkinSeconds;
+            updateTimer();
+
+            const claimBtn = document.getElementById('claimBtn');
+            claimBtn.disabled = true;
+            claimBtn.innerHTML = '<i class="fas fa-lock"></i> WAIT ' + checkinSeconds + 's';
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsLeft--;
+                updateTimer();
+
+                if (secondsLeft <= 0) {
+                    clearInterval(timerInterval);
+                    claimBtn.disabled = false;
+                    claimBtn.classList.add('btn-pulse');
+                    claimBtn.innerHTML = '<i class="fas fa-gift"></i> CLAIM ' + fmt(checkinReward);
+                }
+            }, 1000);
+        }
+
+        function updateTimer() {
+            const td = document.getElementById('timerDisplay');
+            const fill = document.getElementById('timerFill');
+            td.textContent = secondsLeft;
+            fill.style.width = (secondsLeft / checkinSeconds * 100) + '%';
+
+            td.className = 'timer-display';
+            fill.className = 'timer-fill';
+            if (secondsLeft <= 15) { td.classList.add('warning'); fill.classList.add('warning'); }
+            if (secondsLeft <= 5) { td.classList.add('danger'); fill.classList.add('danger'); }
+        }
+
+        async function claimReward() {
+            if (checkinClaimed || checkinBusy) return;
+            if (secondsLeft > 0) return;
+            checkinBusy = true;
+
+            const btn = document.getElementById('claimBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Claiming...';
+
+            try {
+                const today = getLocalDate();
+                const { data: result, error } = await sb.rpc('claim_daily_checkin', {
+                    p_user_id: currentUser.id,
+                    p_date: today,
+                    p_amount: checkinReward
+                });
+
+                if (error) throw error;
+
+                if (!result || !result.ok) {
+                    checkinClaimed = true;
+                    document.getElementById('checkinFlow').classList.remove('active');
+                    document.getElementById('startBtn').style.display = 'block';
+                    renderHero();
+                    toast(result?.message || 'Already claimed today');
+                    return;
+                }
+
+                checkinClaimed = true;
+                currentUser.balance = Number(result.newBalance) || (currentUser.balance + checkinReward);
+                localStorage.setItem('scn_u', JSON.stringify(currentUser));
+
+                spawnConfetti();
+                toast('🎉 +' + fmt(checkinReward) + ' claimed!');
+
+                document.getElementById('checkinFlow').classList.remove('active');
+                document.getElementById('startBtn').style.display = 'block';
+                renderHero();
+                await renderStreak();
+
+            } catch (error) {
+                console.error('Claim error:', error);
+                toast('❌ Failed to claim. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-gift"></i> CLAIM ' + fmt(checkinReward);
+            } finally {
+                checkinBusy = false;
+            }
+        }
+
+        function spawnConfetti() {
+            const colors = ['#FFB800', '#00E5FF', '#7C3AED', '#22C55E', '#EF4444'];
+            for (let i = 0; i < 60; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + '%';
+                piece.style.top = '-20px';
+                piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.animationDelay = (Math.random() * 0.5) + 's';
+                piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                document.body.appendChild(piece);
+                setTimeout(() => piece.remove(), 2500);
+            }
+        }
+    </script>
+</body>
+</html>
