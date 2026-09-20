@@ -3,7 +3,7 @@
 // ============================================================
 
 const ADMIN_CREDENTIALS = {
-    email: 'scinovatech@gmail.com',
+    email: 'scinovatech2@gmail.com',
     pass: 'SCINOVA-ADMIN-2026'
 };
 
