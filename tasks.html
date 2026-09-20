@@ -13,6 +13,30 @@
         .task-container { max-width: 600px; margin: 0 auto; }
         .progress-section { text-align: center; margin-bottom: 20px; }
 
+        /* ============ SECTION DIVIDER ============ */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 25px 0 18px;
+        }
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-hi), transparent);
+        }
+        .section-divider span {
+            font-size: 0.72em;
+            font-weight: 700;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+        }
+
+        /* ============ DAILY CHECK-IN ============ */
         .daily-checkin-card {
             background: linear-gradient(135deg, rgba(255,184,0,0.12), rgba(0,229,255,0.08));
             border: 1px solid var(--gold);
@@ -76,13 +100,14 @@
         }
         .daily-checkin-card.claimed .checkin-amount { color: var(--success); }
 
+        /* ============ ARTICLE ============ */
         .article-card {
             background: var(--card);
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
             border: 1px solid var(--border);
-            max-height: 320px;
+            max-height: 300px;
             overflow-y: auto;
             line-height: 1.8;
             font-size: 0.95em;
@@ -141,6 +166,7 @@
             font-size: 0.75em; font-weight: 800;
         }
 
+        /* ============ CONFETTI ============ */
         .checkin-confetti { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
         .confetti-piece {
             position: absolute; width: 8px; height: 8px;
@@ -150,6 +176,10 @@
             0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
+
+        /* ============ CHECK-IN SUB-FLOW ============ */
+        .checkin-flow { display: none; margin-top: 15px; }
+        .checkin-flow.active { display: block; animation: fadeSlideUp 0.4s ease; }
     </style>
 </head>
 <body>
@@ -169,6 +199,7 @@
 
         <div class="task-container">
 
+            <!-- NO ACTIVE PLAN -->
             <div id="noPlanSection" class="hidden">
                 <div class="card" style="text-align:center;">
                     <i class="fas fa-lock" style="font-size:3em;color:var(--warning);margin-bottom:15px;display:block;"></i>
@@ -180,15 +211,50 @@
 
             <div id="taskSection" class="hidden">
 
-                <!-- DAILY CHECK-IN -->
+                <!-- ================================================
+                     SECTION 1: DAILY CHECK-IN (FREE ₦100)
+                     ================================================ -->
+                <div class="section-divider">
+                    <span>🎁 Daily Check-in</span>
+                </div>
+
                 <div class="daily-checkin-card" id="dailyCheckinCard">
                     <div class="checkin-icon" id="checkinIcon"><i class="fas fa-gift"></i></div>
-                    <div class="checkin-title" id="checkinTitle">Daily Check-in Reward</div>
-                    <div class="checkin-sub" id="checkinSub">Tap to claim your free reward</div>
+                    <div class="checkin-title" id="checkinTitle">Free Daily Reward</div>
+                    <div class="checkin-sub" id="checkinSub">Tap to start — read for a moment, then claim</div>
                     <div class="checkin-amount" id="checkinAmount">₦100</div>
-                    <button class="btn btn-gold btn-block" id="checkinBtn" onclick="claimDailyCheckin()" style="margin-top:10px;position:relative;">
-                        <i class="fas fa-hand-holding-heart"></i> CLAIM ₦100
+                    <button class="btn btn-gold btn-block" id="checkinBtn" onclick="startCheckin()" style="margin-top:10px;position:relative;">
+                        <i class="fas fa-hand-holding-heart"></i> START CHECK-IN
                     </button>
+                </div>
+
+                <!-- CHECK-IN SUB-FLOW: article + timer + claim -->
+                <div class="checkin-flow" id="checkinFlow">
+                    <div class="step-header">
+                        <span class="step-num">1</span> Read this article
+                    </div>
+                    <div class="article-card" id="checkinArticle">
+                        <h4 id="checkinArticleTitle">Loading...</h4>
+                        <div class="article-meta" id="checkinArticleMeta"></div>
+                        <p id="checkinArticleBody">Please wait...</p>
+                    </div>
+
+                    <div class="timer-section">
+                        <p style="color:var(--text-dim);font-size:0.85em;">⏰ Claim unlocks in:</p>
+                        <div class="timer-display" id="checkinTimerDisplay">60</div>
+                        <div class="timer-bar"><div class="timer-fill" id="checkinTimerFill" style="width:100%;"></div></div>
+                    </div>
+
+                    <button class="btn btn-gold btn-block" id="checkinClaimBtn" disabled onclick="claimCheckinReward()">
+                        <i class="fas fa-lock"></i> WAIT FOR TIMER
+                    </button>
+                </div>
+
+                <!-- ================================================
+                     SECTION 2: PAID TASKS (3 questions)
+                     ================================================ -->
+                <div class="section-divider">
+                    <span>📝 Daily Tasks (Paid)</span>
                 </div>
 
                 <div class="progress-section">
@@ -198,11 +264,10 @@
                 </div>
 
                 <div class="info-box">
-                    <h4>📋 HOW IT WORKS</h4>
+                    <h4>📋 HOW TASKS WORK</h4>
                     <ul>
-                        <li><i class="fas fa-gift"></i> Tap check-in above for free daily reward</li>
-                        <li><i class="fas fa-clock"></i> Then read the article for a few seconds</li>
-                        <li><i class="fas fa-brain"></i> Answer questions — no penalties for wrong</li>
+                        <li><i class="fas fa-clock"></i> Read for a few seconds to unlock</li>
+                        <li><i class="fas fa-brain"></i> Answer 3 questions — no penalties for wrong</li>
                         <li><i class="fas fa-coins"></i> Earn per correct answer based on your plan</li>
                     </ul>
                 </div>
@@ -219,7 +284,7 @@
                         </div>
                         <div class="timer-section">
                             <p style="color:var(--text-dim);font-size:0.85em;">⏰ Quiz unlocks in:</p>
-                            <div class="timer-display" id="timerDisplay">60</div>
+                            <div class="timer-display" id="timerDisplay">10</div>
                             <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%;"></div></div>
                         </div>
                         <button class="btn btn-primary btn-block" id="startQuizBtn" disabled onclick="startQuiz()">
@@ -280,23 +345,30 @@
         const user = checkAuth();
         if (!user) window.location.href = 'login.html';
 
+        // ============ STATE ============
         let currentUser = user;
         let activePlans = {};
         let perQuestionValue = 0;
         let currentQuestionIndex = 1;
-        let currentArticle = null;
+        let currentArticle = null;         // for tasks
+        let currentCheckinArticle = null;  // for check-in
         let currentQuestion = null;
-        let readingTimerInterval = null;
-        let readingSecondsLeft = 60;
+        let taskReadInterval = null;
+        let checkinReadInterval = null;
+        let taskReadSecondsLeft = 10;
+        let checkinReadSecondsLeft = 60;
         let checkinClaimed = false;
+        let checkinInProgress = false;
         let todayTasks = [];
         let totalEarnedToday = 0;
         let siteSettings = {};
-        let readSeconds = 60;
+        let taskReadSeconds = 10;
+        let checkinReadSeconds = 60;
         let tasksPerDay = 3;
         let checkinBusy = false;
         let submitBusy = false;
 
+        // ============ SCIENCE ARTICLES ============
         const scienceArticles = [
             { title: 'Quantum Entanglement: Spooky Action at a Distance', category: 'Physics', difficulty: 'Intermediate',
               content: 'Quantum entanglement is one of the most fascinating and counterintuitive phenomena in modern physics. When two particles become entangled, their quantum states become intrinsically linked, no matter how far apart they are. Measuring one particle instantaneously affects the other, even if they are light-years apart. Einstein famously called this "spooky action at a distance". This phenomenon is now being used in quantum computing, quantum cryptography, and quantum teleportation. Scientists are developing unhackable communication networks using entangled particles.',
@@ -311,7 +383,7 @@
               qs: [
                   { q: 'Where was CRISPR originally discovered?', o: ['Human cells', 'Bacterial immune system', 'Plant cells'], a: 1 },
                   { q: 'What enzyme cuts DNA in CRISPR?', o: ['RNA polymerase', 'Cas9', 'Ligase'], a: 1 },
-                  { q: 'Which disease is mentioned as treatable by CRISPR?', o: ['Malaria', 'Sickle cell anemia', 'Diabetes'], a: 1 }
+                  { q: 'Which disease is treated by CRISPR?', o: ['Malaria', 'Sickle cell anemia', 'Diabetes'], a: 1 }
               ]
             },
             { title: 'Black Holes: The Cosmic Vacuum Cleaners', category: 'Astronomy', difficulty: 'Beginner',
@@ -326,64 +398,67 @@
               content: 'Machine learning is a subset of artificial intelligence that enables computers to learn from data without being explicitly programmed. There are three main types: supervised, unsupervised, and reinforcement learning. Deep learning uses artificial neural networks with many layers to process complex data like images, text, and speech. Modern AI systems like ChatGPT and image generators are powered by these techniques. However, machine learning models can inherit biases from their training data.',
               qs: [
                   { q: 'What is NOT a type of machine learning?', o: ['Supervised', 'Reflective', 'Reinforcement'], a: 1 },
-                  { q: 'What powers modern AI systems like ChatGPT?', o: ['Deep learning', 'Rule engines', 'Simple decision trees'], a: 0 },
-                  { q: 'Why can AI systems inherit bias?', o: ['From training data', 'From electricity', 'From users'], a: 0 }
+                  { q: 'What powers modern AI systems?', o: ['Deep learning', 'Rule engines', 'Simple decision trees'], a: 0 },
+                  { q: 'Why can AI inherit bias?', o: ['From training data', 'From electricity', 'From users'], a: 0 }
               ]
             },
             { title: 'The Human Brain: Nature\'s Supercomputer', category: 'Neuroscience', difficulty: 'Intermediate',
               content: 'The human brain contains approximately 86 billion neurons, each connected to thousands of others through synapses. This creates a network of trillions of connections. Neurons communicate through electrical and chemical signals, releasing neurotransmitters like dopamine and serotonin. Neuroplasticity allows the brain to reorganize itself by forming new neural connections throughout life. Sleep plays a critical role in memory consolidation.',
               qs: [
-                  { q: 'How many neurons does the human brain contain?', o: ['1 billion', '86 billion', '500 billion'], a: 1 },
-                  { q: 'What allows the brain to reorganize itself?', o: ['Neuroplasticity', 'Neurotoxicity', 'Neurosis'], a: 0 },
-                  { q: 'What role does sleep play in the brain?', o: ['No role', 'Memory consolidation', 'Only rest'], a: 1 }
+                  { q: 'How many neurons in the human brain?', o: ['1 billion', '86 billion', '500 billion'], a: 1 },
+                  { q: 'What allows the brain to reorganize?', o: ['Neuroplasticity', 'Neurotoxicity', 'Neurosis'], a: 0 },
+                  { q: 'What role does sleep play?', o: ['No role', 'Memory consolidation', 'Only rest'], a: 1 }
               ]
             },
             { title: 'Fusion Energy: Powering the Future', category: 'Engineering', difficulty: 'Advanced',
               content: 'Nuclear fusion is the process that powers the sun and stars. It involves combining light atomic nuclei to form heavier ones, releasing enormous amounts of energy. Unlike nuclear fission, fusion produces minimal waste and uses abundant fuels like hydrogen isotopes. The challenge is that fusion requires temperatures of over 100 million degrees Celsius. In December 2022, the National Ignition Facility achieved the first-ever net energy gain from fusion.',
               qs: [
                   { q: 'How does fusion differ from fission?', o: ['Same process', 'Fusion combines, fission splits', 'Both combine'], a: 1 },
-                  { q: 'What temperature is needed for fusion?', o: ['10,000°C', '100 million°C', '1,000°C'], a: 1 },
-                  { q: 'What milestone happened in December 2022?', o: ['First fusion reactor', 'First net energy gain', 'First plasma'], a: 1 }
+                  { q: 'Temperature needed for fusion?', o: ['10,000°C', '100 million°C', '1,000°C'], a: 1 },
+                  { q: 'Milestone in December 2022?', o: ['First fusion reactor', 'First net energy gain', 'First plasma'], a: 1 }
               ]
             },
             { title: 'Nanotechnology: Engineering at the Atomic Scale', category: 'Engineering', difficulty: 'Intermediate',
               content: 'Nanotechnology manipulates matter at the nanoscale — one billionth of a meter. At this scale, materials exhibit unique properties. Carbon forms either soft graphite, super-hard diamond, or revolutionary materials like graphene. Graphene is 200 times stronger than steel, conducts electricity better than copper, and is transparent and flexible. Nanotechnology is being applied in medicine, energy, electronics, and materials science.',
               qs: [
                   { q: 'How much stronger is graphene than steel?', o: ['10×', '200×', '1000×'], a: 1 },
-                  { q: 'What is one billionth of a meter called?', o: ['Micrometer', 'Nanometer', 'Picometer'], a: 1 },
-                  { q: 'Which is NOT a nanotech application?', o: ['Drug delivery', 'Solar cells', 'Weather control'], a: 2 }
+                  { q: 'One billionth of a meter is called?', o: ['Micrometer', 'Nanometer', 'Picometer'], a: 1 },
+                  { q: 'NOT a nanotech application?', o: ['Drug delivery', 'Solar cells', 'Weather control'], a: 2 }
               ]
             },
             { title: 'Robotics: Machines That Think and Move', category: 'Robotics', difficulty: 'Beginner',
               content: 'Robotics combines mechanical engineering, electronics, and computer science to create machines that perform tasks autonomously. Modern robots range from industrial arms welding cars to surgical robots performing precision operations, to humanoid robots exploring Mars. Key components include sensors, actuators, and controllers. AI is increasingly integrated into robotics, enabling robots to learn tasks and work alongside humans safely.',
               qs: [
-                  { q: 'Which is NOT a key robot component?', o: ['Sensors', 'Actuators', 'Combustors'], a: 2 },
-                  { q: 'What is soft robotics about?', o: ['Loud robots', 'Flexible materials', 'Soft software'], a: 1 },
-                  { q: 'What field is robotics NOT transforming?', o: ['Healthcare', 'Manufacturing', 'Astrology'], a: 2 }
+                  { q: 'NOT a key robot component?', o: ['Sensors', 'Actuators', 'Combustors'], a: 2 },
+                  { q: 'Soft robotics is about?', o: ['Loud robots', 'Flexible materials', 'Soft software'], a: 1 },
+                  { q: 'Robotics is NOT transforming?', o: ['Healthcare', 'Manufacturing', 'Astrology'], a: 2 }
               ]
             },
             { title: 'Climate Change and Renewable Energy', category: 'Environment', difficulty: 'Beginner',
               content: 'Climate change is driven primarily by greenhouse gas emissions from burning fossil fuels. Renewable sources — solar, wind, hydroelectric — offer sustainable alternatives. Solar photovoltaic costs have dropped by 90% since 2010, making it the cheapest electricity source in history in many regions. Battery storage is improving rapidly, solving the intermittency problem of renewables.',
               qs: [
-                  { q: 'What is the cheapest electricity source in many regions?', o: ['Coal', 'Solar', 'Nuclear'], a: 1 },
-                  { q: 'By how much have solar costs dropped since 2010?', o: ['50%', '90%', '10%'], a: 1 },
-                  { q: 'What problem does battery storage solve?', o: ['Cost', 'Intermittency', 'Color'], a: 1 }
+                  { q: 'Cheapest electricity source now?', o: ['Coal', 'Solar', 'Nuclear'], a: 1 },
+                  { q: 'Solar costs dropped by?', o: ['50%', '90%', '10%'], a: 1 },
+                  { q: 'Battery storage solves?', o: ['Cost', 'Intermittency', 'Color'], a: 1 }
               ]
             },
             { title: 'The Internet of Things: Connecting Everything', category: 'Computing', difficulty: 'Beginner',
               content: 'The Internet of Things (IoT) refers to billions of physical devices connected to the internet, collecting and sharing data. From smart thermostats and fitness trackers to industrial sensors and connected cars, IoT is transforming how we live and work. By 2030, an estimated 50 billion IoT devices will be online. However, IoT raises serious security concerns: many devices have weak default passwords and unpatched vulnerabilities.',
               qs: [
-                  { q: 'How many IoT devices expected by 2030?', o: ['1 billion', '50 billion', '500 million'], a: 1 },
-                  { q: 'What is a major IoT concern?', o: ['Speed', 'Security', 'Color'], a: 1 },
-                  { q: 'Which is NOT an IoT application?', o: ['Smart cities', 'Fitness trackers', 'Stone carving'], a: 2 }
+                  { q: 'IoT devices expected by 2030?', o: ['1 billion', '50 billion', '500 million'], a: 1 },
+                  { q: 'Major IoT concern?', o: ['Speed', 'Security', 'Color'], a: 1 },
+                  { q: 'NOT an IoT application?', o: ['Smart cities', 'Fitness trackers', 'Stone carving'], a: 2 }
               ]
             }
         ];
 
+        function pickRandomArticle() {
+            return scienceArticles[Math.floor(Math.random() * scienceArticles.length)];
+        }
+
         // ============ INIT ============
         window.addEventListener('load', async () => {
             try {
-                // Parallel fetch: user + settings
                 const [refreshedUser, settings] = await Promise.all([
                     refreshUser(),
                     getSiteSettings()
@@ -392,7 +467,8 @@
                 siteSettings = settings;
 
                 // Apply admin settings
-                readSeconds = Number(siteSettings.readSeconds) || 60;
+                taskReadSeconds = Number(siteSettings.taskReadSeconds) || 10;
+                checkinReadSeconds = Number(siteSettings.checkinReadSeconds) || 60;
                 tasksPerDay = Number(siteSettings.tasksPerDay) || 3;
 
                 if (!hasActivePlan(currentUser)) {
@@ -412,7 +488,7 @@
                 totalEarnedToday = todayTasks.reduce((s, t) => s + (t.earned || 0), 0);
                 currentQuestionIndex = todayTasks.filter(t => t.done).length + 1;
 
-                // Update UI with admin values
+                // Update UI
                 document.getElementById('qTotal').textContent = tasksPerDay;
                 document.getElementById('checkinAmount').textContent = fmt(siteSettings.checkinReward || 100);
 
@@ -422,7 +498,7 @@
                 if (currentQuestionIndex > tasksPerDay) {
                     showAllDone();
                 } else {
-                    startReadingPhase();
+                    startTaskReadingPhase();
                 }
 
             } catch (error) {
@@ -437,7 +513,9 @@
             }
         });
 
-        // ============ DAILY CHECK-IN ============
+        // ============================================================
+        // SECTION 1: DAILY CHECK-IN FLOW
+        // ============================================================
         function renderCheckinCard() {
             const card = document.getElementById('dailyCheckinCard');
             const icon = document.getElementById('checkinIcon');
@@ -445,41 +523,98 @@
             const sub = document.getElementById('checkinSub');
             const amount = document.getElementById('checkinAmount');
             const btn = document.getElementById('checkinBtn');
+            const flow = document.getElementById('checkinFlow');
             const reward = siteSettings.checkinReward || 100;
 
             if (checkinClaimed) {
                 card.classList.add('claimed');
                 icon.innerHTML = '<i class="fas fa-check-circle"></i>';
-                title.textContent = 'Daily Check-in Claimed';
+                title.textContent = 'Check-in Claimed Today';
                 sub.textContent = 'Come back tomorrow at 12 AM WAT';
                 amount.textContent = '+' + fmt(reward) + ' earned';
                 btn.disabled = true;
                 btn.innerHTML = '✅ ALREADY CLAIMED TODAY';
                 btn.classList.remove('btn-pulse');
+                flow.classList.remove('active');
             } else {
                 card.classList.remove('claimed');
                 icon.innerHTML = '<i class="fas fa-gift"></i>';
-                title.textContent = 'Daily Check-in Reward';
-                sub.textContent = 'Tap to claim your free reward';
+                title.textContent = 'Free Daily Reward';
+                sub.textContent = 'Tap to start — read for a moment, then claim';
                 amount.textContent = fmt(reward);
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-hand-holding-heart"></i> CLAIM ' + fmt(reward);
+                btn.innerHTML = '<i class="fas fa-hand-holding-heart"></i> START CHECK-IN';
                 btn.classList.add('btn-pulse');
+                flow.classList.remove('active');
             }
         }
 
-        async function claimDailyCheckin() {
+        function startCheckin() {
+            if (checkinClaimed || checkinInProgress) return;
+            checkinInProgress = true;
+
+            // Hide the initial button area inside the card
+            document.getElementById('checkinBtn').style.display = 'none';
+
+            // Load a random article
+            currentCheckinArticle = pickRandomArticle();
+            document.getElementById('checkinArticleTitle').textContent = '📖 ' + currentCheckinArticle.title;
+            document.getElementById('checkinArticleMeta').innerHTML = `
+                <span>🔬 ${currentCheckinArticle.category}</span>
+                <span>📊 ${currentCheckinArticle.difficulty}</span>
+                <span>⏱️ ${checkinReadSeconds}s read</span>
+            `;
+            document.getElementById('checkinArticleBody').textContent = currentCheckinArticle.content;
+
+            // Show sub-flow
+            document.getElementById('checkinFlow').classList.add('active');
+
+            // Start timer
+            checkinReadSecondsLeft = checkinReadSeconds;
+            updateCheckinTimer();
+
+            const claimBtn = document.getElementById('checkinClaimBtn');
+            claimBtn.disabled = true;
+            claimBtn.innerHTML = '<i class="fas fa-lock"></i> WAIT ' + checkinReadSeconds + 's';
+
+            if (checkinReadInterval) clearInterval(checkinReadInterval);
+            checkinReadInterval = setInterval(() => {
+                checkinReadSecondsLeft--;
+                updateCheckinTimer();
+
+                if (checkinReadSecondsLeft <= 0) {
+                    clearInterval(checkinReadInterval);
+                    claimBtn.disabled = false;
+                    claimBtn.classList.add('btn-pulse');
+                    claimBtn.innerHTML = '<i class="fas fa-gift"></i> CLAIM ' + fmt(siteSettings.checkinReward || 100);
+                }
+            }, 1000);
+        }
+
+        function updateCheckinTimer() {
+            const td = document.getElementById('checkinTimerDisplay');
+            const fill = document.getElementById('checkinTimerFill');
+            td.textContent = checkinReadSecondsLeft;
+            fill.style.width = (checkinReadSecondsLeft / checkinReadSeconds * 100) + '%';
+
+            td.className = 'timer-display';
+            fill.className = 'timer-fill';
+            if (checkinReadSecondsLeft <= 15) { td.classList.add('warning'); fill.classList.add('warning'); }
+            if (checkinReadSecondsLeft <= 5) { td.classList.add('danger'); fill.classList.add('danger'); }
+        }
+
+        async function claimCheckinReward() {
             if (checkinClaimed || checkinBusy) return;
+            if (checkinReadSecondsLeft > 0) return;
             checkinBusy = true;
 
             const reward = siteSettings.checkinReward || 100;
-            const btn = document.getElementById('checkinBtn');
+            const btn = document.getElementById('checkinClaimBtn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Claiming...';
 
             try {
                 const today = getLocalDate();
-                // ATOMIC RPC — prevents double credit
                 const { data: result, error } = await sb.rpc('claim_daily_checkin', {
                     p_user_id: currentUser.id,
                     p_date: today,
@@ -489,27 +624,30 @@
                 if (error) throw error;
 
                 if (!result || !result.ok) {
-                    // Already claimed (race condition or double-tap)
                     checkinClaimed = true;
+                    document.getElementById('checkinFlow').classList.remove('active');
+                    document.getElementById('checkinBtn').style.display = 'block';
                     renderCheckinCard();
                     toast(result?.message || 'Already claimed today');
                     return;
                 }
 
-                // Success
                 checkinClaimed = true;
                 currentUser.balance = Number(result.newBalance) || (currentUser.balance + reward);
                 localStorage.setItem('scn_u', JSON.stringify(currentUser));
 
                 spawnConfetti();
                 toast('🎉 +' + fmt(reward) + ' claimed!');
+
+                document.getElementById('checkinFlow').classList.remove('active');
+                document.getElementById('checkinBtn').style.display = 'block';
                 renderCheckinCard();
 
             } catch (error) {
                 console.error('Check-in error:', error);
                 toast('❌ Failed to claim. Please try again.');
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-hand-holding-heart"></i> CLAIM ' + fmt(reward);
+                btn.innerHTML = '<i class="fas fa-gift"></i> CLAIM ' + fmt(reward);
             } finally {
                 checkinBusy = false;
             }
@@ -531,7 +669,9 @@
             setTimeout(() => container.remove(), 2000);
         }
 
-        // ============ PROGRESS ============
+        // ============================================================
+        // SECTION 2: PAID TASKS FLOW
+        // ============================================================
         function updateProgress() {
             const done = todayTasks.filter(t => t.done).length;
             document.getElementById('progressText').textContent = done + '/' + tasksPerDay;
@@ -539,35 +679,34 @@
             document.getElementById('earnedToday').textContent = fmt(totalEarnedToday);
         }
 
-        // ============ READING PHASE ============
-        function startReadingPhase() {
+        function startTaskReadingPhase() {
             document.getElementById('readingPhase').style.display = 'block';
             document.getElementById('quizPhase').classList.remove('active');
             document.getElementById('allDonePhase').classList.add('hidden');
 
-            currentArticle = scienceArticles[Math.floor(Math.random() * scienceArticles.length)];
+            currentArticle = pickRandomArticle();
             document.getElementById('articleTitle').textContent = '📖 ' + currentArticle.title;
             document.getElementById('articleMeta').innerHTML = `
                 <span>🔬 ${currentArticle.category}</span>
                 <span>📊 ${currentArticle.difficulty}</span>
-                <span>⏱️ ${readSeconds}s read</span>
+                <span>⏱️ ${taskReadSeconds}s read</span>
             `;
             document.getElementById('articleBody').textContent = currentArticle.content;
 
-            readingSecondsLeft = readSeconds;
-            updateReadingTimer();
+            taskReadSecondsLeft = taskReadSeconds;
+            updateTaskReadTimer();
 
             const btn = document.getElementById('startQuizBtn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-lock"></i> START QUIZ (' + readSeconds + 's)';
+            btn.innerHTML = '<i class="fas fa-lock"></i> START QUIZ (' + taskReadSeconds + 's)';
 
-            if (readingTimerInterval) clearInterval(readingTimerInterval);
-            readingTimerInterval = setInterval(() => {
-                readingSecondsLeft--;
-                updateReadingTimer();
+            if (taskReadInterval) clearInterval(taskReadInterval);
+            taskReadInterval = setInterval(() => {
+                taskReadSecondsLeft--;
+                updateTaskReadTimer();
 
-                if (readingSecondsLeft <= 0) {
-                    clearInterval(readingTimerInterval);
+                if (taskReadSecondsLeft <= 0) {
+                    clearInterval(taskReadInterval);
                     const b = document.getElementById('startQuizBtn');
                     b.disabled = false;
                     b.innerHTML = '<i class="fas fa-play"></i> START QUIZ';
@@ -576,19 +715,18 @@
             }, 1000);
         }
 
-        function updateReadingTimer() {
-            document.getElementById('timerDisplay').textContent = readingSecondsLeft;
-            const fill = document.getElementById('timerFill');
-            fill.style.width = (readingSecondsLeft / readSeconds * 100) + '%';
-
+        function updateTaskReadTimer() {
             const td = document.getElementById('timerDisplay');
+            const fill = document.getElementById('timerFill');
+            td.textContent = taskReadSecondsLeft;
+            fill.style.width = (taskReadSecondsLeft / taskReadSeconds * 100) + '%';
+
             td.className = 'timer-display';
             fill.className = 'timer-fill';
-            if (readingSecondsLeft <= 10) { td.classList.add('warning'); fill.classList.add('warning'); }
-            if (readingSecondsLeft <= 5) { td.classList.add('danger'); fill.classList.add('danger'); }
+            if (taskReadSecondsLeft <= 4) { td.classList.add('warning'); fill.classList.add('warning'); }
+            if (taskReadSecondsLeft <= 2) { td.classList.add('danger'); fill.classList.add('danger'); }
         }
 
-        // ============ QUIZ ============
         function startQuiz() {
             document.getElementById('readingPhase').style.display = 'none';
             document.getElementById('quizPhase').classList.add('active');
@@ -648,7 +786,6 @@
             const today = getLocalDate();
 
             try {
-                // ATOMIC RPC — prevents double credit
                 const { data: result, error } = await sb.rpc('claim_task_reward', {
                     p_user_id: currentUser.id,
                     p_date: today,
