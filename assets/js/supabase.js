@@ -36,7 +36,7 @@ function cacheClear(key) {
 }
 
 // ============ CONSTANTS ============
-const ADMIN_EMAIL = 'scinovatech@gmail.com';
+const ADMIN_EMAIL = 'scinovatech2@gmail.com';
 const BRAND_NAME = 'SciNovaTech';
 const BRAND_TAGLINE = 'Learn Science. Earn Daily.';
 const DEPOSIT_BANK = 'Safe Haven Microfinance Bank';
