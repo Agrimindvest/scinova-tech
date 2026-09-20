@@ -3,15 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Referral - SciNovaTech</title>
+    <title>Referral System - SciNovaTech</title>
     <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
         .referral-container { max-width: 600px; margin: 0 auto; }
-        .referral-page-header { text-align: center; margin-bottom: 25px; }
-        .referral-title { color: var(--cyan); font-size: 1.6em; margin-bottom: 6px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; }
-        .referral-subtitle { color: var(--text-dim); font-size: 0.9em; }
+
+        .referral-page-header {
+            text-align: center;
+            margin-bottom: 25px;
+            animation: fadeSlideIn 0.5s ease;
+        }
+
+        .referral-title {
+            color: var(--cyan);
+            font-size: 1.6em;
+            margin-bottom: 6px;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .referral-subtitle {
+            color: var(--text-dim);
+            font-size: 0.9em;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 500px) {
+            .metrics-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, rgba(0,229,255,0.08), rgba(124,58,237,0.05));
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 8px;
+            text-align: center;
+            transition: all 0.3s;
+            animation: slideUp 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .metric-card:nth-child(1) { animation-delay: 0.05s; }
+        .metric-card:nth-child(2) { animation-delay: 0.1s; }
+        .metric-card:nth-child(3) { animation-delay: 0.15s; }
+        .metric-card:nth-child(4) { animation-delay: 0.2s; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .metric-card:hover {
+            border-color: var(--cyan);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px var(--cyan-glow);
+        }
+
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: 800;
+            color: var(--cyan);
+            margin-bottom: 6px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .metric-label {
+            font-size: 0.65em;
+            color: var(--text-dim);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
 
         .earnings-highlight {
             background: linear-gradient(135deg, rgba(0,87,255,0.15), rgba(0,229,255,0.08));
@@ -21,8 +93,16 @@
             text-align: center;
             margin-bottom: 20px;
             box-shadow: inset 0 0 30px rgba(0,229,255,0.08);
+            animation: fadeSlideIn 0.5s ease 0.1s both;
         }
-        .earnings-label { color: var(--text-dim); font-size: 0.9em; margin-bottom: 8px; font-weight: 600; }
+
+        .earnings-label {
+            color: var(--text-dim);
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
         .earnings-amount {
             font-size: 2.8em;
             font-weight: 900;
@@ -33,33 +113,24 @@
             font-family: 'Space Grotesk', sans-serif;
         }
 
-        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
-        @media (max-width: 500px) { .metrics-grid { grid-template-columns: 1fr 1fr; } }
-
-        .metric-card {
-            background: linear-gradient(135deg, rgba(0,229,255,0.08), rgba(124,58,237,0.05));
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 14px 8px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-        .metric-card:hover {
-            border-color: var(--cyan);
-            transform: translateY(-2px);
-            box-shadow: 0 0 15px var(--cyan-glow);
-        }
-        .metric-value { font-size: 1.5em; font-weight: 800; color: var(--cyan); margin-bottom: 6px; font-family: 'Space Grotesk', sans-serif; }
-        .metric-label { font-size: 0.65em; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-
         .referral-link-card {
             background: var(--card);
             border: 1px solid var(--cyan);
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
+            animation: fadeSlideIn 0.5s ease 0.2s both;
         }
-        .referral-link-card h4 { color: var(--cyan); font-size: 0.95em; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+        .referral-link-card h4 {
+            color: var(--cyan);
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .ref-link-display {
             background: var(--deep);
             border: 1px dashed var(--border);
@@ -71,7 +142,12 @@
             gap: 10px;
             transition: all 0.3s;
         }
-        .ref-link-display:hover { border-color: var(--cyan); background: rgba(0,229,255,0.03); }
+
+        .ref-link-display:hover {
+            border-color: var(--cyan);
+            background: rgba(0,229,255,0.03);
+        }
+
         .ref-link-text {
             flex: 1;
             font-size: 0.9em;
@@ -80,6 +156,7 @@
             word-break: break-all;
             font-family: 'Space Grotesk', monospace;
         }
+
         .copy-btn {
             background: linear-gradient(135deg, var(--primary), var(--cyan));
             color: white;
@@ -92,8 +169,20 @@
             transition: all 0.3s;
             white-space: nowrap;
         }
-        .copy-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--cyan-glow); }
-        .share-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .copy-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--cyan-glow);
+        }
+
+        .copy-btn:active { transform: scale(0.95); }
+
+        .share-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
         .share-btn {
             padding: 12px 16px;
             border: none;
@@ -108,7 +197,10 @@
             gap: 8px;
             color: white;
         }
-        .share-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
+
+        .share-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3); }
+        .share-btn:active { transform: translateY(0); }
+
         .share-whatsapp { background: #25D366; }
         .share-copy { background: linear-gradient(135deg, var(--primary), var(--cyan)); }
 
@@ -119,6 +211,7 @@
             padding: 18px;
             margin-bottom: 20px;
         }
+
         .tier-row {
             display: flex;
             justify-content: space-between;
@@ -126,7 +219,9 @@
             padding: 10px 0;
             border-bottom: 1px solid var(--border);
         }
+
         .tier-row:last-child { border-bottom: none; }
+
         .tier-badge {
             display: inline-block;
             padding: 4px 12px;
@@ -134,11 +229,74 @@
             font-size: 0.75em;
             font-weight: 700;
         }
+
         .tier-1 { background: rgba(255,184,0,0.2); color: var(--gold); }
         .tier-2 { background: rgba(124,58,237,0.2); color: var(--purple); }
         .tier-3 { background: rgba(0,229,255,0.2); color: var(--cyan); }
 
-        .users-section h4 { color: var(--cyan); margin-bottom: 12px; font-size: 0.95em; display: flex; align-items: center; gap: 8px; }
+        .invite-card {
+            background: linear-gradient(135deg, rgba(255,184,0,0.08), rgba(0,229,255,0.05));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .invite-card h4 {
+            color: var(--cyan);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95em;
+        }
+
+        .invite-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .invite-input {
+            flex: 1;
+            padding: 12px 14px;
+            background: var(--deep);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 0.9em;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .invite-input:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 8px rgba(0,229,255,0.2);
+        }
+
+        .invite-btn {
+            background: var(--gold);
+            color: var(--deep);
+            border: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85em;
+        }
+
+        .invite-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(255,184,0,0.3); }
+
+        .users-section h4 {
+            color: var(--cyan);
+            margin-bottom: 12px;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .ref-user-card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -149,12 +307,18 @@
             justify-content: space-between;
             align-items: center;
             transition: all 0.3s;
+            animation: fadeSlideIn 0.3s ease forwards;
         }
-        .ref-user-card:hover { border-color: var(--cyan); transform: translateX(4px); }
+
+        .ref-user-card:hover {
+            border-color: var(--cyan);
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0,229,255,0.1);
+        }
+
         .ref-user-info strong { color: var(--cyan); }
         .ref-user-info small { display: block; margin-top: 4px; color: var(--text-dim); }
-        .ref-user-earnings { text-align: right; font-weight: 700; }
-        .ref-user-earnings .amount { color: var(--gold); font-size: 1.05em; }
+
         .ref-user-status {
             font-size: 0.65em;
             padding: 3px 8px;
@@ -164,8 +328,40 @@
             margin-top: 4px;
             display: inline-block;
         }
+
         .ref-status-active { background: rgba(34,197,94,0.2); color: var(--success); }
         .ref-status-inactive { background: rgba(100,116,139,0.2); color: var(--text-mute); }
+
+        .ref-user-earnings {
+            text-align: right;
+            font-weight: 700;
+        }
+
+        .ref-user-earnings .amount {
+            color: var(--gold);
+            font-size: 1.05em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-dim);
+            animation: fadeSlideIn 0.5s ease;
+        }
+
+        .empty-state i {
+            font-size: 3em;
+            color: var(--border-hi);
+            margin-bottom: 15px;
+            opacity: 0.6;
+        }
+
+        .empty-state p { margin: 8px 0; }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -175,15 +371,19 @@
             <img src="assets/img/logo.svg" alt="SciNovaTech">
             <span>SciNovaTech</span>
         </a>
-        <div class="icons"><a href="profile.html"><i class="fas fa-user-circle"></i></a></div>
+        <div class="icons">
+            <a href="profile.html"><i class="fas fa-user-circle"></i></a>
+        </div>
     </header>
 
     <div class="main-content">
+
         <a href="home.html" style="color:var(--cyan);text-decoration:none;display:flex;align-items:center;gap:5px;margin-bottom:20px;font-size:0.9em;">
             <i class="fas fa-arrow-left"></i> Back to Home
         </a>
 
         <div class="referral-container">
+
             <div class="referral-page-header">
                 <h2 class="referral-title">👥 Referral Program</h2>
                 <p class="referral-subtitle">Build your team and earn up to 10%</p>
@@ -250,6 +450,16 @@
                 </div>
             </div>
 
+            <div class="invite-card">
+                <h4><i class="fas fa-envelope"></i> DIRECT INVITE</h4>
+                <p style="font-size:0.85em;color:var(--text-dim);margin-bottom:12px;">Invite friends directly by email or phone</p>
+                <div class="invite-input-group">
+                    <input type="text" class="invite-input" id="inviteInput" placeholder="Email or Phone Number">
+                    <button class="invite-btn" onclick="sendDirectInvite()"><i class="fas fa-paper-plane"></i> Invite</button>
+                </div>
+                <div id="inviteStatus" style="font-size:0.8em;text-align:center;margin-top:8px;"></div>
+            </div>
+
             <div class="info-box">
                 <h4><i class="fas fa-info-circle"></i> HOW IT WORKS</h4>
                 <ul>
@@ -273,7 +483,7 @@
     <nav class="bottom-nav">
         <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
         <a href="plans.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Plans</span></a>
-        <a href="deposit.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Deposit</span></a>
+        <a href="checkin.html" class="nav-item"><i class="fas fa-gift"></i><span>Check-in</span></a>
         <a href="tasks.html" class="nav-item"><i class="fas fa-tasks"></i><span>Tasks</span></a>
         <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
     </nav>
@@ -321,7 +531,7 @@
                     <div class="empty-state">
                         <i class="fas fa-user-tie"></i>
                         <p><strong>No team members yet</strong></p>
-                        <p style="font-size:0.85em;">Share your referral link to start building your team!</p>
+                        <p style="font-size:0.85em;">Share your referral link above to start building your team!</p>
                     </div>`;
                 } else {
                     referredUsers.forEach((refUser, i) => {
@@ -382,6 +592,7 @@
             const refLink = APP_BASE_URL + '/register.html?ref=' + refCode;
             const message = encodeURIComponent(
                 '🚀 *Join SciNovaTech!* 🚀\n\n' +
+                '🎁 Free ₦100 daily check-in\n' +
                 '🔬 Read science & tech articles\n' +
                 '🧠 Answer quizzes & earn daily\n' +
                 '💰 Get ₦500 welcome bonus instantly\n' +
@@ -406,6 +617,52 @@
                 copyRefLink();
             }
         }
+
+        async function sendDirectInvite() {
+            const input = document.getElementById('inviteInput').value.trim();
+            const statusDiv = document.getElementById('inviteStatus');
+
+            if (!input) {
+                statusDiv.innerHTML = '<span style="color:var(--warning);">Please enter email or phone</span>';
+                return;
+            }
+
+            statusDiv.innerHTML = '<span style="color:var(--text-dim);">Sending invite...</span>';
+
+            try {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const phoneRegex = /^[\d+\-\s()]{7,}$/;
+
+                if (!emailRegex.test(input) && !phoneRegex.test(input)) {
+                    statusDiv.innerHTML = '<span style="color:var(--danger);">Invalid email or phone</span>';
+                    return;
+                }
+
+                const refCode = currentUser.refCode || currentUser.id;
+                const inviteLink = APP_BASE_URL + '/register.html?ref=' + refCode;
+
+                await sb.from('invites').insert({
+                    from_user: currentUser.id,
+                    from_name: currentUser.name,
+                    to_user: input,
+                    link: inviteLink,
+                    type: emailRegex.test(input) ? 'email' : 'phone',
+                    status: 'sent'
+                });
+
+                statusDiv.innerHTML = '<span style="color:var(--success);">✅ Invite sent successfully!</span>';
+                document.getElementById('inviteInput').value = '';
+
+                setTimeout(() => { statusDiv.innerHTML = ''; }, 4000);
+            } catch (error) {
+                console.error('Error sending invite:', error);
+                statusDiv.innerHTML = '<span style="color:var(--danger);">Failed to send invite</span>';
+            }
+        }
+
+        document.getElementById('inviteInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendDirectInvite();
+        });
     </script>
 </body>
 </html>
