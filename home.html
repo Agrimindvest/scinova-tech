@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Home - SciNovaTech</title>
     <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        /* ============ LIVE TICKER ============ */
         .live-ticker {
             background: var(--card);
             border: 1px solid var(--cyan);
@@ -22,7 +23,6 @@
             align-items: center;
             box-shadow: 0 0 15px rgba(0,229,255,0.08);
         }
-
         .live-ticker .ticker-label {
             background: linear-gradient(135deg, var(--primary), var(--cyan));
             color: white;
@@ -37,7 +37,6 @@
             flex-shrink: 0;
             letter-spacing: 1px;
         }
-
         .live-ticker .ticker-track {
             flex: 1;
             overflow: hidden;
@@ -46,7 +45,6 @@
             display: flex;
             align-items: center;
         }
-
         .ticker-item {
             position: absolute;
             white-space: nowrap;
@@ -56,11 +54,9 @@
             opacity: 0;
             width: 100%;
         }
-
         .ticker-item:nth-child(1) { animation-delay: 0s; }
         .ticker-item:nth-child(2) { animation-delay: 3s; }
         .ticker-item:nth-child(3) { animation-delay: 6s; }
-
         @keyframes tickerSlide {
             0% { opacity: 0; transform: translateY(100%); }
             4% { opacity: 1; transform: translateY(0); }
@@ -68,34 +64,25 @@
             34% { opacity: 0; transform: translateY(-100%); }
             100% { opacity: 0; transform: translateY(-100%); }
         }
-
         .ticker-item .ticker-phone { color: var(--cyan); font-weight: 600; }
         .ticker-item .ticker-action { color: var(--purple); }
         .ticker-item .ticker-amount { color: var(--gold); font-weight: 700; }
-
         .ticker-dot {
             display: inline-block; width: 6px; height: 6px;
             border-radius: 50%; background: var(--success);
             margin: 0 6px; animation: dotPulse 1s infinite;
         }
-
         @keyframes dotPulse {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(1.5); }
         }
-
         .ticker-dot.dot-gold { background: var(--gold); }
         .ticker-dot.dot-purple { background: var(--purple); }
 
-        /* Quick actions */
-        .quick-action-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
+        .quick-action-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .quick-action-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,229,255,0.2); }
         .quick-action-btn:active { transform: scale(0.95); }
 
-        /* ============ WELCOME POPUP ============ */
         .welcome-overlay {
             position: fixed;
             inset: 0;
@@ -107,9 +94,7 @@
             padding: 15px;
             backdrop-filter: blur(6px);
         }
-
         .welcome-overlay.hidden { display: none; }
-
         .welcome-popup {
             background: var(--card);
             border: 1px solid var(--cyan);
@@ -123,26 +108,21 @@
             overflow-y: auto;
             box-shadow: 0 0 40px var(--cyan-glow);
         }
-
         @keyframes popIn {
             from { opacity: 0; transform: scale(0.8) translateY(30px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
-
         .welcome-logo {
             display: flex;
             justify-content: center;
             margin-bottom: 8px;
             animation: float 3s ease-in-out infinite;
         }
-
         .welcome-logo img { width: 80px; height: 80px; }
-
         @keyframes float {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
         }
-
         .welcome-typewriter-box {
             background: rgba(0,229,255,0.08);
             border: 1px solid var(--cyan);
@@ -154,26 +134,21 @@
             align-items: center;
             justify-content: center;
         }
-
         .welcome-typewriter-text {
             font-size: 0.9em;
             color: var(--cyan);
             font-weight: 500;
         }
-
         .welcome-cursor {
             animation: blink 0.8s infinite;
             color: var(--cyan);
             font-weight: 700;
         }
-
         @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0; }
         }
-
         .welcome-features { text-align: left; margin: 12px 0; }
-
         .welcome-features .wf-item {
             display: flex;
             align-items: center;
@@ -182,17 +157,14 @@
             font-size: 0.82em;
             color: var(--text-dim);
         }
-
         .welcome-features .wf-item i {
             color: var(--cyan);
             width: 20px;
             text-align: center;
             font-size: 0.95em;
         }
-
         .welcome-buttons { display: flex; gap: 8px; margin-top: 12px; }
         .welcome-buttons .btn { flex: 1; font-size: 0.85em; padding: 10px 16px; }
-
         .btn-close-welcome {
             background: transparent;
             border: none;
@@ -205,8 +177,7 @@
         }
         .btn-close-welcome:hover { color: var(--cyan); }
 
-        /* Reading reward badge on home */
-        .reading-badge {
+        .checkin-badge {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -218,8 +189,8 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        .reading-badge:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,184,0,0.15); }
-        .reading-badge .rb-icon {
+        .checkin-badge:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,184,0,0.15); }
+        .checkin-badge .cb-icon {
             width: 40px; height: 40px;
             display: flex; align-items: center; justify-content: center;
             border-radius: 50%;
@@ -228,32 +199,31 @@
             font-size: 1.1em;
             flex-shrink: 0;
         }
-        .reading-badge .rb-text { flex: 1; }
-        .reading-badge .rb-title {
+        .checkin-badge .cb-text { flex: 1; }
+        .checkin-badge .cb-title {
             font-size: 0.85em;
             font-weight: 700;
             color: var(--gold);
             margin-bottom: 2px;
         }
-        .reading-badge .rb-sub {
+        .checkin-badge .cb-sub {
             font-size: 0.72em;
             color: var(--text-dim);
         }
-        .reading-badge .rb-arrow { color: var(--text-dim); }
-        .reading-badge.claimed {
+        .checkin-badge .cb-arrow { color: var(--text-dim); }
+        .checkin-badge.claimed {
             border-color: var(--success);
             background: rgba(34,197,94,0.08);
         }
-        .reading-badge.claimed .rb-icon {
+        .checkin-badge.claimed .cb-icon {
             background: rgba(34,197,94,0.15);
             color: var(--success);
         }
-        .reading-badge.claimed .rb-title { color: var(--success); }
+        .checkin-badge.claimed .cb-title { color: var(--success); }
     </style>
 </head>
 <body>
 
-    <!-- ============ WELCOME POPUP ============ -->
     <div class="welcome-overlay" id="welcomeOverlay">
         <div class="welcome-popup">
             <div class="welcome-logo">
@@ -268,7 +238,7 @@
             </div>
 
             <div class="welcome-features">
-                <div class="wf-item"><i class="fas fa-book-open"></i> Read daily science & tech articles</div>
+                <div class="wf-item"><i class="fas fa-gift"></i> Free daily reward — check-in</div>
                 <div class="wf-item"><i class="fas fa-question-circle"></i> Answer 3 questions - no penalties</div>
                 <div class="wf-item"><i class="fas fa-coins"></i> Earn 15% daily on every plan</div>
                 <div class="wf-item"><i class="fas fa-users"></i> Refer friends & earn 10% bonus</div>
@@ -292,7 +262,6 @@
         </div>
     </div>
 
-    <!-- Header -->
     <header class="header">
         <a href="home.html" class="logo">
             <img src="assets/img/logo.svg" alt="SciNovaTech">
@@ -304,7 +273,6 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <div class="main-content">
 
         <div class="notice-banner" id="homeNotice">Welcome to SciNovaTech! Complete your daily tasks to earn.</div>
@@ -318,32 +286,25 @@
             </div>
         </div>
 
-        <!-- Balance -->
         <div class="card card-balance">
             <div style="font-size:0.85em;color:var(--cyan);position:relative;">💰 AVAILABLE BALANCE</div>
             <div class="amount" id="homeBalance">₦0</div>
             <div class="today" id="homeToday">Today: ₦0</div>
             <div class="card-actions">
-                <a href="deposit.html" class="btn btn-gold">
-                    <i class="fas fa-plus-circle"></i> Deposit
-                </a>
-                <a href="withdraw.html" class="btn btn-outline">
-                    <i class="fas fa-arrow-up"></i> Withdraw
-                </a>
+                <a href="deposit.html" class="btn btn-gold"><i class="fas fa-plus-circle"></i> Deposit</a>
+                <a href="withdraw.html" class="btn btn-outline"><i class="fas fa-arrow-up"></i> Withdraw</a>
             </div>
         </div>
 
-        <!-- Reading reward badge -->
-        <div class="reading-badge" id="readingBadge" onclick="goToTasks()">
-            <div class="rb-icon"><i class="fas fa-book-reader"></i></div>
-            <div class="rb-text">
-                <div class="rb-title" id="readingTitle">Daily Reading Reward</div>
-                <div class="rb-sub" id="readingSub">Read for 5 minutes → earn ₦100</div>
+        <div class="checkin-badge" id="checkinBadge" onclick="goToCheckin()">
+            <div class="cb-icon" id="checkinIcon"><i class="fas fa-gift"></i></div>
+            <div class="cb-text">
+                <div class="cb-title" id="checkinTitle">Daily Check-in</div>
+                <div class="cb-sub" id="checkinSub">Tap to claim ₦100 →</div>
             </div>
-            <div class="rb-arrow"><i class="fas fa-chevron-right"></i></div>
+            <div class="cb-arrow"><i class="fas fa-chevron-right"></i></div>
         </div>
 
-        <!-- Quick actions -->
         <div class="card">
             <h4 style="color:var(--text-dim);margin-bottom:12px;font-size:0.85em;">📋 QUICK ACTIONS</h4>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
@@ -377,7 +338,7 @@
     <nav class="bottom-nav">
         <a href="home.html" class="nav-item active"><i class="fas fa-home"></i><span>Home</span></a>
         <a href="plans.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Plans</span></a>
-        <a href="deposit.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Deposit</span></a>
+        <a href="checkin.html" class="nav-item"><i class="fas fa-gift"></i><span>Check-in</span></a>
         <a href="tasks.html" class="nav-item"><i class="fas fa-tasks"></i><span>Tasks</span></a>
         <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
     </nav>
@@ -388,8 +349,8 @@
         const user = checkAuth();
         if (!user) { window.location.href = 'login.html'; }
         let currentUser = user;
+        let siteSettings = {};
 
-        // ============ WELCOME POPUP ============
         const welcomePhrases = [
             "Welcome! Ready to explore science today? 🌱",
             "Every question builds your knowledge and wallet...",
@@ -400,9 +361,7 @@
             "Your scientific journey continues...",
             "Small daily efforts = Big monthly results 📈",
             "Knowledge is the new currency - invest in it!",
-            "The more you learn, the more you earn 💡",
-            "Stay curious, stay profitable 🎯",
-            "Your future self will thank you for today's work"
+            "The more you learn, the more you earn 💡"
         ];
 
         let wpIndex = 0, wpChar = 0, wpDeleting = false;
@@ -443,7 +402,6 @@
             localStorage.setItem('scn_welcome_shown', Date.now().toString());
         }
 
-        // ============ LIVE TICKER ============
         function maskPhone() {
             const prefix = ['080','081','070','090','091'][Math.floor(Math.random()*5)];
             return prefix + Math.floor(Math.random()*9000000+1000000) + '****';
@@ -469,7 +427,6 @@
         setInterval(updateTicker, 9000);
         setTimeout(updateTicker, 300);
 
-        // ============ LOAD SETTINGS ============
         async function loadSettings() {
             try {
                 const s = await getDoc('settings', 'siteSettings');
@@ -495,7 +452,6 @@
             }
         }
 
-        // ============ LOAD DASHBOARD ============
         async function loadDashboard() {
             try {
                 currentUser = await refreshUser();
@@ -504,31 +460,32 @@
                 const today = getLocalDate();
                 const taskData = await syncUserTasks(currentUser.id, today);
                 const myTasks = taskData.tasks || [];
-                const readingClaimed = taskData.readingRewardClaimed || false;
+                const checkinClaimed = taskData.readingRewardClaimed || false;
 
                 const done = myTasks.filter(t => t.done).length;
                 const todayEarned = myTasks.reduce((s, t) => s + (t.earned || 0), 0);
-                const readingReward = currentUser.readingReward || READING_REWARD;
+                const checkinReward = siteSettings.checkinReward || 100;
+                const tasksPerDay = siteSettings.tasksPerDay || 3;
 
                 document.getElementById('homeToday').textContent = 'Today: ' + fmt(todayEarned);
                 document.getElementById('sTeam').textContent = currentUser.refCount || 0;
                 document.getElementById('sRef').textContent = fmt(currentUser.refEarnings || 0);
                 document.getElementById('sTasks').textContent = currentUser.tasksCompleted || 0;
-                document.getElementById('sToday').textContent = done + '/3';
+                document.getElementById('sToday').textContent = done + '/' + tasksPerDay;
 
-                // Reading reward badge
-                const readingBadge = document.getElementById('readingBadge');
-                if (readingClaimed) {
-                    readingBadge.classList.add('claimed');
-                    document.getElementById('readingTitle').textContent = '✅ Reading Reward Claimed';
-                    document.getElementById('readingSub').textContent = 'Come back tomorrow for another ₦' + readingReward;
+                const checkinBadge = document.getElementById('checkinBadge');
+                if (checkinClaimed) {
+                    checkinBadge.classList.add('claimed');
+                    document.getElementById('checkinIcon').innerHTML = '<i class="fas fa-check-circle"></i>';
+                    document.getElementById('checkinTitle').textContent = '✅ Daily Check-in Claimed';
+                    document.getElementById('checkinSub').textContent = 'Come back tomorrow for another ₦' + checkinReward;
                 } else {
-                    readingBadge.classList.remove('claimed');
-                    document.getElementById('readingTitle').textContent = 'Daily Reading Reward';
-                    document.getElementById('readingSub').textContent = 'Read for ' + READING_MINUTES + ' minutes → earn ₦' + readingReward;
+                    checkinBadge.classList.remove('claimed');
+                    document.getElementById('checkinIcon').innerHTML = '<i class="fas fa-gift"></i>';
+                    document.getElementById('checkinTitle').textContent = '🎁 Daily Check-in Available';
+                    document.getElementById('checkinSub').textContent = 'Tap to claim your free ₦' + checkinReward + ' →';
                 }
 
-                // Task action card
                 const taskActionCard = document.getElementById('taskActionCard');
                 if (hasActivePlan(currentUser)) {
                     taskActionCard.innerHTML = `
@@ -559,11 +516,17 @@
         function goToTasks() {
             window.location.href = 'tasks.html';
         }
+        function goToCheckin() {
+            window.location.href = 'checkin.html';
+        }
 
-        // ============ INIT ============
         window.addEventListener('load', async () => {
             try {
-                await loadSettings();
+                const [_, settings] = await Promise.all([
+                    loadSettings(),
+                    getSiteSettings()
+                ]);
+                siteSettings = settings;
                 await loadDashboard();
             } catch (error) {
                 console.error('Initialization error:', error);
