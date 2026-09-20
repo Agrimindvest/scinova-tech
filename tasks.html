@@ -13,7 +13,6 @@
         .task-container { max-width: 600px; margin: 0 auto; }
         .progress-section { text-align: center; margin-bottom: 20px; }
 
-        /* ============ SECTION DIVIDER ============ */
         .section-divider {
             display: flex;
             align-items: center;
@@ -36,71 +35,6 @@
             white-space: nowrap;
         }
 
-        /* ============ DAILY CHECK-IN ============ */
-        .daily-checkin-card {
-            background: linear-gradient(135deg, rgba(255,184,0,0.12), rgba(0,229,255,0.08));
-            border: 1px solid var(--gold);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            animation: checkinPop 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 25px rgba(255,184,0,0.15);
-        }
-        @keyframes checkinPop {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .daily-checkin-card.claimed {
-            background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(0,229,255,0.05));
-            border-color: var(--success);
-            box-shadow: 0 0 25px rgba(34,197,94,0.15);
-        }
-        .checkin-icon {
-            font-size: 3em;
-            color: var(--gold);
-            margin-bottom: 10px;
-            animation: float 3s ease-in-out infinite;
-            filter: drop-shadow(0 0 15px rgba(255,184,0,0.5));
-            position: relative;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        .daily-checkin-card.claimed .checkin-icon {
-            color: var(--success);
-            filter: drop-shadow(0 0 15px rgba(34,197,94,0.5));
-            animation: none;
-        }
-        .checkin-title {
-            color: var(--gold);
-            font-size: 1.15em;
-            font-weight: 800;
-            margin-bottom: 6px;
-            font-family: 'Space Grotesk', sans-serif;
-            position: relative;
-        }
-        .daily-checkin-card.claimed .checkin-title { color: var(--success); }
-        .checkin-sub {
-            color: var(--text-dim);
-            font-size: 0.82em;
-            margin-bottom: 15px;
-            position: relative;
-        }
-        .checkin-amount {
-            font-size: 2em;
-            font-weight: 900;
-            color: var(--gold);
-            margin: 10px 0;
-            font-family: 'Space Grotesk', sans-serif;
-            position: relative;
-        }
-        .daily-checkin-card.claimed .checkin-amount { color: var(--success); }
-
-        /* ============ ARTICLE ============ */
         .article-card {
             background: var(--card);
             border-radius: 16px;
@@ -165,21 +99,6 @@
             color: white; display: flex; align-items: center; justify-content: center;
             font-size: 0.75em; font-weight: 800;
         }
-
-        /* ============ CONFETTI ============ */
-        .checkin-confetti { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
-        .confetti-piece {
-            position: absolute; width: 8px; height: 8px;
-            opacity: 0; animation: confettiFall 1.5s ease-out forwards;
-        }
-        @keyframes confettiFall {
-            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-
-        /* ============ CHECK-IN SUB-FLOW ============ */
-        .checkin-flow { display: none; margin-top: 15px; }
-        .checkin-flow.active { display: block; animation: fadeSlideUp 0.4s ease; }
     </style>
 </head>
 <body>
@@ -199,7 +118,6 @@
 
         <div class="task-container">
 
-            <!-- NO ACTIVE PLAN -->
             <div id="noPlanSection" class="hidden">
                 <div class="card" style="text-align:center;">
                     <i class="fas fa-lock" style="font-size:3em;color:var(--warning);margin-bottom:15px;display:block;"></i>
@@ -211,50 +129,17 @@
 
             <div id="taskSection" class="hidden">
 
-                <!-- ================================================
-                     SECTION 1: DAILY CHECK-IN (FREE ₦100)
-                     ================================================ -->
+                <div class="card" id="checkinPromptCard" style="text-align:center;margin-bottom:20px;background:linear-gradient(135deg,rgba(255,184,0,0.1),rgba(0,229,255,0.05));border-color:var(--gold);display:none;">
+                    <i class="fas fa-gift" style="font-size:2.5em;color:var(--gold);margin-bottom:10px;display:block;"></i>
+                    <h4 style="color:var(--gold);font-size:1em;margin-bottom:6px;">Don't forget your free daily reward!</h4>
+                    <p style="color:var(--text-dim);font-size:0.85em;margin-bottom:12px;">Claim your daily check-in first</p>
+                    <a href="checkin.html" class="btn btn-gold btn-block" style="max-width:280px;margin:0 auto;">
+                        <i class="fas fa-hand-holding-heart"></i> GO TO CHECK-IN
+                    </a>
+                </div>
+
                 <div class="section-divider">
-                    <span>🎁 Daily Check-in</span>
-                </div>
-
-                <div class="daily-checkin-card" id="dailyCheckinCard">
-                    <div class="checkin-icon" id="checkinIcon"><i class="fas fa-gift"></i></div>
-                    <div class="checkin-title" id="checkinTitle">Free Daily Reward</div>
-                    <div class="checkin-sub" id="checkinSub">Tap to start — read for a moment, then claim</div>
-                    <div class="checkin-amount" id="checkinAmount">₦100</div>
-                    <button class="btn btn-gold btn-block" id="checkinBtn" onclick="startCheckin()" style="margin-top:10px;position:relative;">
-                        <i class="fas fa-hand-holding-heart"></i> START CHECK-IN
-                    </button>
-                </div>
-
-                <!-- CHECK-IN SUB-FLOW: article + timer + claim -->
-                <div class="checkin-flow" id="checkinFlow">
-                    <div class="step-header">
-                        <span class="step-num">1</span> Read this article
-                    </div>
-                    <div class="article-card" id="checkinArticle">
-                        <h4 id="checkinArticleTitle">Loading...</h4>
-                        <div class="article-meta" id="checkinArticleMeta"></div>
-                        <p id="checkinArticleBody">Please wait...</p>
-                    </div>
-
-                    <div class="timer-section">
-                        <p style="color:var(--text-dim);font-size:0.85em;">⏰ Claim unlocks in:</p>
-                        <div class="timer-display" id="checkinTimerDisplay">60</div>
-                        <div class="timer-bar"><div class="timer-fill" id="checkinTimerFill" style="width:100%;"></div></div>
-                    </div>
-
-                    <button class="btn btn-gold btn-block" id="checkinClaimBtn" disabled onclick="claimCheckinReward()">
-                        <i class="fas fa-lock"></i> WAIT FOR TIMER
-                    </button>
-                </div>
-
-                <!-- ================================================
-                     SECTION 2: PAID TASKS (3 questions)
-                     ================================================ -->
-                <div class="section-divider">
-                    <span>📝 Daily Tasks (Paid)</span>
+                    <span>📝 Daily Paid Tasks</span>
                 </div>
 
                 <div class="progress-section">
@@ -334,7 +219,7 @@
     <nav class="bottom-nav">
         <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
         <a href="plans.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Plans</span></a>
-        <a href="deposit.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Deposit</span></a>
+        <a href="checkin.html" class="nav-item"><i class="fas fa-gift"></i><span>Check-in</span></a>
         <a href="tasks.html" class="nav-item active"><i class="fas fa-tasks"></i><span>Tasks</span></a>
         <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
     </nav>
@@ -345,33 +230,24 @@
         const user = checkAuth();
         if (!user) window.location.href = 'login.html';
 
-        // ============ STATE ============
         let currentUser = user;
         let activePlans = {};
         let perQuestionValue = 0;
         let currentQuestionIndex = 1;
-        let currentArticle = null;         // for tasks
-        let currentCheckinArticle = null;  // for check-in
+        let currentArticle = null;
         let currentQuestion = null;
         let taskReadInterval = null;
-        let checkinReadInterval = null;
         let taskReadSecondsLeft = 10;
-        let checkinReadSecondsLeft = 60;
-        let checkinClaimed = false;
-        let checkinInProgress = false;
         let todayTasks = [];
         let totalEarnedToday = 0;
         let siteSettings = {};
         let taskReadSeconds = 10;
-        let checkinReadSeconds = 60;
         let tasksPerDay = 3;
-        let checkinBusy = false;
         let submitBusy = false;
 
-        // ============ SCIENCE ARTICLES ============
         const scienceArticles = [
             { title: 'Quantum Entanglement: Spooky Action at a Distance', category: 'Physics', difficulty: 'Intermediate',
-              content: 'Quantum entanglement is one of the most fascinating and counterintuitive phenomena in modern physics. When two particles become entangled, their quantum states become intrinsically linked, no matter how far apart they are. Measuring one particle instantaneously affects the other, even if they are light-years apart. Einstein famously called this "spooky action at a distance". This phenomenon is now being used in quantum computing, quantum cryptography, and quantum teleportation. Scientists are developing unhackable communication networks using entangled particles.',
+              content: 'Quantum entanglement is one of the most fascinating and counterintuitive phenomena in modern physics. When two particles become entangled, their quantum states become intrinsically linked, no matter how far apart they are. Measuring one particle instantaneously affects the other, even if they are light-years apart. Einstein famously called this "spooky action at a distance". This phenomenon is now being used in quantum computing, quantum cryptography, and quantum teleportation.',
               qs: [
                   { q: 'What did Einstein call quantum entanglement?', o: ['Quantum leap', 'Spooky action at a distance', 'Wave collapse'], a: 1 },
                   { q: 'How does measuring one entangled particle affect the other?', o: ['No effect', 'Instantaneous effect', 'Delayed by light speed'], a: 1 },
@@ -379,7 +255,7 @@
               ]
             },
             { title: 'CRISPR: The Future of Gene Editing', category: 'Biology', difficulty: 'Beginner',
-              content: 'CRISPR-Cas9 is a revolutionary gene-editing technology that allows scientists to precisely modify DNA sequences. Originally discovered as a bacterial immune system, CRISPR works by using a guide RNA to target specific DNA sequences and the Cas9 enzyme to cut them. This technology has enormous potential for treating genetic diseases like sickle cell anemia, cystic fibrosis, and Huntington\'s disease. In agriculture, CRISPR is being used to create drought-resistant crops and disease-resistant livestock.',
+              content: 'CRISPR-Cas9 is a revolutionary gene-editing technology that allows scientists to precisely modify DNA sequences. Originally discovered as a bacterial immune system, CRISPR works by using a guide RNA to target specific DNA sequences and the Cas9 enzyme to cut them. This technology has enormous potential for treating genetic diseases like sickle cell anemia, cystic fibrosis, and Huntington\'s disease.',
               qs: [
                   { q: 'Where was CRISPR originally discovered?', o: ['Human cells', 'Bacterial immune system', 'Plant cells'], a: 1 },
                   { q: 'What enzyme cuts DNA in CRISPR?', o: ['RNA polymerase', 'Cas9', 'Ligase'], a: 1 },
@@ -395,7 +271,7 @@
               ]
             },
             { title: 'Artificial Intelligence: How Machines Learn', category: 'AI', difficulty: 'Beginner',
-              content: 'Machine learning is a subset of artificial intelligence that enables computers to learn from data without being explicitly programmed. There are three main types: supervised, unsupervised, and reinforcement learning. Deep learning uses artificial neural networks with many layers to process complex data like images, text, and speech. Modern AI systems like ChatGPT and image generators are powered by these techniques. However, machine learning models can inherit biases from their training data.',
+              content: 'Machine learning is a subset of artificial intelligence that enables computers to learn from data without being explicitly programmed. There are three main types: supervised, unsupervised, and reinforcement learning. Deep learning uses artificial neural networks with many layers to process complex data like images, text, and speech. Modern AI systems like ChatGPT and image generators are powered by these techniques.',
               qs: [
                   { q: 'What is NOT a type of machine learning?', o: ['Supervised', 'Reflective', 'Reinforcement'], a: 1 },
                   { q: 'What powers modern AI systems?', o: ['Deep learning', 'Rule engines', 'Simple decision trees'], a: 0 },
@@ -411,7 +287,7 @@
               ]
             },
             { title: 'Fusion Energy: Powering the Future', category: 'Engineering', difficulty: 'Advanced',
-              content: 'Nuclear fusion is the process that powers the sun and stars. It involves combining light atomic nuclei to form heavier ones, releasing enormous amounts of energy. Unlike nuclear fission, fusion produces minimal waste and uses abundant fuels like hydrogen isotopes. The challenge is that fusion requires temperatures of over 100 million degrees Celsius. In December 2022, the National Ignition Facility achieved the first-ever net energy gain from fusion.',
+              content: 'Nuclear fusion is the process that powers the sun and stars. It involves combining light atomic nuclei to form heavier ones, releasing enormous amounts of energy. Unlike nuclear fission, fusion produces minimal waste and uses abundant fuels like hydrogen isotopes. In December 2022, the National Ignition Facility achieved the first-ever net energy gain from fusion.',
               qs: [
                   { q: 'How does fusion differ from fission?', o: ['Same process', 'Fusion combines, fission splits', 'Both combine'], a: 1 },
                   { q: 'Temperature needed for fusion?', o: ['10,000°C', '100 million°C', '1,000°C'], a: 1 },
@@ -419,7 +295,7 @@
               ]
             },
             { title: 'Nanotechnology: Engineering at the Atomic Scale', category: 'Engineering', difficulty: 'Intermediate',
-              content: 'Nanotechnology manipulates matter at the nanoscale — one billionth of a meter. At this scale, materials exhibit unique properties. Carbon forms either soft graphite, super-hard diamond, or revolutionary materials like graphene. Graphene is 200 times stronger than steel, conducts electricity better than copper, and is transparent and flexible. Nanotechnology is being applied in medicine, energy, electronics, and materials science.',
+              content: 'Nanotechnology manipulates matter at the nanoscale — one billionth of a meter. At this scale, materials exhibit unique properties. Carbon forms either soft graphite, super-hard diamond, or revolutionary materials like graphene. Graphene is 200 times stronger than steel, conducts electricity better than copper, and is transparent and flexible.',
               qs: [
                   { q: 'How much stronger is graphene than steel?', o: ['10×', '200×', '1000×'], a: 1 },
                   { q: 'One billionth of a meter is called?', o: ['Micrometer', 'Nanometer', 'Picometer'], a: 1 },
@@ -427,7 +303,7 @@
               ]
             },
             { title: 'Robotics: Machines That Think and Move', category: 'Robotics', difficulty: 'Beginner',
-              content: 'Robotics combines mechanical engineering, electronics, and computer science to create machines that perform tasks autonomously. Modern robots range from industrial arms welding cars to surgical robots performing precision operations, to humanoid robots exploring Mars. Key components include sensors, actuators, and controllers. AI is increasingly integrated into robotics, enabling robots to learn tasks and work alongside humans safely.',
+              content: 'Robotics combines mechanical engineering, electronics, and computer science to create machines that perform tasks autonomously. Modern robots range from industrial arms welding cars to surgical robots performing precision operations, to humanoid robots exploring Mars. AI is increasingly integrated into robotics, enabling robots to learn tasks and work alongside humans safely.',
               qs: [
                   { q: 'NOT a key robot component?', o: ['Sensors', 'Actuators', 'Combustors'], a: 2 },
                   { q: 'Soft robotics is about?', o: ['Loud robots', 'Flexible materials', 'Soft software'], a: 1 },
@@ -435,7 +311,7 @@
               ]
             },
             { title: 'Climate Change and Renewable Energy', category: 'Environment', difficulty: 'Beginner',
-              content: 'Climate change is driven primarily by greenhouse gas emissions from burning fossil fuels. Renewable sources — solar, wind, hydroelectric — offer sustainable alternatives. Solar photovoltaic costs have dropped by 90% since 2010, making it the cheapest electricity source in history in many regions. Battery storage is improving rapidly, solving the intermittency problem of renewables.',
+              content: 'Climate change is driven primarily by greenhouse gas emissions from burning fossil fuels. Renewable sources — solar, wind, hydroelectric — offer sustainable alternatives. Solar photovoltaic costs have dropped by 90% since 2010, making it the cheapest electricity source in history in many regions.',
               qs: [
                   { q: 'Cheapest electricity source now?', o: ['Coal', 'Solar', 'Nuclear'], a: 1 },
                   { q: 'Solar costs dropped by?', o: ['50%', '90%', '10%'], a: 1 },
@@ -443,7 +319,7 @@
               ]
             },
             { title: 'The Internet of Things: Connecting Everything', category: 'Computing', difficulty: 'Beginner',
-              content: 'The Internet of Things (IoT) refers to billions of physical devices connected to the internet, collecting and sharing data. From smart thermostats and fitness trackers to industrial sensors and connected cars, IoT is transforming how we live and work. By 2030, an estimated 50 billion IoT devices will be online. However, IoT raises serious security concerns: many devices have weak default passwords and unpatched vulnerabilities.',
+              content: 'The Internet of Things (IoT) refers to billions of physical devices connected to the internet, collecting and sharing data. From smart thermostats and fitness trackers to industrial sensors and connected cars, IoT is transforming how we live and work. By 2030, an estimated 50 billion IoT devices will be online.',
               qs: [
                   { q: 'IoT devices expected by 2030?', o: ['1 billion', '50 billion', '500 million'], a: 1 },
                   { q: 'Major IoT concern?', o: ['Speed', 'Security', 'Color'], a: 1 },
@@ -456,7 +332,6 @@
             return scienceArticles[Math.floor(Math.random() * scienceArticles.length)];
         }
 
-        // ============ INIT ============
         window.addEventListener('load', async () => {
             try {
                 const [refreshedUser, settings] = await Promise.all([
@@ -466,9 +341,7 @@
                 currentUser = refreshedUser;
                 siteSettings = settings;
 
-                // Apply admin settings
                 taskReadSeconds = Number(siteSettings.taskReadSeconds) || 10;
-                checkinReadSeconds = Number(siteSettings.checkinReadSeconds) || 60;
                 tasksPerDay = Number(siteSettings.tasksPerDay) || 3;
 
                 if (!hasActivePlan(currentUser)) {
@@ -484,15 +357,14 @@
                 const today = getLocalDate();
                 const taskData = await syncUserTasks(currentUser.id, today);
                 todayTasks = taskData.tasks || [];
-                checkinClaimed = taskData.readingRewardClaimed || false;
+                const checkinClaimed = taskData.readingRewardClaimed || false;
+                if (!checkinClaimed) {
+                    document.getElementById('checkinPromptCard').style.display = 'block';
+                }
                 totalEarnedToday = todayTasks.reduce((s, t) => s + (t.earned || 0), 0);
                 currentQuestionIndex = todayTasks.filter(t => t.done).length + 1;
 
-                // Update UI
                 document.getElementById('qTotal').textContent = tasksPerDay;
-                document.getElementById('checkinAmount').textContent = fmt(siteSettings.checkinReward || 100);
-
-                renderCheckinCard();
                 updateProgress();
 
                 if (currentQuestionIndex > tasksPerDay) {
@@ -513,165 +385,6 @@
             }
         });
 
-        // ============================================================
-        // SECTION 1: DAILY CHECK-IN FLOW
-        // ============================================================
-        function renderCheckinCard() {
-            const card = document.getElementById('dailyCheckinCard');
-            const icon = document.getElementById('checkinIcon');
-            const title = document.getElementById('checkinTitle');
-            const sub = document.getElementById('checkinSub');
-            const amount = document.getElementById('checkinAmount');
-            const btn = document.getElementById('checkinBtn');
-            const flow = document.getElementById('checkinFlow');
-            const reward = siteSettings.checkinReward || 100;
-
-            if (checkinClaimed) {
-                card.classList.add('claimed');
-                icon.innerHTML = '<i class="fas fa-check-circle"></i>';
-                title.textContent = 'Check-in Claimed Today';
-                sub.textContent = 'Come back tomorrow at 12 AM WAT';
-                amount.textContent = '+' + fmt(reward) + ' earned';
-                btn.disabled = true;
-                btn.innerHTML = '✅ ALREADY CLAIMED TODAY';
-                btn.classList.remove('btn-pulse');
-                flow.classList.remove('active');
-            } else {
-                card.classList.remove('claimed');
-                icon.innerHTML = '<i class="fas fa-gift"></i>';
-                title.textContent = 'Free Daily Reward';
-                sub.textContent = 'Tap to start — read for a moment, then claim';
-                amount.textContent = fmt(reward);
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-hand-holding-heart"></i> START CHECK-IN';
-                btn.classList.add('btn-pulse');
-                flow.classList.remove('active');
-            }
-        }
-
-        function startCheckin() {
-            if (checkinClaimed || checkinInProgress) return;
-            checkinInProgress = true;
-
-            // Hide the initial button area inside the card
-            document.getElementById('checkinBtn').style.display = 'none';
-
-            // Load a random article
-            currentCheckinArticle = pickRandomArticle();
-            document.getElementById('checkinArticleTitle').textContent = '📖 ' + currentCheckinArticle.title;
-            document.getElementById('checkinArticleMeta').innerHTML = `
-                <span>🔬 ${currentCheckinArticle.category}</span>
-                <span>📊 ${currentCheckinArticle.difficulty}</span>
-                <span>⏱️ ${checkinReadSeconds}s read</span>
-            `;
-            document.getElementById('checkinArticleBody').textContent = currentCheckinArticle.content;
-
-            // Show sub-flow
-            document.getElementById('checkinFlow').classList.add('active');
-
-            // Start timer
-            checkinReadSecondsLeft = checkinReadSeconds;
-            updateCheckinTimer();
-
-            const claimBtn = document.getElementById('checkinClaimBtn');
-            claimBtn.disabled = true;
-            claimBtn.innerHTML = '<i class="fas fa-lock"></i> WAIT ' + checkinReadSeconds + 's';
-
-            if (checkinReadInterval) clearInterval(checkinReadInterval);
-            checkinReadInterval = setInterval(() => {
-                checkinReadSecondsLeft--;
-                updateCheckinTimer();
-
-                if (checkinReadSecondsLeft <= 0) {
-                    clearInterval(checkinReadInterval);
-                    claimBtn.disabled = false;
-                    claimBtn.classList.add('btn-pulse');
-                    claimBtn.innerHTML = '<i class="fas fa-gift"></i> CLAIM ' + fmt(siteSettings.checkinReward || 100);
-                }
-            }, 1000);
-        }
-
-        function updateCheckinTimer() {
-            const td = document.getElementById('checkinTimerDisplay');
-            const fill = document.getElementById('checkinTimerFill');
-            td.textContent = checkinReadSecondsLeft;
-            fill.style.width = (checkinReadSecondsLeft / checkinReadSeconds * 100) + '%';
-
-            td.className = 'timer-display';
-            fill.className = 'timer-fill';
-            if (checkinReadSecondsLeft <= 15) { td.classList.add('warning'); fill.classList.add('warning'); }
-            if (checkinReadSecondsLeft <= 5) { td.classList.add('danger'); fill.classList.add('danger'); }
-        }
-
-        async function claimCheckinReward() {
-            if (checkinClaimed || checkinBusy) return;
-            if (checkinReadSecondsLeft > 0) return;
-            checkinBusy = true;
-
-            const reward = siteSettings.checkinReward || 100;
-            const btn = document.getElementById('checkinClaimBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Claiming...';
-
-            try {
-                const today = getLocalDate();
-                const { data: result, error } = await sb.rpc('claim_daily_checkin', {
-                    p_user_id: currentUser.id,
-                    p_date: today,
-                    p_amount: reward
-                });
-
-                if (error) throw error;
-
-                if (!result || !result.ok) {
-                    checkinClaimed = true;
-                    document.getElementById('checkinFlow').classList.remove('active');
-                    document.getElementById('checkinBtn').style.display = 'block';
-                    renderCheckinCard();
-                    toast(result?.message || 'Already claimed today');
-                    return;
-                }
-
-                checkinClaimed = true;
-                currentUser.balance = Number(result.newBalance) || (currentUser.balance + reward);
-                localStorage.setItem('scn_u', JSON.stringify(currentUser));
-
-                spawnConfetti();
-                toast('🎉 +' + fmt(reward) + ' claimed!');
-
-                document.getElementById('checkinFlow').classList.remove('active');
-                document.getElementById('checkinBtn').style.display = 'block';
-                renderCheckinCard();
-
-            } catch (error) {
-                console.error('Check-in error:', error);
-                toast('❌ Failed to claim. Please try again.');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-gift"></i> CLAIM ' + fmt(reward);
-            } finally {
-                checkinBusy = false;
-            }
-        }
-
-        function spawnConfetti() {
-            const container = document.createElement('div');
-            container.className = 'checkin-confetti';
-            const colors = ['#FFB800', '#00E5FF', '#7C3AED', '#22C55E', '#EF4444'];
-            for (let i = 0; i < 40; i++) {
-                const piece = document.createElement('div');
-                piece.className = 'confetti-piece';
-                piece.style.left = Math.random() * 100 + '%';
-                piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-                piece.style.animationDelay = (Math.random() * 0.3) + 's';
-                container.appendChild(piece);
-            }
-            document.body.appendChild(container);
-            setTimeout(() => container.remove(), 2000);
-        }
-
-        // ============================================================
-        // SECTION 2: PAID TASKS FLOW
-        // ============================================================
         function updateProgress() {
             const done = todayTasks.filter(t => t.done).length;
             document.getElementById('progressText').textContent = done + '/' + tasksPerDay;
@@ -831,10 +544,6 @@
             document.getElementById('totalEarned').textContent = fmt(totalEarnedToday);
 
             let resultsHTML = '';
-            if (checkinClaimed) {
-                const checkinAmt = siteSettings.checkinReward || 100;
-                resultsHTML = `<div class="task-history-item"><span>🎁 Check-in:</span><span style="color:var(--gold);">✅ ₦${checkinAmt}</span></div>`;
-            }
             todayTasks.forEach(t => {
                 resultsHTML += `<div class="task-history-item"><span>Q${t.q}:</span><span style="color:var(--success);">✅ ₦${t.earned}</span></div>`;
             });
