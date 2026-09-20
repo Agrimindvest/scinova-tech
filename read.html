@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Read - SciNovaTech</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .read-container { max-width: 600px; margin: 0 auto; }
+        .filter-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
+        .article-preview-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeSlideIn 0.4s ease forwards;
+            opacity: 0;
+        }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .article-preview-card:hover {
+            border-color: var(--cyan);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(0,229,255,0.1);
+        }
+        .article-preview-card .category-badge {
+            display: inline-block;
+            font-size: 0.7em;
+            padding: 3px 10px;
+            border-radius: 10px;
+            background: rgba(0,229,255,0.12);
+            color: var(--cyan);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .article-preview-card h4 { color: var(--cyan); margin-bottom: 6px; font-size: 1em; }
+        .article-preview-card p { color: var(--text-dim); font-size: 0.82em; line-height: 1.5; }
+        .read-more { color: var(--cyan); font-size: 0.8em; font-weight: 600; margin-top: 8px; display: inline-block; }
+        .article-modal {
+            position: fixed;
+            inset: 0;
+            background: var(--darker);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+            animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .article-modal .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        .article-modal .modal-body {
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 2;
+            font-size: 0.95em;
+        }
+        .article-modal .modal-body h2 { color: var(--cyan); margin-bottom: 15px; }
+        .article-modal .modal-body p { color: var(--text-dim); margin-bottom: 15px; }
+        .close-btn {
+            background: none; border: none;
+            color: var(--text-dim); font-size: 1.5em;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .close-btn:hover { color: var(--cyan); transform: rotate(90deg); }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <a href="home.html" class="logo">
+            <img src="assets/img/logo.svg" alt="SciNovaTech">
+            <span>SciNovaTech</span>
+        </a>
+        <div class="icons"><a href="profile.html"><i class="fas fa-user-circle"></i></a></div>
+    </header>
+
+    <div class="main-content">
+        <a href="home.html" style="color:var(--cyan);text-decoration:none;display:flex;align-items:center;gap:5px;margin-bottom:15px;font-size:0.9em;">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+
+        <div class="read-container">
+            <h3 style="color:var(--cyan);margin-bottom:15px;">📖 Science & Tech Articles</h3>
+
+            <div class="filter-tabs" id="filterTabs">
+                <button class="filter-tab active" data-cat="all" onclick="filterArticles('all')">All</button>
+            </div>
+
+            <div id="articlesList">
+                <div class="empty-state"><div class="spinner"></div><p>Loading articles...</p></div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="plans.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Plans</span></a>
+        <a href="deposit.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Deposit</span></a>
+        <a href="tasks.html" class="nav-item"><i class="fas fa-tasks"></i><span>Tasks</span></a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+    <script>
+        const user = checkAuth();
+        if (!user) window.location.href = 'login.html';
+
+        let currentFilter = 'all';
+        let allArticles = [];
+
+        // Built-in article previews (full content lives in tasks.html for the quiz)
+        const builtInArticles = [
+            { title: 'Quantum Entanglement: Spooky Action at a Distance', category: 'Physics', difficulty: 'Intermediate', preview: 'Quantum entanglement is one of the most fascinating and counterintuitive phenomena in modern physics. When two particles become entangled, their quantum states become intrinsically linked, no matter how far apart they are...' },
+            { title: 'CRISPR: The Future of Gene Editing', category: 'Biology', difficulty: 'Beginner', preview: 'CRISPR-Cas9 is a revolutionary gene-editing technology that allows scientists to precisely modify DNA sequences. Originally discovered as a bacterial immune system, CRISPR works by using a guide RNA...' },
+            { title: 'Black Holes: The Cosmic Vacuum Cleaners', category: 'Astronomy', difficulty: 'Beginner', preview: 'Black holes are regions of space where gravity is so intense that nothing — not even light — can escape. They form when massive stars collapse at the end of their life cycles...' },
+            { title: 'Artificial Intelligence: How Machines Learn', category: 'Artificial Intelligence', difficulty: 'Beginner', preview: 'Machine learning is a subset of artificial intelligence that enables computers to learn from data without being explicitly programmed. There are three main types: supervised, unsupervised, and reinforcement learning...' },
+            { title: 'The Human Brain: Nature\'s Supercomputer', category: 'Neuroscience', difficulty: 'Intermediate', preview: 'The human brain contains approximately 86 billion neurons, each connected to thousands of others through synapses. This creates a network of trillions of connections...' },
+            { title: 'Fusion Energy: Powering the Future', category: 'Engineering', difficulty: 'Advanced', preview: 'Nuclear fusion is the process that powers the sun and stars. It involves combining light atomic nuclei to form heavier ones, releasing enormous amounts of energy in the process...' },
+            { title: 'Nanotechnology: Engineering at the Atomic Scale', category: 'Engineering', difficulty: 'Intermediate', preview: 'Nanotechnology manipulates matter at the nanoscale — one billionth of a meter. At this scale, materials exhibit unique properties. Gold, normally inert, becomes a powerful catalyst...' },
+            { title: 'Robotics: Machines That Think and Move', category: 'Robotics', difficulty: 'Beginner', preview: 'Robotics combines mechanical engineering, electronics, and computer science to create machines that can perform tasks autonomously or under human control...' },
+            { title: 'Climate Change and Renewable Energy', category: 'Environment', difficulty: 'Beginner', preview: 'Climate change is driven primarily by greenhouse gas emissions from burning fossil fuels. Renewable energy sources — solar, wind, hydroelectric — offer sustainable alternatives...' },
+            { title: 'The Internet of Things: Connecting Everything', category: 'Computing', difficulty: 'Beginner', preview: 'The Internet of Things (IoT) refers to billions of physical devices connected to the internet, collecting and sharing data. From smart thermostats and fitness trackers to industrial sensors...' }
+        ];
+
+        window.addEventListener('load', async () => {
+            await loadArticles();
+            renderFilterTabs();
+        });
+
+        async function loadArticles() {
+            try {
+                // Load built-in
+                allArticles = [...builtInArticles.map(a => ({ ...a, builtIn: true }))];
+
+                // Load custom from DB
+                const { data } = await sb.from('articles').select('*').eq('status', 'active');
+                (data || []).forEach(a => {
+                    allArticles.push({
+                        title: a.title,
+                        category: a.category || 'Science',
+                        difficulty: a.difficulty || 'Beginner',
+                        content: a.content,
+                        preview: (a.content || '').substring(0, 180) + '...',
+                        builtIn: false
+                    });
+                });
+
+                renderArticles();
+            } catch (error) {
+                console.error('Load articles error:', error);
+                renderArticles();
+            }
+        }
+
+        function renderFilterTabs() {
+            const cats = ['all', ...new Set(allArticles.map(a => a.category))];
+            const catMap = { all: 'All' };
+            const icons = {
+                Physics: '⚛️', Chemistry: '🧪', Biology: '🧬', Astronomy: '🌌',
+                'Artificial Intelligence': '🤖', Robotics: '🦾', Computing: '💻',
+                Engineering: '🚀', Environment: '🌍', Neuroscience: '🧠', Science: '🔬'
+            };
+
+            let html = '';
+            cats.forEach(c => {
+                const label = c === 'all' ? '🌐 All' : (icons[c] || '🔬') + ' ' + c;
+                html += `<button class="filter-tab ${c === 'all' ? 'active' : ''}" data-cat="${c}" onclick="filterArticles('${c}')">${label}</button>`;
+            });
+            document.getElementById('filterTabs').innerHTML = html;
+        }
+
+        function renderArticles() {
+            const filtered = currentFilter === 'all'
+                ? allArticles
+                : allArticles.filter(a => a.category === currentFilter);
+
+            if (filtered.length === 0) {
+                document.getElementById('articlesList').innerHTML =
+                    '<div class="empty-state"><i class="fas fa-book-open"></i><p>No articles in this category.</p></div>';
+                return;
+            }
+
+            let html = '';
+            filtered.forEach((article, i) => {
+                html += `
+                <div class="article-preview-card" onclick="openArticle(${allArticles.indexOf(article)})" style="animation-delay:${i * 0.05}s;">
+                    <span class="category-badge">${article.category} • ${article.difficulty}</span>
+                    <h4>📖 ${article.title}</h4>
+                    <p>${article.preview}</p>
+                    <span class="read-more">Read Full Article →</span>
+                </div>`;
+            });
+
+            document.getElementById('articlesList').innerHTML = html;
+        }
+
+        function filterArticles(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.filter-tab[data-cat="${category}"]`)?.classList.add('active');
+            renderArticles();
+        }
+
+        function openArticle(index) {
+            const article = allArticles[index];
+            if (!article) return;
+
+            const content = article.content || article.preview + '\n\nOpen the Tasks page to read the full article and earn rewards.';
+
+            const modal = document.createElement('div');
+            modal.className = 'article-modal';
+            modal.innerHTML = `
+                <div class="modal-header">
+                    <span class="category-badge" style="margin:0;">${article.category} • ${article.difficulty}</span>
+                    <button class="close-btn" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h2>📖 ${article.title}</h2>
+                    <p style="white-space:pre-line;">${content}</p>
+                    ${article.builtIn ? '<p style="margin-top:20px;padding:12px;background:rgba(0,229,255,0.08);border-radius:10px;border:1px solid var(--cyan);font-size:0.85em;color:var(--cyan);"><i class="fas fa-info-circle"></i> This is a preview. Visit <strong>Tasks</strong> to read the full article for 5 minutes and earn ₦100.</p>' : ''}
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
+        }
+    </script>
+</body>
+</html>
