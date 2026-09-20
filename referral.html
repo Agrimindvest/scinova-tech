@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Referral - SciNovaTech</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .referral-container { max-width: 600px; margin: 0 auto; }
+        .referral-page-header { text-align: center; margin-bottom: 25px; }
+        .referral-title { color: var(--cyan); font-size: 1.6em; margin-bottom: 6px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; }
+        .referral-subtitle { color: var(--text-dim); font-size: 0.9em; }
+
+        .earnings-highlight {
+            background: linear-gradient(135deg, rgba(0,87,255,0.15), rgba(0,229,255,0.08));
+            border: 1px solid var(--cyan);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 30px rgba(0,229,255,0.08);
+        }
+        .earnings-label { color: var(--text-dim); font-size: 0.9em; margin-bottom: 8px; font-weight: 600; }
+        .earnings-amount {
+            font-size: 2.8em;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--cyan), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        @media (max-width: 500px) { .metrics-grid { grid-template-columns: 1fr 1fr; } }
+
+        .metric-card {
+            background: linear-gradient(135deg, rgba(0,229,255,0.08), rgba(124,58,237,0.05));
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 8px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .metric-card:hover {
+            border-color: var(--cyan);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px var(--cyan-glow);
+        }
+        .metric-value { font-size: 1.5em; font-weight: 800; color: var(--cyan); margin-bottom: 6px; font-family: 'Space Grotesk', sans-serif; }
+        .metric-label { font-size: 0.65em; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .referral-link-card {
+            background: var(--card);
+            border: 1px solid var(--cyan);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .referral-link-card h4 { color: var(--cyan); font-size: 0.95em; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .ref-link-display {
+            background: var(--deep);
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        .ref-link-display:hover { border-color: var(--cyan); background: rgba(0,229,255,0.03); }
+        .ref-link-text {
+            flex: 1;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--gold);
+            word-break: break-all;
+            font-family: 'Space Grotesk', monospace;
+        }
+        .copy-btn {
+            background: linear-gradient(135deg, var(--primary), var(--cyan));
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: 700;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .copy-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--cyan-glow); }
+        .share-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .share-btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.85em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: white;
+        }
+        .share-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
+        .share-whatsapp { background: #25D366; }
+        .share-copy { background: linear-gradient(135deg, var(--primary), var(--cyan)); }
+
+        .tier-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+        .tier-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .tier-row:last-child { border-bottom: none; }
+        .tier-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 700;
+        }
+        .tier-1 { background: rgba(255,184,0,0.2); color: var(--gold); }
+        .tier-2 { background: rgba(124,58,237,0.2); color: var(--purple); }
+        .tier-3 { background: rgba(0,229,255,0.2); color: var(--cyan); }
+
+        .users-section h4 { color: var(--cyan); margin-bottom: 12px; font-size: 0.95em; display: flex; align-items: center; gap: 8px; }
+        .ref-user-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .ref-user-card:hover { border-color: var(--cyan); transform: translateX(4px); }
+        .ref-user-info strong { color: var(--cyan); }
+        .ref-user-info small { display: block; margin-top: 4px; color: var(--text-dim); }
+        .ref-user-earnings { text-align: right; font-weight: 700; }
+        .ref-user-earnings .amount { color: var(--gold); font-size: 1.05em; }
+        .ref-user-status {
+            font-size: 0.65em;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: 4px;
+            display: inline-block;
+        }
+        .ref-status-active { background: rgba(34,197,94,0.2); color: var(--success); }
+        .ref-status-inactive { background: rgba(100,116,139,0.2); color: var(--text-mute); }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <a href="home.html" class="logo">
+            <img src="assets/img/logo.svg" alt="SciNovaTech">
+            <span>SciNovaTech</span>
+        </a>
+        <div class="icons"><a href="profile.html"><i class="fas fa-user-circle"></i></a></div>
+    </header>
+
+    <div class="main-content">
+        <a href="home.html" style="color:var(--cyan);text-decoration:none;display:flex;align-items:center;gap:5px;margin-bottom:20px;font-size:0.9em;">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+
+        <div class="referral-container">
+            <div class="referral-page-header">
+                <h2 class="referral-title">👥 Referral Program</h2>
+                <p class="referral-subtitle">Build your team and earn up to 10%</p>
+            </div>
+
+            <div class="earnings-highlight">
+                <div class="earnings-label">💰 YOUR REFERRAL EARNINGS</div>
+                <div class="earnings-amount" id="refEarnings">₦0</div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="refTotal">0</div>
+                    <div class="metric-label">Total</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="refActive">0</div>
+                    <div class="metric-label">Active</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="refInactive">0</div>
+                    <div class="metric-label">Pending</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="userCount">0</div>
+                    <div class="metric-label">Team</div>
+                </div>
+            </div>
+
+            <div class="referral-link-card">
+                <h4><i class="fas fa-link"></i> YOUR REFERRAL LINK</h4>
+                <div class="ref-link-display">
+                    <span class="ref-link-text" id="refLink">Loading...</span>
+                    <button class="copy-btn" onclick="copyRefLink()"><i class="fas fa-copy"></i> Copy</button>
+                </div>
+                <div class="share-buttons">
+                    <button class="share-btn share-whatsapp" onclick="shareWhatsApp()">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </button>
+                    <button class="share-btn share-copy" onclick="shareCopyAdvanced()">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
+                </div>
+            </div>
+
+            <div class="tier-card">
+                <h4 style="color:var(--cyan);font-size:0.95em;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                    <i class="fas fa-layer-group"></i> EARNINGS STRUCTURE
+                </h4>
+                <div class="tier-row">
+                    <span class="tier-badge tier-1">Level 1 — Direct</span>
+                    <span style="color:var(--gold);font-weight:700;">10%</span>
+                </div>
+                <div class="tier-row">
+                    <span class="tier-badge tier-2">Level 2 — Their referrals</span>
+                    <span style="color:var(--purple);font-weight:700;">3%</span>
+                </div>
+                <div class="tier-row">
+                    <span class="tier-badge tier-3">Level 3 — Third layer</span>
+                    <span style="color:var(--cyan);font-weight:700;">1%</span>
+                </div>
+                <div style="padding-top:12px;margin-top:8px;border-top:1px solid var(--border);font-size:0.78em;color:var(--text-dim);">
+                    💡 You earn whenever someone in your team invests in a plan.
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4><i class="fas fa-info-circle"></i> HOW IT WORKS</h4>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Share your referral link with friends</li>
+                    <li><i class="fas fa-check-circle"></i> When they sign up, they become your referral</li>
+                    <li><i class="fas fa-check-circle"></i> Earn up to 10% every time they invest</li>
+                    <li><i class="fas fa-check-circle"></i> No limit on referrals or earnings</li>
+                    <li><i class="fas fa-check-circle"></i> Earnings paid instantly to your account</li>
+                </ul>
+            </div>
+
+            <div class="users-section">
+                <h4><i class="fas fa-users"></i> YOUR TEAM (<span id="teamCount">0</span>)</h4>
+                <div id="refUsersList">
+                    <div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="plans.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Plans</span></a>
+        <a href="deposit.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Deposit</span></a>
+        <a href="tasks.html" class="nav-item"><i class="fas fa-tasks"></i><span>Tasks</span></a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+    <script>
+        const user = checkAuth();
+        if (!user) window.location.href = 'login.html';
+
+        let currentUser = user;
+
+        window.addEventListener('load', async () => {
+            currentUser = await refreshUser();
+            loadReferralData();
+        });
+
+        async function loadReferralData() {
+            try {
+                const refCode = currentUser.refCode || currentUser.id;
+                const refLink = APP_BASE_URL + '/register.html?ref=' + refCode;
+                document.getElementById('refLink').textContent = refLink;
+                document.getElementById('refEarnings').textContent = fmt(currentUser.refEarnings || 0);
+
+                const { data: referredUsers, error } = await sb
+                    .from('users').select('*').eq('referred_by', currentUser.id);
+                if (error) throw error;
+
+                let totalRefs = (referredUsers || []).length;
+                let activeRefs = 0;
+                let inactiveRefs = 0;
+                let usersHTML = '';
+
+                const { data: refEarnings } = await sb
+                    .from('referrals').select('referee_id, earned')
+                    .eq('referrer_id', currentUser.id);
+
+                const earningsMap = {};
+                (refEarnings || []).forEach(r => {
+                    earningsMap[r.referee_id] = (earningsMap[r.referee_id] || 0) + Number(r.earned || 0);
+                });
+
+                if (!referredUsers || referredUsers.length === 0) {
+                    usersHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-user-tie"></i>
+                        <p><strong>No team members yet</strong></p>
+                        <p style="font-size:0.85em;">Share your referral link to start building your team!</p>
+                    </div>`;
+                } else {
+                    referredUsers.forEach((refUser, i) => {
+                        const hasPlan = refUser.plan && refUser.plan !== 'none' && refUser.invested;
+                        const earned = earningsMap[refUser.id] || 0;
+                        if (hasPlan) activeRefs++; else inactiveRefs++;
+
+                        const joinDate = new Date(refUser.created_at);
+                        const daysAgo = Math.floor((new Date() - joinDate) / (1000 * 60 * 60 * 24));
+                        const daysText = daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : daysAgo + ' days ago';
+
+                        usersHTML += `
+                        <div class="ref-user-card" style="animation-delay:${i * 0.05}s;">
+                            <div class="ref-user-info">
+                                <strong>${hasPlan ? '🟢' : '⚪'} ${refUser.name}</strong>
+                                <small>${hasPlan ? '✅ ' + refUser.plan : '⏳ No plan'} • ${daysText}</small>
+                            </div>
+                            <div class="ref-user-earnings">
+                                <div class="amount">${earned > 0 ? '+' + fmt(earned) : '₦0'}</div>
+                                <span class="ref-user-status ${hasPlan ? 'ref-status-active' : 'ref-status-inactive'}">
+                                    ${hasPlan ? 'Active' : 'Pending'}
+                                </span>
+                            </div>
+                        </div>`;
+                    });
+                }
+
+                document.getElementById('refTotal').textContent = totalRefs;
+                document.getElementById('refActive').textContent = activeRefs;
+                document.getElementById('refInactive').textContent = inactiveRefs;
+                document.getElementById('userCount').textContent = totalRefs;
+                document.getElementById('teamCount').textContent = totalRefs;
+                document.getElementById('refUsersList').innerHTML = usersHTML;
+            } catch (error) {
+                console.error('Error loading referral data:', error);
+                toast('Error loading referral data');
+            }
+        }
+
+        function copyRefLink() {
+            const refCode = currentUser.refCode || currentUser.id;
+            const refLink = APP_BASE_URL + '/register.html?ref=' + refCode;
+            navigator.clipboard.writeText(refLink)
+                .then(() => toast('📋 Link copied!'))
+                .catch(() => {
+                    const t = document.createElement('textarea');
+                    t.value = refLink;
+                    document.body.appendChild(t);
+                    t.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(t);
+                    toast('📋 Link copied!');
+                });
+        }
+
+        function shareWhatsApp() {
+            const refCode = currentUser.refCode || currentUser.id;
+            const refLink = APP_BASE_URL + '/register.html?ref=' + refCode;
+            const message = encodeURIComponent(
+                '🚀 *Join SciNovaTech!* 🚀\n\n' +
+                '🔬 Read science & tech articles\n' +
+                '🧠 Answer quizzes & earn daily\n' +
+                '💰 Get ₦500 welcome bonus instantly\n' +
+                '📈 Earn 15% daily on every plan\n\n' +
+                '🔗 *Use my referral link:*\n' +
+                refLink + '\n\n' +
+                '✅ Free to join • 100% Secure'
+            );
+            window.open('https://wa.me/?text=' + message, '_blank');
+        }
+
+        function shareCopyAdvanced() {
+            const refCode = currentUser.refCode || currentUser.id;
+            const refLink = APP_BASE_URL + '/register.html?ref=' + refCode;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Join SciNovaTech',
+                    text: 'Join me on SciNovaTech — learn science, earn daily!',
+                    url: refLink
+                }).catch(err => console.log('Share cancelled'));
+            } else {
+                copyRefLink();
+            }
+        }
+    </script>
+</body>
+</html>
