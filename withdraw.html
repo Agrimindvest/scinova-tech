@@ -5,14 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Withdraw - SciNovaTech</title>
     <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
         .withdraw-container { max-width: 500px; margin: 0 auto; }
 
         .blocked-card {
-            background: rgba(239,68,68,0.08); border: 1px solid var(--danger);
-            border-radius: 16px; padding: 25px; text-align: center;
+            background: rgba(239,68,68,0.08);
+            border: 1px solid var(--danger);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
             margin: 20px 0;
         }
         .blocked-card .blocked-icon { font-size: 3em; color: var(--danger); margin-bottom: 10px; display: block; }
@@ -22,8 +27,12 @@
             border-radius: 12px; padding: 15px; margin: 15px 0;
             box-shadow: 0 0 15px rgba(0,229,255,0.08);
         }
-
-        .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
         .summary-row:last-child { border-bottom: none; font-weight: 700; }
         .summary-row .negative { color: var(--danger); }
         .summary-row .positive { color: var(--success); }
@@ -108,7 +117,7 @@
             <i class="fas fa-arrow-left"></i> Back to Home
         </a>
 
-        <div class="withdraw-container">
+        <div class="withdraw-container" id="withdrawContainer">
 
             <div class="withdraw-error" id="withdrawError"></div>
 
@@ -123,7 +132,7 @@
             </div>
 
             <!-- WITHDRAW FORM -->
-            <div id="withdrawSection">
+            <div id="withdrawSection" style="display:none;">
                 <h3 style="color:var(--cyan);margin-bottom:10px;">💸 Withdraw Your Earnings</h3>
 
                 <div class="warning-banner" id="windowWarning">
@@ -203,7 +212,7 @@
     <nav class="bottom-nav">
         <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
         <a href="plans.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Plans</span></a>
-        <a href="deposit.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Deposit</span></a>
+        <a href="checkin.html" class="nav-item"><i class="fas fa-gift"></i><span>Check-in</span></a>
         <a href="tasks.html" class="nav-item"><i class="fas fa-tasks"></i><span>Tasks</span></a>
         <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
     </nav>
@@ -211,270 +220,302 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/supabase.js"></script>
     <script>
-        const user = checkAuth();
-        if (!user) { window.location.href = 'login.html'; }
+        (function() {
+            const user = checkAuth();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
 
-        let currentUser = user;
-        let selectedBank = null;
-        let withdrawalAmount = 0;
-        let withdrawalFee = 0;
-        let withdrawalNet = 0;
-        let withdrawalSettings = { min_withdrawal: 600 };
-        let todayWithdrawalCount = 0;
-        let maxWithdrawalsToday = 1;
+            window.currentUser = user;
+            window.selectedBank = null;
+            window.withdrawalAmount = 0;
+            window.withdrawalFee = 0;
+            window.withdrawalNet = 0;
+            window.withdrawalSettings = { min_withdrawal: 600 };
+            window.todayWithdrawalCount = 0;
+            window.maxWithdrawalsToday = 1;
 
-        function showError(message) {
-            const errorEl = document.getElementById('withdrawError');
-            errorEl.textContent = message;
-            errorEl.classList.add('show');
-            setTimeout(() => errorEl.classList.remove('show'), 5000);
-        }
+            window.showError = function(message) {
+                const errorEl = document.getElementById('withdrawError');
+                if (errorEl) {
+                    errorEl.textContent = message;
+                    errorEl.classList.add('show');
+                    setTimeout(() => errorEl.classList.remove('show'), 5000);
+                }
+            };
 
-        window.addEventListener('load', async function() {
-            try {
-                currentUser = await refreshUser();
-                if (!currentUser) {
-                    window.location.href = 'login.html';
+            // ============ FEATURE TOGGLE CHECK ============
+            (async () => {
+                try {
+                    const refreshed = await refreshUser();
+                    if (!refreshed) return;
+                    window.currentUser = refreshed;
+
+                    const container = document.getElementById('withdrawContainer');
+
+                    // 1. Check if withdrawals are allowed (global + per-user)
+                    const allowed = await canUserWithdraw(window.currentUser);
+                    if (!allowed) {
+                        container.innerHTML = `
+                            <div class="blocked-card">
+                                <i class="fas fa-lock blocked-icon"></i>
+                                <h3 style="color:var(--warning);margin-bottom:10px;">Withdrawals Temporarily Closed</h3>
+                                <p style="color:var(--text-dim);margin-bottom:20px;font-size:0.9em;">
+                                    Withdrawals are currently unavailable. Please try again later.
+                                </p>
+                                <a href="home.html" class="btn btn-primary btn-block">
+                                    <i class="fas fa-home"></i> Back to Home
+                                </a>
+                            </div>`;
+                        return;
+                    }
+
+                    // 2. Check if user has an active plan
+                    await window.loadAndApplyWithdrawalSettings();
+
+                    if (!hasActivePlan(window.currentUser)) {
+                        document.getElementById('blockedSection').classList.remove('hidden');
+                        return;
+                    }
+
+                    // 3. Show the withdrawal form
+                    document.getElementById('withdrawSection').style.display = 'block';
+                    document.getElementById('withdrawBalance').textContent = fmt(window.currentUser.balance || 0);
+
+                    await window.loadBanks();
+                    await window.checkWithdrawalStatus();
+
+                } catch (error) {
+                    console.error('Init error:', error);
+                    window.showError('Error loading page. Please refresh.');
+                }
+            })();
+
+            window.loadAndApplyWithdrawalSettings = async function() {
+                try {
+                    const doc = await getDoc('settings', 'withdrawalSettings');
+                    if (doc) { window.withdrawalSettings = doc; }
+                    const minAmount = window.withdrawalSettings.min_withdrawal || 600;
+                    const wAmtInput = document.getElementById('wAmt');
+                    if (wAmtInput) {
+                        wAmtInput.min = minAmount;
+                        wAmtInput.placeholder = `Enter amount (min ${fmt(minAmount)})`;
+                    }
+                } catch (error) {
+                    console.error('Load withdrawal settings error:', error);
+                }
+            };
+
+            window.checkWithdrawalStatus = async function() {
+                try {
+                    const isOpen = await isWithdrawalWindowOpen();
+                    const warningEl = document.getElementById('windowWarning');
+                    if (!isOpen) warningEl.classList.add('show');
+                    else warningEl.classList.remove('show');
+
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const { data, error } = await sb
+                        .from('withdrawals')
+                        .select('id')
+                        .eq('user_id', window.currentUser.id)
+                        .gte('date', todayStr);
+                    if (error) throw error;
+
+                    window.todayWithdrawalCount = (data || []).length;
+
+                    const day = new Date().getDay();
+                    if (day === 0 || day === 6) {
+                        window.maxWithdrawalsToday = window.withdrawalSettings.max_weekend || 2;
+                    } else {
+                        window.maxWithdrawalsToday = window.withdrawalSettings.max_weekday || 1;
+                    }
+
+                    const todayCountEl = document.getElementById('todayCount');
+                    const btn = document.getElementById('withdrawBtn');
+                    if (todayCountEl) todayCountEl.textContent = window.todayWithdrawalCount + ' / ' + window.maxWithdrawalsToday;
+
+                    if (window.todayWithdrawalCount >= window.maxWithdrawalsToday) {
+                        if (todayCountEl) todayCountEl.classList.add('limit-reached');
+                        if (btn) {
+                            btn.disabled = true;
+                            btn.innerHTML = '<i class="fas fa-lock"></i> LIMIT REACHED';
+                        }
+                    } else {
+                        if (todayCountEl) todayCountEl.classList.remove('limit-reached');
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-paper-plane"></i> REQUEST WITHDRAWAL';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Check withdrawal status error:', error);
+                }
+            };
+
+            window.loadBanks = async function() {
+                try {
+                    const { data, error } = await sb
+                        .from('banks').select('*').eq('user_id', window.currentUser.id);
+                    if (error) throw error;
+
+                    let html = '';
+                    if (!data || data.length === 0) {
+                        html = '<p style="color:var(--text-dim);text-align:center;">No bank accounts saved. <a href="bank.html" style="color:var(--cyan);">Add one here.</a></p>';
+                    } else {
+                        data.forEach(bank => {
+                            html += `
+                            <div class="bank-select-item" onclick="selectBank('${bank.id}')" id="bank-${bank.id}">
+                                <div class="radio-circle"></div>
+                                <div>
+                                    <strong>${bank.bank_name}</strong><br>
+                                    <small style="color:var(--text-dim);">${bank.acct_no} - ${bank.acct_name}</small>
+                                </div>
+                            </div>`;
+                        });
+                    }
+                    document.getElementById('bankList').innerHTML = html;
+                } catch (error) {
+                    console.error('Load banks error:', error);
+                    document.getElementById('bankList').innerHTML = '<p style="color:var(--danger);text-align:center;">Error loading bank accounts</p>';
+                }
+            };
+
+            window.selectBank = function(bankId) {
+                document.querySelectorAll('.bank-select-item').forEach(el => el.classList.remove('selected'));
+                document.getElementById('bank-' + bankId).classList.add('selected');
+                window.selectedBank = bankId;
+            };
+
+            window.calculateFee = function() {
+                const amount = parseInt(document.getElementById('wAmt').value) || 0;
+                const minAmount = window.withdrawalSettings.min_withdrawal || 600;
+
+                if (amount < minAmount) {
+                    document.getElementById('summaryCard').classList.add('hidden');
                     return;
                 }
 
-                await loadAndApplyWithdrawalSettings();
+                const userBalance = window.currentUser.balance || 0;
+                window.withdrawalAmount = amount;
+                window.withdrawalFee = Math.floor(amount * WITHDRAWAL_FEE_PCT / 100);
+                window.withdrawalNet = amount - window.withdrawalFee;
 
-                if (!hasActivePlan(currentUser)) {
-                    document.getElementById('blockedSection').classList.remove('hidden');
-                    document.getElementById('withdrawSection').classList.add('hidden');
+                document.getElementById('summaryCard').classList.remove('hidden');
+                document.getElementById('sumRequested').textContent = fmt(amount);
+                document.getElementById('sumFee').textContent = '- ' + fmt(window.withdrawalFee);
+                document.getElementById('sumNet').textContent = fmt(window.withdrawalNet);
+
+                const balanceAfter = userBalance - window.withdrawalAmount;
+                document.getElementById('balanceAfter').textContent = fmt(balanceAfter);
+                document.getElementById('balanceAfter').style.color = balanceAfter < 0 ? 'var(--danger)' : 'var(--success)';
+            };
+
+            window.requestWithdrawal = async function() {
+                const minAmount = window.withdrawalSettings.min_withdrawal || 600;
+
+                if (!window.withdrawalAmount || window.withdrawalAmount < minAmount) {
+                    window.showError('Minimum withdrawal is ' + fmt(minAmount));
+                    return;
+                }
+                if (!window.selectedBank) {
+                    window.showError('Please select a bank account');
                     return;
                 }
 
-                document.getElementById('withdrawBalance').textContent = fmt(currentUser.balance || 0);
-                await loadBanks();
-                await checkWithdrawalStatus();
-            } catch (error) {
-                console.error('Load error:', error);
-                showError('Error loading page. Please refresh.');
-            }
-        });
-
-        async function loadAndApplyWithdrawalSettings() {
-            try {
-                const doc = await getDoc('settings', 'withdrawalSettings');
-                if (doc) { withdrawalSettings = doc; }
-                const minAmount = withdrawalSettings.min_withdrawal || 600;
-                const wAmtInput = document.getElementById('wAmt');
-                wAmtInput.min = minAmount;
-                wAmtInput.placeholder = `Enter amount (min ${fmt(minAmount)})`;
-            } catch (error) {
-                console.error('Load withdrawal settings error:', error);
-            }
-        }
-
-        async function checkWithdrawalStatus() {
-            try {
                 const isOpen = await isWithdrawalWindowOpen();
-                const warningEl = document.getElementById('windowWarning');
                 if (!isOpen) {
-                    warningEl.classList.add('show');
-                } else {
-                    warningEl.classList.remove('show');
+                    window.showError('❌ Withdrawal window is closed');
+                    return;
                 }
 
-                const todayStr = new Date().toISOString().split('T')[0];
-                const { data, error } = await sb
-                    .from('withdrawals')
-                    .select('id')
-                    .eq('user_id', currentUser.id)
-                    .gte('date', todayStr);
-                if (error) throw error;
-
-                todayWithdrawalCount = (data || []).length;
-
-                const day = new Date().getDay();
-                if (day === 0 || day === 6) {
-                    maxWithdrawalsToday = withdrawalSettings.max_weekend || 2;
-                } else {
-                    maxWithdrawalsToday = withdrawalSettings.max_weekday || 1;
+                const canWithdraw = await canWithdrawToday(window.currentUser.id);
+                if (!canWithdraw) {
+                    window.showError('❌ You have reached your daily withdrawal limit.');
+                    return;
                 }
 
-                const todayCountEl = document.getElementById('todayCount');
-                todayCountEl.textContent = todayWithdrawalCount + ' / ' + maxWithdrawalsToday;
-
-                if (todayWithdrawalCount >= maxWithdrawalsToday) {
-                    todayCountEl.classList.add('limit-reached');
-                    document.getElementById('withdrawBtn').disabled = true;
-                    document.getElementById('withdrawBtn').innerHTML = '<i class="fas fa-lock"></i> LIMIT REACHED';
-                } else {
-                    todayCountEl.classList.remove('limit-reached');
-                    document.getElementById('withdrawBtn').disabled = false;
-                    document.getElementById('withdrawBtn').innerHTML = '<i class="fas fa-paper-plane"></i> REQUEST WITHDRAWAL';
+                const bankDoc = await getDoc('banks', window.selectedBank);
+                if (!bankDoc) {
+                    window.showError('Bank account not found');
+                    return;
                 }
-            } catch (error) {
-                console.error('Check withdrawal status error:', error);
-            }
-        }
 
-        async function loadBanks() {
-            try {
-                const { data, error } = await sb
-                    .from('banks').select('*').eq('user_id', currentUser.id);
-                if (error) throw error;
+                window.currentUser = await refreshUser();
+                const userBalance = window.currentUser.balance || 0;
 
-                let html = '';
-                if (!data || data.length === 0) {
-                    html = '<p style="color:var(--text-dim);text-align:center;">No bank accounts saved. <a href="bank.html" style="color:var(--cyan);">Add one here.</a></p>';
-                } else {
-                    data.forEach(bank => {
-                        html += `
-                        <div class="bank-select-item" onclick="selectBank('${bank.id}')" id="bank-${bank.id}">
-                            <div class="radio-circle"></div>
-                            <div>
-                                <strong>${bank.bank_name}</strong><br>
-                                <small style="color:var(--text-dim);">${bank.acct_no} - ${bank.acct_name}</small>
-                            </div>
-                        </div>`;
+                if (window.withdrawalAmount > userBalance) {
+                    window.showError('❌ Insufficient balance. You have: ' + fmt(userBalance));
+                    return;
+                }
+
+                if (!confirm(`Confirm withdrawal?\n\nAmount: ${fmt(window.withdrawalAmount)}\nFee: ${fmt(window.withdrawalFee)}\nYou'll receive: ${fmt(window.withdrawalNet)}\nBalance after: ${fmt(userBalance - window.withdrawalAmount)}`)) return;
+
+                const btn = document.getElementById('withdrawBtn');
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+                try {
+                    const { error: incErr } = await sb.rpc('increment_user_field', {
+                        p_user_id: window.currentUser.id,
+                        p_field: 'balance',
+                        p_amount: -window.withdrawalAmount
                     });
+                    if (incErr) throw incErr;
+
+                    await sb.from('withdrawals').insert({
+                        user_id: window.currentUser.id,
+                        user_name: window.currentUser.name,
+                        user_email: window.currentUser.email,
+                        user_phone: window.currentUser.phone,
+                        amount: window.withdrawalAmount,
+                        fee: window.withdrawalFee,
+                        net: window.withdrawalNet,
+                        bank_name: bankDoc.bankName || bankDoc.bank_name,
+                        acct_no: bankDoc.acctNo || bankDoc.acct_no,
+                        acct_name: bankDoc.acctName || bankDoc.acct_name,
+                        tasks_completed: window.currentUser.tasksCompleted || 0,
+                        total_earned: window.currentUser.totalEarned || 0,
+                        status: 'pending'
+                    });
+
+                    window.currentUser.balance = (window.currentUser.balance || 0) - window.withdrawalAmount;
+                    localStorage.setItem('scn_u', JSON.stringify(window.currentUser));
+
+                    document.getElementById('withdrawSection').style.display = 'none';
+                    document.getElementById('successSection').classList.remove('hidden');
+                    document.getElementById('successAmount').textContent = fmt(window.withdrawalAmount);
+                    document.getElementById('successFee').textContent = '- ' + fmt(window.withdrawalFee);
+                    document.getElementById('successNet').textContent = fmt(window.withdrawalNet);
+
+                    sendAdminEmail('💸 NEW WITHDRAWAL - ' + window.currentUser.name,
+                        'NEW WITHDRAWAL REQUEST\n\n' +
+                        'User: ' + window.currentUser.name + ' (' + window.currentUser.id + ')\n' +
+                        'Email: ' + window.currentUser.email + '\nPhone: ' + window.currentUser.phone + '\n\n' +
+                        'Amount: ₦' + window.withdrawalAmount.toLocaleString() + '\n' +
+                        'Fee: ₦' + window.withdrawalFee.toLocaleString() + '\n' +
+                        'Net: ₦' + window.withdrawalNet.toLocaleString() + '\n\n' +
+                        'BANK: ' + (bankDoc.bankName || bankDoc.bank_name) + '\n' +
+                        'Account: ' + (bankDoc.acctNo || bankDoc.acct_no) + '\n' +
+                        'Name: ' + (bankDoc.acctName || bankDoc.acct_name) + '\n\n' +
+                        'Action: Login to admin to approve/reject');
+
+                    toast('✅ Withdrawal submitted! Processing: 0-72 hours.');
+
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+
+                } catch (error) {
+                    console.error('❌ Withdrawal error:', error);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    window.showError(error.message || 'Error processing withdrawal. Please try again.');
                 }
-                document.getElementById('bankList').innerHTML = html;
-            } catch (error) {
-                console.error('Load banks error:', error);
-                document.getElementById('bankList').innerHTML = '<p style="color:var(--danger);text-align:center;">Error loading bank accounts</p>';
-            }
-        }
+            };
 
-        function selectBank(bankId) {
-            document.querySelectorAll('.bank-select-item').forEach(el => el.classList.remove('selected'));
-            document.getElementById('bank-' + bankId).classList.add('selected');
-            selectedBank = bankId;
-        }
-
-        function calculateFee() {
-            const amount = parseInt(document.getElementById('wAmt').value) || 0;
-            const minAmount = withdrawalSettings.min_withdrawal || 600;
-
-            if (amount < minAmount) {
-                document.getElementById('summaryCard').classList.add('hidden');
-                return;
-            }
-
-            const userBalance = currentUser.balance || 0;
-            withdrawalAmount = amount;
-            withdrawalFee = Math.floor(amount * WITHDRAWAL_FEE_PCT / 100);
-            withdrawalNet = amount - withdrawalFee;
-
-            document.getElementById('summaryCard').classList.remove('hidden');
-            document.getElementById('sumRequested').textContent = fmt(amount);
-            document.getElementById('sumFee').textContent = '- ' + fmt(withdrawalFee);
-            document.getElementById('sumNet').textContent = fmt(withdrawalNet);
-
-            const balanceAfter = userBalance - withdrawalAmount;
-            document.getElementById('balanceAfter').textContent = fmt(balanceAfter);
-            document.getElementById('balanceAfter').style.color = balanceAfter < 0 ? 'var(--danger)' : 'var(--success)';
-        }
-
-        async function requestWithdrawal() {
-            const minAmount = withdrawalSettings.min_withdrawal || 600;
-
-            if (!withdrawalAmount || withdrawalAmount < minAmount) {
-                showError('Minimum withdrawal is ' + fmt(minAmount));
-                return;
-            }
-            if (!selectedBank) {
-                showError('Please select a bank account');
-                return;
-            }
-
-            const isOpen = await isWithdrawalWindowOpen();
-            if (!isOpen) {
-                showError('❌ Withdrawal window is closed');
-                return;
-            }
-
-            const canWithdraw = await canWithdrawToday(currentUser.id);
-            if (!canWithdraw) {
-                showError('❌ You have reached your daily withdrawal limit.');
-                return;
-            }
-
-            const bankDoc = await getDoc('banks', selectedBank);
-            if (!bankDoc) {
-                showError('Bank account not found');
-                return;
-            }
-
-            currentUser = await refreshUser();
-            const userBalance = currentUser.balance || 0;
-
-            if (withdrawalAmount > userBalance) {
-                showError('❌ Insufficient balance. You have: ' + fmt(userBalance));
-                return;
-            }
-
-            if (!confirm(`Confirm withdrawal?\n\nAmount: ${fmt(withdrawalAmount)}\nFee: ${fmt(withdrawalFee)}\nYou'll receive: ${fmt(withdrawalNet)}\nBalance after: ${fmt(userBalance - withdrawalAmount)}`)) return;
-
-            const btn = document.getElementById('withdrawBtn');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-
-            try {
-                // Deduct balance first
-                const { error: incErr } = await sb.rpc('increment_user_field', {
-                    p_user_id: currentUser.id,
-                    p_field: 'balance',
-                    p_amount: -withdrawalAmount
-                });
-                if (incErr) throw incErr;
-
-                await sb.from('withdrawals').insert({
-                    user_id: currentUser.id,
-                    user_name: currentUser.name,
-                    user_email: currentUser.email,
-                    user_phone: currentUser.phone,
-                    amount: withdrawalAmount,
-                    fee: withdrawalFee,
-                    net: withdrawalNet,
-                    bank_name: bankDoc.bankName || bankDoc.bank_name,
-                    acct_no: bankDoc.acctNo || bankDoc.acct_no,
-                    acct_name: bankDoc.acctName || bankDoc.acct_name,
-                    tasks_completed: currentUser.tasksCompleted || 0,
-                    total_earned: currentUser.totalEarned || 0,
-                    status: 'pending'
-                });
-
-                currentUser.balance = (currentUser.balance || 0) - withdrawalAmount;
-                localStorage.setItem('scn_u', JSON.stringify(currentUser));
-
-                document.getElementById('withdrawSection').classList.add('hidden');
-                document.getElementById('successSection').classList.remove('hidden');
-                document.getElementById('successAmount').textContent = fmt(withdrawalAmount);
-                document.getElementById('successFee').textContent = '- ' + fmt(withdrawalFee);
-                document.getElementById('successNet').textContent = fmt(withdrawalNet);
-
-                sendAdminEmail('💸 NEW WITHDRAWAL - ' + currentUser.name,
-                    'NEW WITHDRAWAL REQUEST\n\n' +
-                    'User: ' + currentUser.name + ' (' + currentUser.id + ')\n' +
-                    'Email: ' + currentUser.email + '\nPhone: ' + currentUser.phone + '\n\n' +
-                    'Amount: ₦' + withdrawalAmount.toLocaleString() + '\n' +
-                    'Fee: ₦' + withdrawalFee.toLocaleString() + '\n' +
-                    'Net: ₦' + withdrawalNet.toLocaleString() + '\n\n' +
-                    'BANK: ' + (bankDoc.bankName || bankDoc.bank_name) + '\n' +
-                    'Account: ' + (bankDoc.acctNo || bankDoc.acct_no) + '\n' +
-                    'Name: ' + (bankDoc.acctName || bankDoc.acct_name) + '\n\n' +
-                    'Action: Login to admin to approve/reject');
-
-                toast('✅ Withdrawal submitted! Processing: 0-72 hours.');
-
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-
-                await checkWithdrawalStatus();
-
-            } catch (error) {
-                console.error('❌ Withdrawal error:', error);
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                showError(error.message || 'Error processing withdrawal. Please try again.');
-            }
-        }
+            console.log('✅ Withdraw page initialized');
+        })();
     </script>
 </body>
 </html>
