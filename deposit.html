@@ -12,6 +12,7 @@
     <style>
         .deposit-container { max-width: 500px; margin: 0 auto; }
 
+        /* BLOCKED CARD */
         .blocked-card {
             background: rgba(245,158,11,0.08);
             border: 1px solid var(--warning);
@@ -98,15 +99,28 @@
             margin: 8px 0;
             font-family: 'Space Grotesk', sans-serif;
         }
-        .timer-section .timer-display.warning { color: var(--danger); animation: timerPulse 0.5s infinite; }
-        @keyframes timerPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .timer-section .timer-display.warning {
+            color: var(--danger);
+            animation: timerPulse 0.5s infinite;
+        }
+        @keyframes timerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
         .timer-section .timer-label { color: var(--text-dim); font-size: 0.8em; }
-        .timer-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 10px; overflow: hidden; }
-        .timer-fill { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--gold)); transition: width 1s linear; border-radius: 2px; }
+        .timer-bar {
+            height: 4px; background: var(--border); border-radius: 2px;
+            margin-top: 10px; overflow: hidden;
+        }
+        .timer-fill {
+            height: 100%; background: linear-gradient(90deg, var(--cyan), var(--gold));
+            transition: width 1s linear; border-radius: 2px;
+        }
         .timer-fill.warning { background: var(--warning); }
         .timer-fill.danger { background: var(--danger); animation: dangerPulse 0.5s infinite; }
         @keyframes dangerPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
+        /* PLAN PICKER */
         .plan-picker { display: flex; flex-direction: column; gap: 10px; }
         .plan-option {
             background: var(--deep);
@@ -120,18 +134,41 @@
             align-items: center;
             gap: 10px;
         }
-        .plan-option:hover { border-color: var(--cyan); transform: translateX(3px); }
-        .plan-option.selected { border-color: var(--cyan); background: rgba(0,229,255,0.08); }
+        .plan-option:hover {
+            border-color: var(--cyan);
+            transform: translateX(3px);
+            box-shadow: 0 0 15px rgba(0,229,255,0.1);
+        }
+        .plan-option.selected {
+            border-color: var(--cyan);
+            background: rgba(0,229,255,0.08);
+            box-shadow: 0 0 0 3px rgba(0,229,255,0.15);
+        }
         .plan-option .plan-info-left { display: flex; flex-direction: column; gap: 3px; }
         .plan-option .plan-name { font-weight: 700; color: var(--cyan); font-size: 0.95em; }
         .plan-option .plan-sub { font-size: 0.7em; color: var(--text-dim); }
-        .plan-option .plan-price-tag { font-weight: 800; color: var(--gold); font-size: 1.05em; white-space: nowrap; font-family: 'Space Grotesk', sans-serif; }
-        .plan-option .check-icon {
-            width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border);
-            display: flex; align-items: center; justify-content: center; color: transparent;
-            font-size: 0.75em; transition: all 0.25s; flex-shrink: 0;
+        .plan-option .plan-price-tag {
+            font-weight: 800;
+            color: var(--gold);
+            font-size: 1.05em;
+            white-space: nowrap;
+            font-family: 'Space Grotesk', sans-serif;
         }
-        .plan-option.selected .check-icon { border-color: var(--cyan); background: var(--cyan); color: var(--deep); }
+        .plan-option .check-icon {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: transparent;
+            font-size: 0.75em;
+            transition: all 0.25s;
+            flex-shrink: 0;
+        }
+        .plan-option.selected .check-icon {
+            border-color: var(--cyan);
+            background: var(--cyan);
+            color: var(--deep);
+        }
         .plans-loading { text-align: center; padding: 25px; color: var(--text-dim); font-size: 0.9em; }
         .selected-summary {
             background: rgba(0,229,255,0.06);
@@ -173,6 +210,7 @@
                 <div class="step-dot" id="stepDot3"></div>
             </div>
 
+            <!-- STEP 1 -->
             <div id="step1">
                 <h3 style="color:var(--cyan);margin-bottom:6px;">💳 Fund Your Wallet</h3>
                 <p style="color:var(--text-dim);margin-bottom:20px;font-size:0.9em;">
@@ -211,6 +249,7 @@
                 </div>
             </div>
 
+            <!-- STEP 2 -->
             <div id="step2" class="hidden">
                 <h3 style="color:var(--cyan);margin-bottom:10px;">🏦 Payment Details</h3>
                 <p style="color:var(--text-dim);margin-bottom:5px;">Transfer the exact amount using the details below</p>
@@ -236,9 +275,9 @@
                     </div>
 
                     <div class="bank-details-card">
-                        <div class="bank-detail-row"><span class="bank-label">🏦 Bank:</span><span class="bank-value">Safe Haven Microfinance Bank</span></div>
-                        <div class="bank-detail-row"><span class="bank-label">🔢 Account No:</span><span class="bank-value">5012552807</span></div>
-                        <div class="bank-detail-row"><span class="bank-label">👤 Account Name:</span><span class="bank-value">PEERPURSER TECHNO</span></div>
+                        <div class="bank-detail-row"><span class="bank-label">🏦 Bank:</span><span class="bank-value" id="dispBankName">Safe Haven Microfinance Bank</span></div>
+                        <div class="bank-detail-row"><span class="bank-label">🔢 Account No:</span><span class="bank-value" id="dispAccountNo">5012552807</span></div>
+                        <div class="bank-detail-row"><span class="bank-label">👤 Account Name:</span><span class="bank-value" id="dispAccountName">PEERPURSER TECHNO</span></div>
                     </div>
 
                     <div class="ref-box">
@@ -257,6 +296,7 @@
                 </div>
             </div>
 
+            <!-- STEP 3 -->
             <div id="step3" class="hidden">
                 <h3 style="color:var(--cyan);margin-bottom:10px;">📋 Confirm Your Transfer</h3>
                 <p style="color:var(--text-dim);margin-bottom:20px;">Provide your bank details for verification</p>
@@ -279,6 +319,7 @@
                 </div>
             </div>
 
+            <!-- SUCCESS -->
             <div id="stepSuccess" class="hidden">
                 <div class="card" style="text-align:center;">
                     <div class="result-icon">✅</div>
@@ -305,7 +346,7 @@
     </nav>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="assets/js/admin.js?v=3"></script>
+    <script src="assets/js/supabase.js"></script>
     <script>
         (function() {
             const user = checkAuth();
@@ -321,6 +362,38 @@
             window.availablePlans = {};
             window.timerInterval = null;
             window.timerSeconds = 600;
+
+            // ============ FEATURE TOGGLE CHECK ============
+            (async () => {
+                const refreshed = await refreshUser();
+                if (!refreshed) return;
+                window.currentUser = refreshed;
+
+                const allowed = await canUserDeposit(window.currentUser);
+                if (!allowed) {
+                    const container = document.getElementById('depositContainer');
+                    if (container) {
+                        container.innerHTML = `
+                            <div class="blocked-card">
+                                <i class="fas fa-lock blocked-icon"></i>
+                                <h3 style="color:var(--warning);margin-bottom:10px;">Deposits Temporarily Closed</h3>
+                                <p style="color:var(--text-dim);margin-bottom:20px;font-size:0.9em;">
+                                    Deposits are currently unavailable. Please try again later or contact support.
+                                </p>
+                                <a href="home.html" class="btn btn-primary btn-block" style="margin-bottom:10px;">
+                                    <i class="fas fa-home"></i> Back to Home
+                                </a>
+                                <a href="referral.html" class="btn btn-outline btn-block">
+                                    <i class="fas fa-headset"></i> Contact Support
+                                </a>
+                            </div>`;
+                    }
+                    return;
+                }
+
+                // Deposits allowed — continue loading plans
+                await window.loadAvailablePlans();
+            })();
 
             window.showError = function(message) {
                 const errorEl = document.getElementById('depositError');
@@ -377,10 +450,7 @@
                     picker.innerHTML = `
                         <div class="plans-loading">
                             <i class="fas fa-exclamation-triangle" style="font-size:2em;color:var(--danger);display:block;margin-bottom:10px;"></i>
-                            <p>Could not load plans.</p>
-                            <button class="btn btn-primary btn-sm" onclick="location.reload()" style="margin-top:10px;">
-                                <i class="fas fa-sync"></i> Retry
-                            </button>
+                            <p>Could not load plans. Please refresh.</p>
                         </div>`;
                 }
             };
@@ -414,15 +484,25 @@
 
                 window.timerInterval = setInterval(function() {
                     window.timerSeconds--;
+
                     const mins = Math.floor(window.timerSeconds / 60);
                     const secs = window.timerSeconds % 60;
                     timerDisplay.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+
                     const progress = (window.timerSeconds / 600) * 100;
                     timerFill.style.width = progress + '%';
+
                     timerDisplay.className = 'timer-display';
                     timerFill.className = 'timer-fill';
-                    if (window.timerSeconds <= 60) { timerDisplay.classList.add('warning'); timerFill.classList.add('warning'); }
-                    if (window.timerSeconds <= 30) { timerDisplay.classList.add('danger'); timerFill.classList.add('danger'); }
+                    if (window.timerSeconds <= 60) {
+                        timerDisplay.classList.add('warning');
+                        timerFill.classList.add('warning');
+                    }
+                    if (window.timerSeconds <= 30) {
+                        timerDisplay.classList.add('danger');
+                        timerFill.classList.add('danger');
+                    }
+
                     if (window.timerSeconds <= 0) {
                         clearInterval(window.timerInterval);
                         timerDisplay.textContent = '00:00';
@@ -446,6 +526,7 @@
                 document.getElementById('stepDot2').classList.add('active');
                 document.getElementById('loadingSection').classList.remove('hidden');
                 document.getElementById('detailsSection').classList.add('hidden');
+
                 document.getElementById('displayAmount').textContent = fmt(window.depositAmount);
 
                 const progressFill = document.getElementById('progressFill');
@@ -540,9 +621,11 @@
                         'Reference: ' + window.depositRef + '\n' +
                         'Payer: ' + payerName + '\n' +
                         'Payer Acct: ' + payerAccount + '\n' +
-                        'Date: ' + new Date().toLocaleString());
+                        'Date: ' + new Date().toLocaleString() + '\n\n' +
+                        'Action: Login to admin to approve/reject');
 
                     toast('✅ Deposit submitted! Awaiting verification.');
+
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
                 } catch (error) {
@@ -552,62 +635,6 @@
                     window.showError('Error submitting deposit: ' + (error.message || 'Please try again.'));
                 }
             };
-
-            // ============ INIT WITH TRY/CATCH ============
-            window.addEventListener('load', async function() {
-                const container = document.getElementById('depositContainer');
-                try {
-                    console.log('🔍 [deposit] Step 1: refreshUser');
-                    const refreshed = await refreshUser();
-                    console.log('🔍 [deposit] refreshUser →', refreshed ? 'OK' : 'NULL');
-
-                    if (!refreshed) {
-                        console.warn('❌ No user — should have been redirected');
-                        return;
-                    }
-                    window.currentUser = refreshed;
-
-                    console.log('🔍 [deposit] Step 2: checking permissions');
-                    const allowed = await canUserDeposit(window.currentUser);
-                    console.log('🔍 [deposit] canUserDeposit →', allowed);
-
-                    if (!allowed) {
-                        container.innerHTML = `
-                            <div class="blocked-card">
-                                <i class="fas fa-lock blocked-icon"></i>
-                                <h3 style="color:var(--warning);margin-bottom:10px;">Deposits Temporarily Closed</h3>
-                                <p style="color:var(--text-dim);margin-bottom:20px;font-size:0.9em;">
-                                    Deposits are currently unavailable. Please try again later.
-                                </p>
-                                <a href="home.html" class="btn btn-primary btn-block">
-                                    <i class="fas fa-home"></i> Back to Home
-                                </a>
-                            </div>`;
-                        return;
-                    }
-
-                    console.log('🔍 [deposit] Step 3: loading plans');
-                    await window.loadAvailablePlans();
-                    console.log('✅ [deposit] Plans loaded');
-
-                } catch (err) {
-                    console.error('❌ [deposit] CRASHED:', err);
-                    container.innerHTML = `
-                        <div class="blocked-card" style="border-color:var(--danger);background:rgba(239,68,68,0.08);">
-                            <i class="fas fa-exclamation-triangle blocked-icon" style="color:var(--danger);"></i>
-                            <h3 style="color:var(--danger);margin-bottom:10px;">Error Loading Deposit Page</h3>
-                            <p style="color:var(--text-dim);margin-bottom:10px;font-size:0.9em;">
-                                Something went wrong. Please try again.
-                            </p>
-                            <p style="font-size:0.7em;color:var(--danger);word-break:break-word;padding:8px;background:var(--deep);border-radius:6px;margin-bottom:12px;">
-                                ${err && err.message ? err.message : 'Unknown error'}
-                            </p>
-                            <a href="javascript:location.reload()" class="btn btn-primary btn-block">
-                                <i class="fas fa-sync"></i> Retry
-                            </a>
-                        </div>`;
-                }
-            });
 
             console.log('✅ Deposit page initialized');
         })();
