@@ -35,6 +35,22 @@
             white-space: nowrap;
         }
 
+        /* BLOCKED CARD */
+        .blocked-card {
+            background: rgba(245,158,11,0.08);
+            border: 1px solid var(--warning);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .blocked-card .blocked-icon {
+            font-size: 3em;
+            color: var(--warning);
+            margin-bottom: 15px;
+            display: block;
+        }
+
         .article-card {
             background: var(--card);
             border-radius: 16px;
@@ -116,8 +132,9 @@
             <i class="fas fa-arrow-left"></i> Back to Home
         </a>
 
-        <div class="task-container">
+        <div class="task-container" id="taskContainer">
 
+            <!-- NO ACTIVE PLAN -->
             <div id="noPlanSection" class="hidden">
                 <div class="card" style="text-align:center;">
                     <i class="fas fa-lock" style="font-size:3em;color:var(--warning);margin-bottom:15px;display:block;"></i>
@@ -129,6 +146,7 @@
 
             <div id="taskSection" class="hidden">
 
+                <!-- Check-in reminder card -->
                 <div class="card" id="checkinPromptCard" style="text-align:center;margin-bottom:20px;background:linear-gradient(135deg,rgba(255,184,0,0.1),rgba(0,229,255,0.05));border-color:var(--gold);display:none;">
                     <i class="fas fa-gift" style="font-size:2.5em;color:var(--gold);margin-bottom:10px;display:block;"></i>
                     <h4 style="color:var(--gold);font-size:1em;margin-bottom:6px;">Don't forget your free daily reward!</h4>
@@ -244,8 +262,9 @@
         let taskReadSeconds = 10;
         let tasksPerDay = 3;
         let submitBusy = false;
+        let taskEnabled = true;
 
-        const scienceArticles = [
+       const scienceArticles = [
             { title: 'Quantum Entanglement: Spooky Action at a Distance', category: 'Physics', difficulty: 'Intermediate',
               content: 'Quantum entanglement is one of the most fascinating and counterintuitive phenomena in modern physics. When two particles become entangled, their quantum states become intrinsically linked, no matter how far apart they are. Measuring one particle instantaneously affects the other, even if they are light-years apart. Einstein famously called this "spooky action at a distance". This phenomenon is now being used in quantum computing, quantum cryptography, and quantum teleportation.',
               qs: [
@@ -676,17 +695,43 @@
             return scienceArticles[Math.floor(Math.random() * scienceArticles.length)];
         }
 
+        // ============ FEATURE TOGGLE CHECK ============
+        async function checkTaskEnabled() {
+            const allowed = await canUserTask(currentUser);
+            return allowed;
+        }
+
+        // ============ INIT ============
         window.addEventListener('load', async () => {
             try {
                 const [refreshedUser, settings] = await Promise.all([
                     refreshUser(),
                     getSiteSettings()
                 ]);
+                if (!refreshedUser) return;
                 currentUser = refreshedUser;
                 siteSettings = settings;
 
                 taskReadSeconds = Number(siteSettings.taskReadSeconds) || 10;
                 tasksPerDay = Number(siteSettings.tasksPerDay) || 3;
+
+                // ============ TOGGLE CHECK ============
+                taskEnabled = await canUserTask(currentUser);
+                if (!taskEnabled) {
+                    const container = document.getElementById('taskContainer');
+                    container.innerHTML = `
+                        <div class="blocked-card">
+                            <i class="fas fa-lock blocked-icon"></i>
+                            <h3 style="color:var(--warning);margin-bottom:10px;">Tasks Temporarily Paused</h3>
+                            <p style="color:var(--text-dim);margin-bottom:20px;font-size:0.9em;">
+                                Tasks are currently paused. Please check back later or contact support.
+                            </p>
+                            <a href="home.html" class="btn btn-primary btn-block">
+                                <i class="fas fa-home"></i> Back to Home
+                            </a>
+                        </div>`;
+                    return;
+                }
 
                 if (!hasActivePlan(currentUser)) {
                     document.getElementById('noPlanSection').classList.remove('hidden');
@@ -819,6 +864,15 @@
 
         async function submitAnswer() {
             if (submitBusy) return;
+
+            // Re-check toggle before submitting
+            const stillEnabled = await canUserTask(currentUser);
+            if (!stillEnabled) {
+                toast('⚠️ Tasks have been paused by admin');
+                location.reload();
+                return;
+            }
+
             const selected = document.querySelector('.opt-btn.selected');
             if (!selected) return;
             const selectedIndex = parseInt(selected.id.split('-')[1]);
