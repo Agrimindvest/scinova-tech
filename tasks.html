@@ -243,7 +243,7 @@
     </nav>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="assets/js/admin.js?v=3"></script>
+    <script src="assets/js/supabase.js"></script>
     <script>
         const user = checkAuth();
         if (!user) window.location.href = 'login.html';
@@ -264,7 +264,7 @@
         let submitBusy = false;
         let taskEnabled = true;
 
-       const scienceArticles = [
+        const scienceArticles = [
             { title: 'Quantum Entanglement: Spooky Action at a Distance', category: 'Physics', difficulty: 'Intermediate',
               content: 'Quantum entanglement is one of the most fascinating and counterintuitive phenomena in modern physics. When two particles become entangled, their quantum states become intrinsically linked, no matter how far apart they are. Measuring one particle instantaneously affects the other, even if they are light-years apart. Einstein famously called this "spooky action at a distance". This phenomenon is now being used in quantum computing, quantum cryptography, and quantum teleportation.',
               qs: [
