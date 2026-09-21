@@ -12,6 +12,22 @@
     <style>
         .checkin-container { max-width: 600px; margin: 0 auto; }
 
+        /* BLOCKED CARD */
+        .blocked-card {
+            background: rgba(245,158,11,0.08);
+            border: 1px solid var(--warning);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .blocked-card .blocked-icon {
+            font-size: 3em;
+            color: var(--warning);
+            margin-bottom: 15px;
+            display: block;
+        }
+
         .checkin-hero {
             background: linear-gradient(135deg, rgba(255,184,0,0.15), rgba(0,229,255,0.08));
             border: 1px solid var(--gold);
@@ -164,7 +180,7 @@
             <i class="fas fa-arrow-left"></i> Back to Home
         </a>
 
-        <div class="checkin-container">
+        <div class="checkin-container" id="checkinContainer">
 
             <div class="checkin-hero" id="checkinHero">
                 <div class="checkin-hero-icon" id="heroIcon"><i class="fas fa-gift"></i></div>
@@ -183,7 +199,6 @@
             </div>
 
             <div class="checkin-flow" id="checkinFlow">
-
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:0.9em;color:var(--cyan);font-weight:700;">
                     <span style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--cyan));color:white;display:flex;align-items:center;justify-content:center;font-size:0.75em;font-weight:800;">1</span>
                     Read this article
@@ -270,11 +285,31 @@
                     refreshUser(),
                     getSiteSettings()
                 ]);
+                if (!refreshed) return;
                 currentUser = refreshed;
                 siteSettings = settings;
 
                 checkinSeconds = Number(siteSettings.checkinReadSeconds) || 60;
                 checkinReward = Number(siteSettings.checkinReward) || 100;
+
+                // ============ TOGGLE CHECK ============
+                // Check-in is treated as a task-like feature — uses same toggle.
+                const allowed = await canUserTask(currentUser);
+                if (!allowed) {
+                    const container = document.getElementById('checkinContainer');
+                    container.innerHTML = `
+                        <div class="blocked-card">
+                            <i class="fas fa-lock blocked-icon"></i>
+                            <h3 style="color:var(--warning);margin-bottom:10px;">Check-in Temporarily Paused</h3>
+                            <p style="color:var(--text-dim);margin-bottom:20px;font-size:0.9em;">
+                                Daily check-in is currently paused. Please check back later or contact support.
+                            </p>
+                            <a href="home.html" class="btn btn-primary btn-block">
+                                <i class="fas fa-home"></i> Back to Home
+                            </a>
+                        </div>`;
+                    return;
+                }
 
                 document.getElementById('heroAmount').textContent = fmt(checkinReward);
 
@@ -403,6 +438,15 @@
         async function claimReward() {
             if (checkinClaimed || checkinBusy) return;
             if (secondsLeft > 0) return;
+
+            // Re-check toggle before submitting
+            const stillEnabled = await canUserTask(currentUser);
+            if (!stillEnabled) {
+                toast('⚠️ Check-in has been paused by admin');
+                location.reload();
+                return;
+            }
+
             checkinBusy = true;
 
             const btn = document.getElementById('claimBtn');
