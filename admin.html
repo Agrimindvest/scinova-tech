@@ -15,24 +15,20 @@
             color: var(--text);
             min-height: 100vh;
         }
-
         .admin-wrapper { display: flex; min-height: 100vh; }
 
-        /* ============ SIDEBAR ============ */
+        /* SIDEBAR */
         .admin-sidebar {
             width: 260px;
             background: var(--deep);
             position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
+            top: 0; left: 0; bottom: 0;
             overflow-y: auto;
             z-index: 1000;
             border-right: 1px solid var(--border);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .admin-sidebar.closed { transform: translateX(-100%); }
-
         .admin-sidebar .sidebar-header {
             padding: 18px 20px;
             border-bottom: 1px solid var(--border);
@@ -43,7 +39,6 @@
             font-weight: 700;
             color: var(--cyan);
             cursor: pointer;
-            transition: all 0.3s;
             position: sticky;
             top: 0;
             background: var(--deep);
@@ -52,9 +47,7 @@
         }
         .admin-sidebar .sidebar-header:hover { opacity: 0.85; }
         .admin-sidebar .sidebar-header img { width: 28px; height: 28px; }
-
         .admin-sidebar .sidebar-nav { padding: 12px 10px; }
-
         .admin-sidebar .nav-item {
             display: flex;
             align-items: center;
@@ -70,7 +63,6 @@
             text-align: left;
             font-size: 0.85em;
             transition: all 0.3s;
-            text-decoration: none;
             font-family: 'Inter', sans-serif;
         }
         .admin-sidebar .nav-item:hover {
@@ -84,7 +76,6 @@
         }
         .admin-sidebar .nav-item i { width: 20px; text-align: center; font-size: 1.1em; }
         .admin-sidebar .nav-item .nav-label { flex: 1; }
-
         .admin-sidebar .nav-item.logout {
             color: var(--danger);
             margin-top: 15px;
@@ -97,7 +88,7 @@
             color: var(--danger);
         }
 
-        /* ============ OVERLAY (mobile) ============ */
+        /* OVERLAY */
         .sidebar-overlay {
             position: fixed;
             inset: 0;
@@ -108,7 +99,7 @@
         }
         .sidebar-overlay.active { display: block; }
 
-        /* ============ MAIN ============ */
+        /* MAIN */
         .admin-main {
             flex: 1;
             margin-left: 260px;
@@ -118,7 +109,7 @@
         }
         .admin-main.expanded { margin-left: 0; }
 
-        /* ============ TOPBAR ============ */
+        /* TOPBAR */
         .admin-topbar {
             display: flex;
             justify-content: space-between;
@@ -136,8 +127,7 @@
             background: var(--card);
             border: 1px solid var(--border);
             color: var(--text);
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             border-radius: 10px;
             cursor: pointer;
             display: flex;
@@ -174,16 +164,15 @@
             font-weight: 600;
         }
 
-        /* ============ SECTIONS ============ */
+        /* SECTIONS */
         .admin-section { display: none; animation: fadeIn 0.3s ease; }
         .admin-section.active { display: block; }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ============ STATS ============ */
+        /* STATS */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -220,7 +209,7 @@
             font-family: 'Space Grotesk', sans-serif;
         }
 
-        /* ============ TABLES ============ */
+        /* TABLES */
         .table-wrap {
             background: var(--card);
             border-radius: 12px;
@@ -228,11 +217,7 @@
             border: 1px solid var(--border);
             overflow-x: auto;
         }
-        .table-wrap table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.82em;
-        }
+        .table-wrap table { width: 100%; border-collapse: collapse; font-size: 0.82em; }
         .table-wrap th {
             background: var(--deep);
             padding: 8px 10px;
@@ -252,7 +237,7 @@
         }
         .table-wrap tr:hover { background: rgba(0,229,255,0.03); }
 
-        /* ============ BADGES ============ */
+        /* BADGES */
         .badge {
             padding: 3px 10px;
             border-radius: 12px;
@@ -265,7 +250,7 @@
         .badge-danger { background: rgba(239,68,68,0.2); color: var(--danger); }
         .badge-info { background: rgba(0,229,255,0.2); color: var(--cyan); }
 
-        /* ============ BUTTONS ============ */
+        /* BUTTONS */
         .btn-sm {
             padding: 4px 10px;
             font-size: 0.7em;
@@ -300,7 +285,7 @@
         }
         .refresh-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--cyan-glow); }
 
-        /* ============ SECTION HEADER ============ */
+        /* SECTION HEADER */
         .section-header {
             display: flex;
             justify-content: space-between;
@@ -338,7 +323,7 @@
             box-shadow: 0 0 0 3px rgba(0,229,255,0.1);
         }
 
-        /* ============ CARD ============ */
+        /* CARD */
         .card {
             background: var(--card);
             border-radius: 12px;
@@ -349,7 +334,7 @@
         }
         .card:hover { border-color: var(--cyan); }
 
-        /* ============ EMPTY ============ */
+        /* EMPTY */
         .empty-state {
             text-align: center;
             padding: 30px 20px;
@@ -362,7 +347,7 @@
             display: block;
         }
 
-        /* ============ LOGIN ============ */
+        /* LOGIN */
         .login-overlay {
             position: fixed;
             inset: 0;
@@ -377,7 +362,6 @@
                 radial-gradient(circle at 70% 70%, rgba(124,58,237,0.08) 0%, transparent 50%);
         }
         .login-overlay.hidden { display: none; }
-
         .login-box {
             background: var(--card);
             border-radius: 16px;
@@ -390,22 +374,8 @@
         }
         .login-box img { width: 72px; height: 72px; margin-bottom: 10px; }
         .login-box h2 { color: var(--cyan); margin-bottom: 20px; font-size: 1.3em; }
-        .login-box .btn-block {
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .login-box .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--cyan));
-            color: white;
-        }
-        .login-box .btn-primary:hover { opacity: 0.9; transform: translateY(-2px); }
 
-        /* ============ FORM ============ */
+        /* FORM */
         .form-group { margin-bottom: 14px; }
         .form-group label {
             display: block;
@@ -431,7 +401,7 @@
             box-shadow: 0 0 0 4px rgba(0,229,255,0.1);
         }
 
-        /* ============ TASK REPORT ============ */
+        /* TASK REPORT */
         .task-report-item {
             display: flex;
             justify-content: space-between;
@@ -466,7 +436,7 @@
             border-radius: 3px; transition: width 0.5s ease;
         }
 
-        /* ============ STARTER SLOT MONITOR ============ */
+        /* SLOT MONITOR */
         .slot-monitor {
             background: linear-gradient(135deg, rgba(255,184,0,0.1), rgba(0,229,255,0.05));
             border: 1px solid var(--gold);
@@ -502,7 +472,7 @@
             transition: width 0.5s ease;
         }
 
-        /* ============ SETTINGS TOGGLE ============ */
+        /* TOGGLES */
         .toggle-row {
             display: flex;
             justify-content: space-between;
@@ -519,6 +489,7 @@
             border-radius: 13px;
             cursor: pointer;
             transition: all 0.3s;
+            flex-shrink: 0;
         }
         .toggle-switch.on { background: var(--success); }
         .toggle-switch::after {
@@ -534,7 +505,7 @@
         }
         .toggle-switch.on::after { left: 25px; }
 
-        /* ============ RESPONSIVE ============ */
+        /* RESPONSIVE */
         @media (max-width: 768px) {
             .admin-sidebar { width: 280px; transform: translateX(-100%); }
             .admin-sidebar.open { transform: translateX(0); }
@@ -552,7 +523,7 @@
             .login-box { padding: 25px 20px; }
         }
 
-        /* ============ SCROLLBAR ============ */
+        /* SCROLLBAR */
         .admin-sidebar::-webkit-scrollbar { width: 3px; }
         .admin-sidebar::-webkit-scrollbar-track { background: var(--deep); }
         .admin-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -561,7 +532,7 @@
 </head>
 <body>
 
-    <!-- ============ LOGIN OVERLAY ============ -->
+    <!-- LOGIN OVERLAY -->
     <div class="login-overlay" id="loginOverlay">
         <div class="login-box">
             <img src="assets/img/logo.svg" alt="SciNovaTech">
@@ -582,9 +553,10 @@
         </div>
     </div>
 
-    <!-- ============ ADMIN WRAPPER ============ -->
+    <!-- ADMIN WRAPPER -->
     <div class="admin-wrapper" id="adminWrapper" style="display:none;">
 
+        <!-- SIDEBAR -->
         <nav class="admin-sidebar" id="sidebar">
             <div class="sidebar-header" onclick="window.open('index.html','_blank')">
                 <img src="assets/img/logo.svg" alt="SciNovaTech">
@@ -656,10 +628,8 @@
                 </div>
             </div>
 
-            <!-- ============ DASHBOARD ============ -->
+            <!-- DASHBOARD -->
             <div class="admin-section active" id="sec-dashboard">
-
-                <!-- Starter slot monitor -->
                 <div class="slot-monitor" id="slotMonitor">
                     <div class="slot-header">
                         <h4>⚡ STARTER SLOTS — TODAY</h4>
@@ -680,7 +650,7 @@
                 </div>
             </div>
 
-            <!-- ============ USERS ============ -->
+            <!-- USERS -->
             <div class="admin-section" id="sec-users">
                 <div class="section-header">
                     <h3>👥 Users</h3>
@@ -692,14 +662,19 @@
                 <div class="table-wrap">
                     <table>
                         <thead>
-                            <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Plan</th><th>Balance</th><th>Status</th><th>Actions</th></tr>
+                            <tr>
+                                <th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Plan</th><th>Balance</th><th>Status</th><th>Actions</th><th>Toggles</th>
+                            </tr>
                         </thead>
                         <tbody id="usersTable"></tbody>
                     </table>
                 </div>
+                <p style="color:var(--text-dim);font-size:0.75em;margin-top:8px;">
+                    💳 = deposit permission • 💸 = withdrawal permission • 📝 = task permission. <span style="color:var(--success);">Green</span> = enabled, <span style="color:var(--danger);">Red</span> = disabled.
+                </p>
             </div>
 
-            <!-- ============ DEPOSITS ============ -->
+            <!-- DEPOSITS -->
             <div class="admin-section" id="sec-deposits">
                 <div class="section-header">
                     <h3>💳 Deposits</h3>
@@ -718,7 +693,7 @@
                 </div>
             </div>
 
-            <!-- ============ WITHDRAWALS ============ -->
+            <!-- WITHDRAWALS -->
             <div class="admin-section" id="sec-withdrawals">
                 <div class="section-header">
                     <h3>💸 Withdrawals</h3>
@@ -737,7 +712,7 @@
                 </div>
             </div>
 
-            <!-- ============ ARTICLES ============ -->
+            <!-- ARTICLES -->
             <div class="admin-section" id="sec-content">
                 <div class="section-header">
                     <h3>📝 Article Bank</h3>
@@ -767,7 +742,7 @@
                 <div id="articlesAdminList"></div>
             </div>
 
-            <!-- ============ REFERRALS ============ -->
+            <!-- REFERRALS -->
             <div class="admin-section" id="sec-referrals">
                 <div class="section-header">
                     <h3>👥 Referrals</h3>
@@ -783,7 +758,7 @@
                 </div>
             </div>
 
-            <!-- ============ TASK REPORTS ============ -->
+            <!-- TASK REPORTS -->
             <div class="admin-section" id="sec-tasks">
                 <div class="section-header">
                     <h3>📝 Daily Tasks Report</h3>
@@ -800,7 +775,7 @@
                 </div>
             </div>
 
-            <!-- ============ PLANS ============ -->
+            <!-- PLANS -->
             <div class="admin-section" id="sec-plans">
                 <div class="section-header">
                     <h3>📋 Plans</h3>
@@ -812,9 +787,9 @@
                 <div id="plansAdminList"></div>
             </div>
 
-            <!-- ============ NOTICES ============ -->
+            <!-- NOTICES -->
             <div class="admin-section" id="sec-notices">
-                <h3 style="color:var(--cyan);margin-bottom:15px;font-family:'Space Grotesk',sans-serif;">📢 Notices & Broadcast</h3>
+                <h3 style="color:var(--cyan);margin-bottom:15px;font-family:'Space Grotesk',sans-serif;">📢 Notices &amp; Broadcast</h3>
                 <div class="card">
                     <div class="form-group"><label>Broadcast Message</label><textarea class="form-input" id="broadMsg" rows="3"></textarea></div>
                     <div class="form-group"><label>Duration (hours)</label><input type="number" class="form-input" id="broadDuration" value="24"></div>
@@ -830,26 +805,98 @@
                 </div>
             </div>
 
-            <!-- ============ SETTINGS ============ -->
+            <!-- SETTINGS -->
             <div class="admin-section" id="sec-settings">
                 <h3 style="color:var(--cyan);margin-bottom:15px;font-family:'Space Grotesk',sans-serif;">⚙️ Settings</h3>
 
+                <!-- NEW: GLOBAL FEATURE TOGGLES -->
                 <div class="card">
-                    <h4 style="color:var(--text-dim);margin-bottom:12px;font-size:0.9em;">🌐 Site Settings</h4>
-                    <div class="form-group"><label>Telegram Group Link</label><input type="text" class="form-input" id="setTelegram"></div>
-                    <div class="form-group"><label>Support Email</label><input type="email" class="form-input" id="setSupportEmail"></div>
+                    <h4 style="color:var(--text-dim);margin-bottom:12px;font-size:0.9em;">🎛️ Global Feature Toggles</h4>
+                    <div class="toggle-row">
+                        <div>
+                            <div style="font-size:0.85em;font-weight:600;">💳 Deposits Enabled</div>
+                            <div style="font-size:0.7em;color:var(--text-dim);">Turn OFF to block all deposits globally</div>
+                        </div>
+                        <div class="toggle-switch" id="toggleDeposits" onclick="toggleGlobal('depositsEnabled', this)"></div>
+                    </div>
+                    <div class="toggle-row">
+                        <div>
+                            <div style="font-size:0.85em;font-weight:600;">💸 Withdrawals Enabled</div>
+                            <div style="font-size:0.7em;color:var(--text-dim);">Turn OFF to block all withdrawals globally</div>
+                        </div>
+                        <div class="toggle-switch" id="toggleWithdrawals" onclick="toggleGlobal('withdrawalsEnabled', this)"></div>
+                    </div>
+                    <div class="toggle-row">
+                        <div>
+                            <div style="font-size:0.85em;font-weight:600;">📝 Tasks Enabled</div>
+                            <div style="font-size:0.7em;color:var(--text-dim);">Turn OFF to disable all tasks globally</div>
+                        </div>
+                        <div class="toggle-switch" id="toggleTasks" onclick="toggleGlobal('tasksEnabled', this)"></div>
+                    </div>
                 </div>
 
-               <div class="card">
-    <h4 style="color:var(--text-dim);margin-bottom:12px;font-size:0.9em;">💰 Earnings Settings</h4>
-    <div class="form-group"><label>Welcome Bonus (₦)</label><input type="number" class="form-input" id="setBonus" value="500"></div>
-    <div class="form-group"><label>Daily Check-in Reward (₦)</label><input type="number" class="form-input" id="setCheckinReward" value="100"></div>
-    <div class="form-group"><label>Check-in Read Time (seconds)</label><input type="number" class="form-input" id="setCheckinReadSeconds" value="60"></div>
-    <div class="form-group"><label>Task Read Time (seconds)</label><input type="number" class="form-input" id="setTaskReadSeconds" value="10"></div>
-    <div class="form-group"><label>Questions Per Day</label><input type="number" class="form-input" id="setTasksPerDay" value="3"></div>
-    <div class="form-group"><label>Starter Daily Slot Limit</label><input type="number" class="form-input" id="setStarterLimit" value="20"></div>
-</div>
+                <!-- NEW: BROADCAST BANNER -->
+                <div class="card">
+                    <h4 style="color:var(--text-dim);margin-bottom:12px;font-size:0.9em;">📢 Live Broadcast Banner</h4>
+                    <p style="font-size:0.78em;color:var(--text-dim);margin-bottom:12px;">
+                        This message shows as a banner on every user's home page. Use it to send announcements.
+                    </p>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea class="form-input" id="setBroadcastMsg" rows="3" placeholder="e.g. All activities resume tomorrow!"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Duration (hours) — 0 = never expires</label>
+                        <input type="number" class="form-input" id="setBroadcastHours" value="24" min="0">
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="publishBroadcast()">
+                        📢 Publish Broadcast
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="clearBroadcast()" style="margin-left:6px;">
+                        🗑️ Clear
+                    </button>
+                    <div id="broadcastStatus" style="font-size:0.8em;margin-top:8px;"></div>
+                </div>
 
+                <!-- SITE SETTINGS -->
+                <div class="card">
+                    <h4 style="color:var(--text-dim);margin-bottom:12px;font-size:0.9em;">🌐 Site Settings</h4>
+                    <div class="form-group"><label>Telegram Group Link (legacy)</label><input type="text" class="form-input" id="setTelegram" placeholder="https://t.me/yourgroup"></div>
+                    <div class="form-group"><label>Support Email (legacy)</label><input type="email" class="form-input" id="setSupportEmail" placeholder="support@example.com"></div>
+                </div>
+
+                <!-- SUPPORT LINKS -->
+                <div class="card">
+                    <h4 style="color:var(--text-dim);margin-bottom:12px;font-size:0.9em;">💬 Customer Support Links</h4>
+                    <p style="font-size:0.8em;color:var(--text-dim);margin-bottom:12px;">
+                        Add any support channel — Telegram, WhatsApp, Facebook, Email, Phone. Users will see them in a popup.
+                    </p>
+                    <div id="supportLinksContainer"></div>
+                    <button class="btn btn-primary btn-sm" onclick="addSupportLink()" style="margin-top:10px;">
+                        <i class="fas fa-plus"></i> Add Support Link
+                    </button>
+                    <div style="font-size:0.75em;color:var(--text-dim);margin-top:12px;">
+                        <strong>Examples:</strong><br>
+                        • Telegram: <code>https://t.me/yourgroup</code><br>
+                        • WhatsApp: <code>08012345678</code> or <code>https://wa.me/2348012345678</code><br>
+                        • Facebook: <code>https://facebook.com/yourpage</code><br>
+                        • Email: <code>support@example.com</code><br>
+                        • Phone: <code>+2348012345678</code>
+                    </div>
+                </div>
+
+                <!-- EARNINGS SETTINGS -->
+                <div class="card">
+                    <h4 style="color:var(--text-dim);margin-bottom:12px;font-size:0.9em;">💰 Earnings Settings</h4>
+                    <div class="form-group"><label>Welcome Bonus (₦)</label><input type="number" class="form-input" id="setBonus" value="500"></div>
+                    <div class="form-group"><label>Daily Check-in Reward (₦)</label><input type="number" class="form-input" id="setCheckinReward" value="100"></div>
+                    <div class="form-group"><label>Check-in Read Time (seconds)</label><input type="number" class="form-input" id="setCheckinReadSeconds" value="60"></div>
+                    <div class="form-group"><label>Task Read Time (seconds)</label><input type="number" class="form-input" id="setTaskReadSeconds" value="10"></div>
+                    <div class="form-group"><label>Questions Per Day</label><input type="number" class="form-input" id="setTasksPerDay" value="3"></div>
+                    <div class="form-group"><label>Starter Daily Slot Limit</label><input type="number" class="form-input" id="setStarterLimit" value="20"></div>
+                </div>
+
+                <!-- WITHDRAWAL SETTINGS -->
                 <div class="card">
                     <h4 style="color:var(--text-dim);margin-bottom:12px;font-size:0.9em;">💸 Withdrawal Settings</h4>
                     <div class="form-group"><label>Minimum Withdrawal (₦)</label><input type="number" class="form-input" id="setWithdrawalMin" value="600"></div>
@@ -860,6 +907,7 @@
                     <div class="form-group"><label>Max Withdrawals (Weekends)</label><input type="number" class="form-input" id="setWithdrawalWeekend" value="2"></div>
                 </div>
 
+                <!-- SAFETY CONTROLS -->
                 <div class="card">
                     <h4 style="color:var(--text-dim);margin-bottom:12px;font-size:0.9em;">🛡️ Safety Controls</h4>
                     <div class="form-group"><label>Payout Cap Multiplier (e.g. 3 = 3× plan price)</label><input type="number" class="form-input" id="setPayoutCap" value="3"></div>
@@ -872,6 +920,7 @@
                     </div>
                 </div>
 
+                <!-- REFERRAL BONUSES -->
                 <div class="card">
                     <h4 style="color:var(--text-dim);margin-bottom:12px;font-size:0.9em;">👥 Referral Bonuses</h4>
                     <div class="form-group"><label>Level 1 (%)</label><input type="number" class="form-input" id="setRef1" value="10"></div>
