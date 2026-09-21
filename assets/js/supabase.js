@@ -1,5 +1,6 @@
 // ============================================================
-// SCINOVATECH — SUPABASE CLIENT + FIREBASE-COMPAT SHIM
+// SCINOVATECH — SUPABASE CLIENT + HELPERS
+// Updated with: feature toggles, broadcast, suspension support
 // ============================================================
 
 const SUPABASE_URL = 'https://mmcfqglrczyzjseqpwyn.supabase.co';
@@ -36,7 +37,7 @@ function cacheClear(key) {
 }
 
 // ============ CONSTANTS ============
-const ADMIN_EMAIL = 'scinovatech2@gmail.com';
+const ADMIN_EMAIL = 'scinovatech2@gmail.com';   // ← updated
 const BRAND_NAME = 'SciNovaTech';
 const BRAND_TAGLINE = 'Learn Science. Earn Daily.';
 const DEPOSIT_BANK = 'Safe Haven Microfinance Bank';
@@ -129,6 +130,7 @@ function getLocalDate() {
 }
 
 // ============ AUTH CHECK ============
+// UPDATED: kicks suspended users out immediately
 function checkAuth() {
     const userData = localStorage.getItem('scn_u');
     const currentPage = window.location.pathname.split('/').pop();
@@ -138,7 +140,14 @@ function checkAuth() {
         return null;
     }
     try {
-        return JSON.parse(userData);
+        const user = JSON.parse(userData);
+        // NEW: if suspended, force logout
+        if (user && user.status === 'suspended') {
+            localStorage.removeItem('scn_u');
+            window.location.href = 'login.html?reason=suspended';
+            return null;
+        }
+        return user;
     } catch (e) {
         localStorage.removeItem('scn_u');
         if (!publicPages.includes(currentPage)) window.location.href = 'login.html';
@@ -152,6 +161,7 @@ function getCurrentUser() {
     try { return JSON.parse(userData); } catch (e) { return null; }
 }
 
+// UPDATED: refreshes from DB, kicks suspended users, respects permissions
 async function refreshUser() {
     const user = getCurrentUser();
     if (!user || !user.id) return null;
@@ -161,6 +171,12 @@ async function refreshUser() {
         if (error) throw error;
         if (data) {
             const updated = { id: data.id, ...snakeToCamel(data) };
+            // NEW: kick suspended users
+            if (updated.status === 'suspended') {
+                localStorage.removeItem('scn_u');
+                window.location.href = 'login.html?reason=suspended';
+                return null;
+            }
             localStorage.setItem('scn_u', JSON.stringify(updated));
             return updated;
         }
@@ -169,6 +185,37 @@ async function refreshUser() {
         console.error('Refresh user error:', error);
         return user;
     }
+}
+
+// ============ FEATURE TOGGLES (NEW) ============
+// Each returns true/false depending on both global toggle + per-user flag.
+
+async function canUserDeposit(user) {
+    if (!user) return false;
+    const s = await getSiteSettings();
+    if (s.depositsEnabled === false) return false;
+    if (user.canDeposit === false) return false;
+    if (user.status === 'suspended') return false;
+    return true;
+}
+
+async function canUserWithdraw(user) {
+    if (!user) return false;
+    const s = await getSiteSettings();
+    if (s.withdrawalsEnabled === false) return false;
+    if (user.canWithdraw === false) return false;
+    if (user.status === 'suspended') return false;
+    return true;
+}
+
+async function canUserTask(user) {
+    if (!user) return false;
+    const s = await getSiteSettings();
+    if (s.tasksEnabled === false) return false;
+    if (user.canTask === false) return false;
+    if (user.status === 'suspended') return false;
+    if (s.emergencyStop === true) return false;
+    return true;
 }
 
 // ============ PLAN HELPERS ============
@@ -214,6 +261,7 @@ async function ensurePlansExist() {
     return plans !== null;
 }
 
+// UPDATED: includes new toggle + broadcast defaults
 async function getSiteSettings() {
     const cached = cacheGet('siteSettings');
     if (cached) return cached;
@@ -236,7 +284,13 @@ async function getSiteSettings() {
             emergencyStop: false,
             ref1: 10,
             ref2: 3,
-            ref3: 1
+            ref3: 1,
+            // NEW:
+            depositsEnabled: true,
+            withdrawalsEnabled: true,
+            tasksEnabled: true,
+            broadcastMessage: '',
+            broadcastExpiry: 0
         };
 
         cacheSet('siteSettings', val);
@@ -550,116 +604,9 @@ function staggerCards(selector, baseDelay = 0.05) {
 }
 
 // ============================================================
-// FIREBASE-COMPAT SHIM
+// EXPOSE GLOBALLY
 // ============================================================
-class CompatQuery {
-    constructor(table, filters = [], orderField = null, orderDir = 'asc', lim = null) {
-        this.table = table;
-        this.filters = filters;
-        this.orderField = orderField;
-        this.orderDir = orderDir;
-        this.lim = lim;
-    }
-    where(field, op, value) {
-        const snakeField = field.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
-        return new CompatQuery(this.table, [...this.filters, { field: snakeField, op, value }], this.orderField, this.orderDir, this.lim);
-    }
-    orderBy(field, dir = 'asc') {
-        const snakeField = field.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
-        return new CompatQuery(this.table, this.filters, snakeField, dir, this.lim);
-    }
-    limit(n) {
-        return new CompatQuery(this.table, this.filters, this.orderField, this.orderDir, n);
-    }
-    _build() {
-        let q = _supabase.from(this.table).select('*');
-        for (const f of this.filters) {
-            switch (f.op) {
-                case '==': q = q.eq(f.field, f.value); break;
-                case '!=': q = q.neq(f.field, f.value); break;
-                case '>':  q = q.gt(f.field, f.value); break;
-                case '>=': q = q.gte(f.field, f.value); break;
-                case '<':  q = q.lt(f.field, f.value); break;
-                case '<=': q = q.lte(f.field, f.value); break;
-                case 'in': q = q.in(f.field, f.value); break;
-                default:   q = q.eq(f.field, f.value);
-            }
-        }
-        if (this.orderField) q = q.order(this.orderField, { ascending: this.orderDir === 'asc' });
-        if (this.lim) q = q.limit(this.lim);
-        return q;
-    }
-    async get() {
-        const { data, error } = await this._build();
-        if (error) { console.error('Query error:', error); throw error; }
-        const docs = (data || []).map(r => makeDocSnap(this.table, r));
-        return {
-            empty: docs.length === 0,
-            size: docs.length,
-            docs: docs,
-            forEach: (cb) => docs.forEach(cb)
-        };
-    }
-}
-
-function makeDocSnap(table, row) {
-    let id, dataObj;
-    if (table === 'settings') {
-        id = row.key;
-        dataObj = row.value || {};
-    } else {
-        id = row.id;
-        dataObj = { ...row, ...snakeToCamel(row) };
-    }
-    return {
-        id: id,
-        exists: true,
-        data: () => dataObj,
-        ref: makeDocRef(table, id)
-    };
-}
-
-function makeDocRef(table, id) {
-    return {
-        id: id,
-        table: table,
-        async get() {
-            const row = await getDoc(table, id);
-            if (!row) return { exists: false, id, data: () => ({}) };
-            return makeDocSnap(table, row);
-        },
-        async set(data) { await setDoc(table, id, data); },
-        async update(data) { await updateDoc(table, id, data); },
-        async delete() { await deleteDoc(table, id); }
-    };
-}
-
-class CompatCollection {
-    constructor(table) { this.table = table; }
-    doc(id) { return makeDocRef(this.table, id); }
-    where(field, op, value) { return new CompatQuery(this.table).where(field, op, value); }
-    orderBy(field, dir) { return new CompatQuery(this.table).orderBy(field, dir); }
-    limit(n) { return new CompatQuery(this.table).limit(n); }
-    async get() { return new CompatQuery(this.table).get(); }
-    async add(data) { return await addDoc(this.table, data); }
-}
-
-const FieldValueCompat = {
-    increment(n) { return { __type: 'increment', value: n }; },
-    arrayUnion(...items) { return { __type: 'arrayUnion', items }; },
-    serverTimestamp() { return new Date().toISOString(); }
-};
-
-const db = new Proxy({}, {
-    get(_, tableName) { return new CompatCollection(tableName); }
-});
-
-const firebase = { firestore: { FieldValue: FieldValueCompat } };
-
-// ============ EXPOSE GLOBALLY ============
 window.sb = _supabase;
-window.db = db;
-window.firebase = firebase;
 window.cacheSet = cacheSet;
 window.cacheGet = cacheGet;
 window.cacheClear = cacheClear;
@@ -672,6 +619,12 @@ window.getLocalDate = getLocalDate;
 window.checkAuth = checkAuth;
 window.getCurrentUser = getCurrentUser;
 window.refreshUser = refreshUser;
+
+// NEW toggles
+window.canUserDeposit = canUserDeposit;
+window.canUserWithdraw = canUserWithdraw;
+window.canUserTask = canUserTask;
+
 window.hasActivePlan = hasActivePlan;
 window.getActivePlans = getActivePlans;
 window.getAllPlans = getAllPlans;
