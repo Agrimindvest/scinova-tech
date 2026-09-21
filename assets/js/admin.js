@@ -1,9 +1,10 @@
 // ============================================================
 // SCINOVATECH - ADMIN LOGIC (Supabase)
+// Updated with: global toggles, per-user toggles, broadcast
 // ============================================================
 
 const ADMIN_CREDENTIALS = {
-    email: 'scinovatech2@gmail.com',
+    email: 'scinovatech2@gmail.com',   // ← updated
     pass: 'SCINOVA-ADMIN-2026'
 };
 
@@ -61,6 +62,135 @@ async function loadStarterSlotsAdmin() {
     }
 }
 
+// ============ GLOBAL FEATURE TOGGLES (NEW) ============
+async function toggleGlobal(key, el) {
+    const isOn = el.classList.contains('on');
+    const newState = !isOn;
+
+    try {
+        const { data } = await sb.from('settings').select('value').eq('key', 'site').maybeSingle();
+        const current = data?.value || {};
+        current[key] = newState;
+
+        await sb.from('settings').upsert({
+            key: 'site',
+            value: current,
+            updated_at: new Date().toISOString()
+        });
+
+        if (newState) el.classList.add('on');
+        else el.classList.remove('on');
+
+        // Clear user-facing cache
+        if (typeof cacheClear === 'function') cacheClear();
+        else sessionStorage.clear();
+
+        const labels = {
+            depositsEnabled: 'Deposits',
+            withdrawalsEnabled: 'Withdrawals',
+            tasksEnabled: 'Tasks'
+        };
+        toast(`✅ ${labels[key] || key} ${newState ? 'enabled' : 'disabled'} globally`);
+    } catch (e) {
+        console.error('toggleGlobal error:', e);
+        toast('❌ Failed to update toggle');
+    }
+}
+
+// ============ BROADCAST (NEW) ============
+async function publishBroadcast() {
+    const msg = document.getElementById('setBroadcastMsg').value.trim();
+    const hours = parseInt(document.getElementById('setBroadcastHours').value) || 0;
+    const status = document.getElementById('broadcastStatus');
+
+    if (!msg) {
+        status.innerHTML = '<span style="color:var(--warning);">Enter a message first</span>';
+        return;
+    }
+
+    try {
+        const { data } = await sb.from('settings').select('value').eq('key', 'site').maybeSingle();
+        const current = data?.value || {};
+        current.broadcastMessage = msg;
+        current.broadcastExpiry = hours > 0 ? (Date.now() + hours * 3600000) : 0;
+
+        await sb.from('settings').upsert({
+            key: 'site',
+            value: current,
+            updated_at: new Date().toISOString()
+        });
+
+        // Also write to broadcast key for legacy compat
+        await sb.from('settings').upsert({
+            key: 'broadcast',
+            value: { message: msg, expiry: current.broadcastExpiry, date: new Date().toISOString() },
+            updated_at: new Date().toISOString()
+        });
+
+        if (typeof cacheClear === 'function') cacheClear();
+
+        status.innerHTML = '<span style="color:var(--success);">✅ Published! Users will see it on next page load.</span>';
+        toast('📢 Broadcast sent!');
+    } catch (e) {
+        console.error('publishBroadcast error:', e);
+        status.innerHTML = '<span style="color:var(--danger);">❌ Failed to publish</span>';
+    }
+}
+
+async function clearBroadcast() {
+    try {
+        const { data } = await sb.from('settings').select('value').eq('key', 'site').maybeSingle();
+        const current = data?.value || {};
+        current.broadcastMessage = '';
+        current.broadcastExpiry = 0;
+
+        await sb.from('settings').upsert({
+            key: 'site',
+            value: current,
+            updated_at: new Date().toISOString()
+        });
+
+        await sb.from('settings').upsert({
+            key: 'broadcast',
+            value: { message: '', expiry: 0 },
+            updated_at: new Date().toISOString()
+        });
+
+        document.getElementById('setBroadcastMsg').value = '';
+        if (typeof cacheClear === 'function') cacheClear();
+        toast('🗑️ Broadcast cleared');
+    } catch (e) {
+        console.error('clearBroadcast error:', e);
+        toast('❌ Failed to clear');
+    }
+}
+
+// ============ PER-USER FEATURE TOGGLES (NEW) ============
+async function toggleUserFlag(userId, flag) {
+    try {
+        const { data, error } = await sb.from('users').select(flag).eq('id', userId).maybeSingle();
+        if (error) throw error;
+
+        const current = data ? data[flag] : undefined;
+        // default is true, so if not false, switch to false; else true
+        const newVal = current === false ? true : false;
+
+        const { error: updErr } = await sb.from('users').update({ [flag]: newVal }).eq('id', userId);
+        if (updErr) throw updErr;
+
+        const labels = {
+            can_deposit: 'Deposit',
+            can_withdraw: 'Withdrawal',
+            can_task: 'Task'
+        };
+        toast(`✅ ${labels[flag]} ${newVal ? 'enabled' : 'disabled'} for user`);
+        loadUsers();
+    } catch (e) {
+        console.error('toggleUserFlag error:', e);
+        toast('❌ Failed to toggle');
+    }
+}
+
 // ============ USERS ============
 async function loadUsers() {
     try {
@@ -71,11 +201,18 @@ async function loadUsers() {
         let html = '';
 
         if (!users || users.length === 0) {
-            html = '<tr><td colspan="8" style="text-align:center;color:var(--text-dim);">No users found</td></tr>';
+            html = '<tr><td colspan="9" style="text-align:center;color:var(--text-dim);">No users found</td></tr>';
         } else {
             users.forEach(u => {
                 if (search && !(u.name || '').toLowerCase().includes(search) && !(u.email || '').includes(search)) return;
+
                 const statusClass = u.status === 'active' ? 'success' : 'danger';
+
+                // NEW: three toggle buttons
+                const depColor = u.can_deposit === false ? 'var(--danger)' : 'var(--success)';
+                const wthColor = u.can_withdraw === false ? 'var(--danger)' : 'var(--success)';
+                const tskColor = u.can_task === false ? 'var(--danger)' : 'var(--success)';
+
                 html += `<tr>
                     <td>${u.id}</td>
                     <td>${u.name || ''}</td>
@@ -88,6 +225,11 @@ async function loadUsers() {
                         <button class="btn-sm btn-primary" onclick="editUser('${u.id}')">Edit</button>
                         <button class="btn-sm btn-success" onclick="quickAdd('${u.id}','${(u.name || '').replace(/'/g, "\\'")}')">+₦</button>
                     </td>
+                    <td style="white-space:nowrap;">
+                        <button class="btn-sm" style="background:${depColor};color:white;" onclick="toggleUserFlag('${u.id}','can_deposit')" title="Toggle deposit permission">💳</button>
+                        <button class="btn-sm" style="background:${wthColor};color:white;" onclick="toggleUserFlag('${u.id}','can_withdraw')" title="Toggle withdrawal permission">💸</button>
+                        <button class="btn-sm" style="background:${tskColor};color:white;" onclick="toggleUserFlag('${u.id}','can_task')" title="Toggle task permission">📝</button>
+                    </td>
                 </tr>`;
             });
         }
@@ -95,7 +237,7 @@ async function loadUsers() {
     } catch (error) {
         console.error('Load users error:', error);
         document.getElementById('usersTable').innerHTML =
-            '<tr><td colspan="8" style="text-align:center;color:var(--danger);">Error loading users</td></tr>';
+            '<tr><td colspan="9" style="text-align:center;color:var(--danger);">Error loading users</td></tr>';
     }
 }
 
@@ -147,6 +289,7 @@ async function editUser(id) {
         if (cmd === 'status' && ['active', 'suspended'].includes(val)) {
             await sb.from('users').update({ status: val }).eq('id', id);
             toast('✅ Status: ' + val);
+            // If suspended, user will be kicked on next page load
         }
         else if (cmd === 'add' && parseInt(val) > 0) {
             const amt = parseInt(val);
@@ -346,7 +489,7 @@ async function approveWithdrawal(id) {
             processed_at: new Date().toISOString()
         }).eq('id', id);
 
-        toast('✅ Withdrawal approved! ₦' + Number(w.net).toLocaleString() + ' to send');
+        toast('✅ Approved! ₦' + Number(w.net).toLocaleString() + ' to send');
         loadWithdrawals();
         loadDashboard();
     } catch (error) {
@@ -389,7 +532,7 @@ async function loadContent() {
 
         let html = '';
         if (!data || data.length === 0) {
-            html = '<p style="color:var(--text-dim);text-align:center;padding:20px;">No custom articles yet. Users see the 10 built-in science articles.</p>';
+            html = '<p style="color:var(--text-dim);text-align:center;padding:20px;">No custom articles yet. Users see the built-in science articles.</p>';
         } else {
             data.forEach(a => {
                 html += `<div class="card" style="margin-bottom:8px;">
@@ -773,34 +916,72 @@ async function loadSettingsData() {
     try {
         const s = await getDoc('settings', 'siteSettings');
         if (s) {
-            document.getElementById('setTelegram').value = s.telegramLink || '';
-            document.getElementById('setSupportEmail').value = s.supportEmail || '';
+            const tgEl = document.getElementById('setTelegram');
+            const seEl = document.getElementById('setSupportEmail');
+            if (tgEl) tgEl.value = s.telegramLink || '';
+            if (seEl) seEl.value = s.supportEmail || '';
+
+            // Support links
+            const container = document.getElementById('supportLinksContainer');
+            if (container) {
+                container.innerHTML = '';
+                if (Array.isArray(s.supportLinks) && s.supportLinks.length > 0) {
+                    s.supportLinks.forEach(link => {
+                        addSupportLink(link.label || '', link.value || '', link.type || '');
+                    });
+                } else {
+                    renderSupportLinksAdmin();
+                }
+            }
         }
 
         const p = await getDoc('settings', 'site');
         if (p) {
-            document.getElementById('setBonus').value = p.welcomeBonus || 500;
-            document.getElementById('setCheckinReward').value = p.checkinReward || 100;
-            document.getElementById('setCheckinReadSeconds').value = p.checkinReadSeconds || 60;
-            document.getElementById('setTaskReadSeconds').value = p.taskReadSeconds || 10;
-            document.getElementById('setTasksPerDay').value = p.tasksPerDay || 3;
-            document.getElementById('setStarterLimit').value = p.starterDailyLimit || 20;
-            document.getElementById('setWithdrawalFee').value = p.withdrawalFeePct || 13;
-            document.getElementById('setPayoutCap').value = p.payoutCapMultiplier || 3;
-            document.getElementById('setRef1').value = p.ref1 || 10;
-            document.getElementById('setRef2').value = p.ref2 || 3;
-            document.getElementById('setRef3').value = p.ref3 || 1;
+            // Existing fields
+            const setVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val;
+            };
+
+            setVal('setBonus', p.welcomeBonus || 500);
+            setVal('setCheckinReward', p.checkinReward || 100);
+            setVal('setCheckinReadSeconds', p.checkinReadSeconds || 60);
+            setVal('setTaskReadSeconds', p.taskReadSeconds || 10);
+            setVal('setTasksPerDay', p.tasksPerDay || 3);
+            setVal('setStarterLimit', p.starterDailyLimit || 20);
+            setVal('setWithdrawalFee', p.withdrawalFeePct || 13);
+            setVal('setPayoutCap', p.payoutCapMultiplier || 3);
+            setVal('setRef1', p.ref1 || 10);
+            setVal('setRef2', p.ref2 || 3);
+            setVal('setRef3', p.ref3 || 1);
+
             emergencyStopState = p.emergencyStop || false;
             updateEmergencyToggleUI();
+
+            // NEW: feature toggles
+            const tglD = document.getElementById('toggleDeposits');
+            const tglW = document.getElementById('toggleWithdrawals');
+            const tglT = document.getElementById('toggleTasks');
+            if (tglD) tglD.classList.toggle('on', p.depositsEnabled !== false);
+            if (tglW) tglW.classList.toggle('on', p.withdrawalsEnabled !== false);
+            if (tglT) tglT.classList.toggle('on', p.tasksEnabled !== false);
+
+            // NEW: broadcast
+            const bm = document.getElementById('setBroadcastMsg');
+            if (bm) bm.value = p.broadcastMessage || '';
         }
 
         const w = await getDoc('settings', 'withdrawalSettings');
         if (w) {
-            document.getElementById('setWithdrawalMin').value = w.min_withdrawal || 600;
-            document.getElementById('setWithdrawalStart').value = w.start_time || '08:00';
-            document.getElementById('setWithdrawalEnd').value = w.end_time || '22:00';
-            document.getElementById('setWithdrawalWeekday').value = w.max_weekday || 1;
-            document.getElementById('setWithdrawalWeekend').value = w.max_weekend || 2;
+            const setVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val;
+            };
+            setVal('setWithdrawalMin', w.min_withdrawal || 600);
+            setVal('setWithdrawalStart', w.start_time || '08:00');
+            setVal('setWithdrawalEnd', w.end_time || '22:00');
+            setVal('setWithdrawalWeekday', w.max_weekday || 1);
+            setVal('setWithdrawalWeekend', w.max_weekend || 2);
         }
     } catch (error) {
         console.error('Load settings error:', error);
@@ -828,43 +1009,55 @@ function toggleEmergencyStop() {
 
 async function saveSettings() {
     try {
+        const setVal = (id, fallback) => {
+            const el = document.getElementById(id);
+            return el ? el.value : fallback;
+        };
+
         await sb.from('settings').upsert([
             {
                 key: 'siteSettings',
                 value: {
-                    telegramLink: document.getElementById('setTelegram').value,
-                    supportEmail: document.getElementById('setSupportEmail').value
+                    telegramLink: setVal('setTelegram', ''),
+                    supportEmail: setVal('setSupportEmail', ''),
+                    supportLinks: collectSupportLinks()
                 },
                 updated_at: new Date().toISOString()
             },
             {
                 key: 'site',
                 value: {
-                    welcomeBonus: parseInt(document.getElementById('setBonus').value) || 500,
-                    checkinReward: parseInt(document.getElementById('setCheckinReward').value) || 100,
-                    checkinReadSeconds: parseInt(document.getElementById('setCheckinReadSeconds').value) || 60,
-                    taskReadSeconds: parseInt(document.getElementById('setTaskReadSeconds').value) || 10,
-                    tasksPerDay: parseInt(document.getElementById('setTasksPerDay').value) || 3,
-                    starterDailyLimit: parseInt(document.getElementById('setStarterLimit').value) || 20,
-                    withdrawalFeePct: parseInt(document.getElementById('setWithdrawalFee').value) || 13,
-                    minWithdrawal: parseInt(document.getElementById('setWithdrawalMin').value) || 600,
+                    welcomeBonus: parseInt(setVal('setBonus', 500)) || 500,
+                    checkinReward: parseInt(setVal('setCheckinReward', 100)) || 100,
+                    checkinReadSeconds: parseInt(setVal('setCheckinReadSeconds', 60)) || 60,
+                    taskReadSeconds: parseInt(setVal('setTaskReadSeconds', 10)) || 10,
+                    tasksPerDay: parseInt(setVal('setTasksPerDay', 3)) || 3,
+                    starterDailyLimit: parseInt(setVal('setStarterLimit', 20)) || 20,
+                    withdrawalFeePct: parseInt(setVal('setWithdrawalFee', 13)) || 13,
+                    minWithdrawal: parseInt(setVal('setWithdrawalMin', 600)) || 600,
                     minDeposit: 3000,
-                    payoutCapMultiplier: parseInt(document.getElementById('setPayoutCap').value) || 3,
+                    payoutCapMultiplier: parseInt(setVal('setPayoutCap', 3)) || 3,
                     emergencyStop: emergencyStopState,
-                    ref1: parseInt(document.getElementById('setRef1').value) || 10,
-                    ref2: parseInt(document.getElementById('setRef2').value) || 3,
-                    ref3: parseInt(document.getElementById('setRef3').value) || 1
+                    ref1: parseInt(setVal('setRef1', 10)) || 10,
+                    ref2: parseInt(setVal('setRef2', 3)) || 3,
+                    ref3: parseInt(setVal('setRef3', 1)) || 1,
+                    // NEW: preserve toggles + broadcast
+                    depositsEnabled: document.getElementById('toggleDeposits')?.classList.contains('on') ?? true,
+                    withdrawalsEnabled: document.getElementById('toggleWithdrawals')?.classList.contains('on') ?? true,
+                    tasksEnabled: document.getElementById('toggleTasks')?.classList.contains('on') ?? true,
+                    broadcastMessage: setVal('setBroadcastMsg', ''),
+                    broadcastExpiry: 0
                 },
                 updated_at: new Date().toISOString()
             },
             {
                 key: 'withdrawalSettings',
                 value: {
-                    min_withdrawal: parseInt(document.getElementById('setWithdrawalMin').value) || 600,
-                    start_time: document.getElementById('setWithdrawalStart').value || '08:00',
-                    end_time: document.getElementById('setWithdrawalEnd').value || '22:00',
-                    max_weekday: parseInt(document.getElementById('setWithdrawalWeekday').value) || 1,
-                    max_weekend: parseInt(document.getElementById('setWithdrawalWeekend').value) || 2
+                    min_withdrawal: parseInt(setVal('setWithdrawalMin', 600)) || 600,
+                    start_time: setVal('setWithdrawalStart', '08:00') || '08:00',
+                    end_time: setVal('setWithdrawalEnd', '22:00') || '22:00',
+                    max_weekday: parseInt(setVal('setWithdrawalWeekday', 1)) || 1,
+                    max_weekend: parseInt(setVal('setWithdrawalWeekend', 2)) || 2
                 },
                 updated_at: new Date().toISOString()
             }
@@ -876,6 +1069,61 @@ async function saveSettings() {
         console.error('Save settings error:', error);
         toast('❌ Failed');
     }
+}
+
+// ============ SUPPORT LINKS (from earlier) ============
+function renderSupportLinksAdmin() {
+    const container = document.getElementById('supportLinksContainer');
+    if (!container) return;
+
+    const rows = container.querySelectorAll('.support-link-row');
+    if (rows.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center;padding:15px;color:var(--text-dim);font-size:0.85em;">
+                No support links yet. Click "Add Support Link" below.
+            </div>`;
+    }
+}
+
+function addSupportLink(label = '', value = '', type = '') {
+    const container = document.getElementById('supportLinksContainer');
+    if (!container) return;
+
+    if (container.querySelector('div[style*="No support links"]')) {
+        container.innerHTML = '';
+    }
+
+    const row = document.createElement('div');
+    row.className = 'support-link-row';
+    row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 40px;gap:8px;margin-bottom:8px;align-items:center;';
+
+    row.innerHTML = `
+        <input type="text" class="form-input support-label" placeholder="Label" value="${(label || '').replace(/"/g, '&quot;')}" style="font-size:0.85em;">
+        <input type="text" class="form-input support-value" placeholder="Link, phone, or email" value="${(value || '').replace(/"/g, '&quot;')}" style="font-size:0.85em;">
+        <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove(); renderSupportLinksAdmin();" title="Remove" style="padding:8px;">
+            <i class="fas fa-trash"></i>
+        </button>
+        <input type="hidden" class="support-type" value="${type}">
+    `;
+
+    container.appendChild(row);
+    renderSupportLinksAdmin();
+}
+
+function collectSupportLinks() {
+    const container = document.getElementById('supportLinksContainer');
+    if (!container) return [];
+
+    const links = [];
+    container.querySelectorAll('.support-link-row').forEach(row => {
+        const label = row.querySelector('.support-label')?.value.trim() || '';
+        const value = row.querySelector('.support-value')?.value.trim() || '';
+        const type = row.querySelector('.support-type')?.value.trim() || '';
+        if (value) {
+            links.push({ label: label || 'Support', value, type });
+        }
+    });
+    return links;
 }
 
 console.log('🛡️ SciNovaTech Admin JS Ready');
