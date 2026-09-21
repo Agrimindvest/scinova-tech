@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
+        /* LIVE TICKER */
         .live-ticker {
             background: var(--card);
             border: 1px solid var(--cyan);
@@ -83,6 +84,7 @@
         .quick-action-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,229,255,0.2); }
         .quick-action-btn:active { transform: scale(0.95); }
 
+        /* WELCOME POPUP */
         .welcome-overlay {
             position: fixed;
             inset: 0;
@@ -177,6 +179,7 @@
         }
         .btn-close-welcome:hover { color: var(--cyan); }
 
+        /* CHECK-IN BADGE */
         .checkin-badge {
             display: flex;
             align-items: center;
@@ -220,10 +223,129 @@
             color: var(--success);
         }
         .checkin-badge.claimed .cb-title { color: var(--success); }
+
+        /* SUPPORT POPUP */
+        .support-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 3000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            backdrop-filter: blur(3px);
+        }
+        .support-overlay.show { display: flex; }
+        .support-popup {
+            background: var(--card);
+            border: 2px solid var(--cyan);
+            border-radius: 20px;
+            padding: 24px 20px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: popIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 40px var(--cyan-glow);
+        }
+        .close-support-btn {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .close-support-btn:hover { color: var(--danger); transform: rotate(90deg); }
+        .support-header-icon {
+            font-size: 3em;
+            color: var(--cyan);
+            margin-bottom: 8px;
+            display: block;
+        }
+        .support-title {
+            color: var(--cyan);
+            font-size: 1.3em;
+            margin-bottom: 6px;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .support-sub { color: var(--text-dim); font-size: 0.85em; margin-bottom: 18px; }
+        .support-list { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+        .support-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: var(--deep);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s;
+        }
+        .support-item:hover { border-color: var(--cyan); transform: translateX(4px); background: var(--card); }
+        .support-item-icon {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3em;
+            color: white;
+            flex-shrink: 0;
+        }
+        .support-item-icon.telegram { background: #0088cc; }
+        .support-item-icon.whatsapp { background: #25D366; }
+        .support-item-icon.facebook { background: #1877F2; }
+        .support-item-icon.email { background: var(--info); }
+        .support-item-icon.phone { background: var(--success); }
+        .support-item-icon.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .support-item-icon.twitter { background: #1DA1F2; }
+        .support-item-icon.youtube { background: #FF0000; }
+        .support-item-icon.tiktok { background: #000; }
+        .support-item-icon.generic { background: var(--cyan); }
+        .support-item-info { flex: 1; min-width: 0; }
+        .support-item-info .label { font-weight: 700; font-size: 0.9em; color: var(--cyan); margin-bottom: 2px; }
+        .support-item-info .value { font-size: 0.75em; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .support-item-arrow { color: var(--text-dim); font-size: 0.9em; }
+        .support-empty { padding: 20px; color: var(--text-dim); font-size: 0.9em; text-align: center; }
+        .support-empty i { font-size: 2.5em; color: var(--border); display: block; margin-bottom: 10px; }
+
+        /* BROADCAST BANNER (NEW) */
+        .broadcast-banner {
+            background: linear-gradient(135deg, rgba(255,184,0,0.15), rgba(255,140,0,0.08));
+            border: 1px solid var(--gold);
+            border-left: 4px solid var(--gold);
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 12px;
+            font-size: 0.85em;
+            color: var(--gold);
+            font-weight: 600;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            animation: broadcastPulse 2s ease-in-out infinite;
+        }
+        .broadcast-banner i {
+            font-size: 1.2em;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        @keyframes broadcastPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(255,184,0,0.15); }
+            50% { box-shadow: 0 0 20px rgba(255,184,0,0.35); }
+        }
     </style>
 </head>
 <body>
 
+    <!-- WELCOME POPUP -->
     <div class="welcome-overlay" id="welcomeOverlay">
         <div class="welcome-popup">
             <div class="welcome-logo">
@@ -241,17 +363,17 @@
                 <div class="wf-item"><i class="fas fa-gift"></i> Free daily reward — check-in</div>
                 <div class="wf-item"><i class="fas fa-question-circle"></i> Answer 3 questions - no penalties</div>
                 <div class="wf-item"><i class="fas fa-coins"></i> Earn 15% daily on every plan</div>
-                <div class="wf-item"><i class="fas fa-users"></i> Refer friends & earn 10% bonus</div>
+                <div class="wf-item"><i class="fas fa-users"></i> Refer friends &amp; earn 10% bonus</div>
                 <div class="wf-item"><i class="fas fa-wallet"></i> Withdraw to your bank account</div>
             </div>
 
             <div class="welcome-buttons">
-                <a href="#" class="btn btn-outline btn-sm" id="welcomeGroupLink" target="_blank">
+                <a href="https://t.me/scinovatech" class="btn btn-outline btn-sm" id="welcomeGroupLink" target="_blank" rel="noopener noreferrer">
                     <i class="fab fa-telegram"></i> Join Group
                 </a>
-                <a href="#" class="btn btn-outline btn-sm" id="welcomeSupportLink">
+                <button class="btn btn-outline btn-sm" onclick="closeWelcome(); openSupport();">
                     <i class="fas fa-headset"></i> Support
-                </a>
+                </button>
             </div>
 
             <button class="btn btn-primary btn-block" onclick="closeWelcome()" style="margin-top:10px;font-size:0.9em;padding:12px;">
@@ -262,6 +384,23 @@
         </div>
     </div>
 
+    <!-- SUPPORT POPUP -->
+    <div class="support-overlay" id="supportOverlay" onclick="closeSupportIfOutside(event)">
+        <div class="support-popup" onclick="event.stopPropagation()">
+            <button class="close-support-btn" onclick="closeSupport()">&times;</button>
+            <i class="fas fa-headset support-header-icon"></i>
+            <div class="support-title">Customer Support</div>
+            <div class="support-sub">Choose how you'd like to reach us</div>
+            <div class="support-list" id="supportList">
+                <div class="support-empty">
+                    <div class="spinner"></div>
+                    <p>Loading support options...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
     <header class="header">
         <a href="home.html" class="logo">
             <img src="assets/img/logo.svg" alt="SciNovaTech">
@@ -273,7 +412,14 @@
         </div>
     </header>
 
+    <!-- MAIN -->
     <div class="main-content">
+
+        <!-- BROADCAST BANNER (NEW) -->
+        <div class="broadcast-banner" id="broadcastBanner" style="display:none;">
+            <i class="fas fa-bullhorn"></i>
+            <span id="broadcastText"></span>
+        </div>
 
         <div class="notice-banner" id="homeNotice">Welcome to SciNovaTech! Complete your daily tasks to earn.</div>
 
@@ -286,6 +432,7 @@
             </div>
         </div>
 
+        <!-- BALANCE -->
         <div class="card card-balance">
             <div style="font-size:0.85em;color:var(--cyan);position:relative;">💰 AVAILABLE BALANCE</div>
             <div class="amount" id="homeBalance">₦0</div>
@@ -296,6 +443,7 @@
             </div>
         </div>
 
+        <!-- CHECK-IN BADGE -->
         <div class="checkin-badge" id="checkinBadge" onclick="goToCheckin()">
             <div class="cb-icon" id="checkinIcon"><i class="fas fa-gift"></i></div>
             <div class="cb-text">
@@ -305,6 +453,7 @@
             <div class="cb-arrow"><i class="fas fa-chevron-right"></i></div>
         </div>
 
+        <!-- QUICK ACTIONS -->
         <div class="card">
             <h4 style="color:var(--text-dim);margin-bottom:12px;font-size:0.85em;">📋 QUICK ACTIONS</h4>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
@@ -328,8 +477,8 @@
 
         <div class="footer">
             <p>
-                <a href="#" class="group-link" id="footerGroupLink" target="_blank"><i class="fab fa-telegram"></i> Join Telegram</a> &nbsp;|&nbsp;
-                <a href="#" class="group-link" id="footerSupportLink"><i class="fas fa-headset"></i> Support</a>
+                <a href="https://t.me/scinovatech" class="group-link" id="footerGroupLink" target="_blank" rel="noopener noreferrer"><i class="fab fa-telegram"></i> Join Telegram</a> &nbsp;|&nbsp;
+                <a href="#" onclick="event.preventDefault(); openSupport();" class="group-link" id="footerSupportLink"><i class="fas fa-headset"></i> Support</a>
             </p>
             <p style="margin-top:5px;">&copy; 2026 SciNovaTech</p>
         </div>
@@ -350,7 +499,9 @@
         if (!user) { window.location.href = 'login.html'; }
         let currentUser = user;
         let siteSettings = {};
+        let supportLinks = [];
 
+        // WELCOME TYPEWRITER
         const welcomePhrases = [
             "Welcome! Ready to explore science today? 🌱",
             "Every question builds your knowledge and wallet...",
@@ -361,7 +512,9 @@
             "Your scientific journey continues...",
             "Small daily efforts = Big monthly results 📈",
             "Knowledge is the new currency - invest in it!",
-            "The more you learn, the more you earn 💡"
+            "The more you learn, the more you earn 💡",
+            "Stay curious, stay profitable 🎯",
+            "Your future self will thank you for today's work"
         ];
 
         let wpIndex = 0, wpChar = 0, wpDeleting = false;
@@ -402,6 +555,7 @@
             localStorage.setItem('scn_welcome_shown', Date.now().toString());
         }
 
+        // LIVE TICKER
         function maskPhone() {
             const prefix = ['080','081','070','090','091'][Math.floor(Math.random()*5)];
             return prefix + Math.floor(Math.random()*9000000+1000000) + '****';
@@ -427,34 +581,141 @@
         setInterval(updateTicker, 9000);
         setTimeout(updateTicker, 300);
 
+        // SUPPORT POPUP
+        function openSupport() {
+            document.getElementById('supportOverlay').classList.add('show');
+            renderSupportLinks();
+        }
+        function closeSupport() {
+            document.getElementById('supportOverlay').classList.remove('show');
+        }
+        function closeSupportIfOutside(e) {
+            if (e.target.id === 'supportOverlay') closeSupport();
+        }
+
+        function detectLinkType(url, label) {
+            const u = (url || '').toLowerCase();
+            const l = (label || '').toLowerCase();
+            if (u.includes('wa.me') || u.includes('whatsapp.com')) return 'whatsapp';
+            if (u.includes('t.me') || u.includes('telegram.') || l.includes('telegram')) return 'telegram';
+            if (u.includes('facebook.com') || u.includes('fb.com') || l.includes('facebook')) return 'facebook';
+            if (u.includes('instagram.com') || l.includes('instagram')) return 'instagram';
+            if (u.includes('twitter.com') || u.includes('x.com') || l.includes('twitter')) return 'twitter';
+            if (u.includes('youtube.com') || u.includes('youtu.be') || l.includes('youtube')) return 'youtube';
+            if (u.includes('tiktok.com') || l.includes('tiktok')) return 'tiktok';
+            if (u.startsWith('mailto:') || (u.includes('@') && !u.includes('/'))) return 'email';
+            if (u.startsWith('tel:') || /^[+\d\s()-]+$/.test(url)) return 'phone';
+            return 'generic';
+        }
+        function getIconForType(type) {
+            switch (type) {
+                case 'whatsapp': return 'fab fa-whatsapp';
+                case 'telegram': return 'fab fa-telegram';
+                case 'facebook': return 'fab fa-facebook-f';
+                case 'instagram': return 'fab fa-instagram';
+                case 'twitter': return 'fab fa-twitter';
+                case 'youtube': return 'fab fa-youtube';
+                case 'tiktok': return 'fab fa-tiktok';
+                case 'email': return 'fas fa-envelope';
+                case 'phone': return 'fas fa-phone';
+                default: return 'fas fa-link';
+            }
+        }
+        function buildHref(type, rawValue) {
+            if (!rawValue) return '#';
+            const v = rawValue.trim();
+            if (v.startsWith('http') || v.startsWith('mailto:') || v.startsWith('tel:')) return v;
+            if (type === 'email') return 'mailto:' + v;
+            if (type === 'phone') return 'tel:' + v.replace(/\s/g, '');
+            if (type === 'whatsapp') {
+                const digits = v.replace(/\D/g, '');
+                if (digits.startsWith('0')) return 'https://wa.me/234' + digits.slice(1);
+                return 'https://wa.me/' + digits;
+            }
+            if (type === 'telegram') return v.startsWith('https') ? v : 'https://t.me/' + v.replace(/^@/, '');
+            return v;
+        }
+        function renderSupportLinks() {
+            const list = document.getElementById('supportList');
+            if (!supportLinks || supportLinks.length === 0) {
+                list.innerHTML = `
+                    <div class="support-empty">
+                        <i class="fas fa-headset"></i>
+                        <p>No support links available.</p>
+                        <p style="margin-top:8px;font-size:0.85em;">Please contact admin.</p>
+                    </div>`;
+                return;
+            }
+            let html = '';
+            supportLinks.forEach(link => {
+                if (!link || !link.value || link.value.trim() === '') return;
+                const type = link.type || detectLinkType(link.value, link.label);
+                const href = buildHref(type, link.value);
+                const icon = getIconForType(type);
+                const label = link.label || (type.charAt(0).toUpperCase() + type.slice(1));
+                const displayValue = link.value.replace(/^https?:\/\//, '').replace(/^mailto:/, '').replace(/^tel:/, '');
+                html += `
+                    <a class="support-item" href="${href}" target="_blank" rel="noopener noreferrer">
+                        <div class="support-item-icon ${type}"><i class="${icon}"></i></div>
+                        <div class="support-item-info">
+                            <div class="label">${label}</div>
+                            <div class="value">${displayValue}</div>
+                        </div>
+                        <i class="fas fa-chevron-right support-item-arrow"></i>
+                    </a>`;
+            });
+            list.innerHTML = html;
+        }
+
+        // LOAD SETTINGS
         async function loadSettings() {
             try {
                 const s = await getDoc('settings', 'siteSettings');
+
                 if (s) {
-                    const tg = s.telegramLink || '#';
-                    const se = s.supportEmail || ADMIN_EMAIL;
-                    document.getElementById('footerGroupLink').href = tg;
-                    document.getElementById('footerSupportLink').href = 'mailto:' + se;
-                    document.getElementById('welcomeGroupLink').href = tg;
-                    document.getElementById('welcomeSupportLink').href = 'mailto:' + se;
-                } else {
-                    document.getElementById('footerGroupLink').href = '#';
-                    document.getElementById('footerSupportLink').href = 'mailto:' + ADMIN_EMAIL;
-                    document.getElementById('welcomeGroupLink').href = '#';
-                    document.getElementById('welcomeSupportLink').href = 'mailto:' + ADMIN_EMAIL;
+                    if (s.telegramLink && s.telegramLink.trim() !== '' && s.telegramLink !== '#') {
+                        const el1 = document.getElementById('footerGroupLink');
+                        const el2 = document.getElementById('welcomeGroupLink');
+                        if (el1) el1.href = s.telegramLink;
+                        if (el2) el2.href = s.telegramLink;
+                    }
+                    if (Array.isArray(s.supportLinks)) {
+                        supportLinks = s.supportLinks.filter(x => x && x.value && x.value.trim() !== '');
+                    } else if (s.supportEmail && s.supportEmail.trim() !== '') {
+                        supportLinks = [{ label: 'Customer Support', type: 'email', value: s.supportEmail }];
+                    }
                 }
+
+                // Notices
                 const n = await getDoc('settings', 'notices');
                 if (n && n.home) {
                     document.getElementById('homeNotice').textContent = n.home;
+                }
+
+                // NEW: Broadcast banner
+                const siteData = await getDoc('settings', 'site');
+                if (siteData && siteData.broadcastMessage && siteData.broadcastMessage.trim() !== '') {
+                    const exp = Number(siteData.broadcastExpiry) || 0;
+                    if (exp === 0 || Date.now() < exp) {
+                        const b = document.getElementById('broadcastBanner');
+                        const bt = document.getElementById('broadcastText');
+                        if (b && bt) {
+                            bt.textContent = siteData.broadcastMessage;
+                            b.style.display = 'flex';
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Load settings error:', error);
             }
         }
 
+        // LOAD DASHBOARD
         async function loadDashboard() {
             try {
                 currentUser = await refreshUser();
+                if (!currentUser) return; // refreshUser may have redirected if suspended
+
                 animateCountUp(document.getElementById('homeBalance'), currentUser.balance || 0);
 
                 const today = getLocalDate();
@@ -513,13 +774,10 @@
             }
         }
 
-        function goToTasks() {
-            window.location.href = 'tasks.html';
-        }
-        function goToCheckin() {
-            window.location.href = 'checkin.html';
-        }
+        function goToTasks() { window.location.href = 'tasks.html'; }
+        function goToCheckin() { window.location.href = 'checkin.html'; }
 
+        // INIT
         window.addEventListener('load', async () => {
             try {
                 const [_, settings] = await Promise.all([
