@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - SciNovaTech</title>
     <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
@@ -40,6 +42,14 @@
             text-align: center;
         }
         .login-error.show { display: block; }
+
+        /* NEW: Suspended warning style */
+        .login-error.suspended {
+            background: rgba(245,158,11,0.12);
+            border-color: var(--warning);
+            color: var(--warning);
+            font-weight: 600;
+        }
 
         .brand-hero {
             text-align: center;
@@ -107,19 +117,37 @@
             toast('📧 Contact support: ' + ADMIN_EMAIL + ' to reset your password.');
         }
 
-        function showError(message) {
+        function showError(message, isSuspended = false) {
             const errorEl = document.getElementById('loginError');
             errorEl.textContent = message;
             errorEl.classList.add('show');
-            setTimeout(() => errorEl.classList.remove('show'), 5000);
+            if (isSuspended) errorEl.classList.add('suspended');
+            else errorEl.classList.remove('suspended');
+            setTimeout(() => {
+                errorEl.classList.remove('show');
+                errorEl.classList.remove('suspended');
+            }, 8000);
         }
 
         window.addEventListener('load', () => {
+            // ============ CHECK SUSPENDED REDIRECT ============
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('reason') === 'suspended') {
+                showError('⚠️ Your account has been suspended. Contact support for more info.', true);
+                // Clean URL so the message doesn't repeat on refresh
+                window.history.replaceState({}, '', 'login.html');
+            }
+
+            // If already logged in, go to home
             const savedUser = localStorage.getItem('scn_u');
             if (savedUser) {
                 try {
                     const u = JSON.parse(savedUser);
-                    if (u && u.id) window.location.href = 'home.html';
+                    if (u && u.id && u.status !== 'suspended') {
+                        window.location.href = 'home.html';
+                    } else if (u && u.status === 'suspended') {
+                        localStorage.removeItem('scn_u');
+                    }
                 } catch (e) {}
             }
         });
@@ -149,16 +177,26 @@
                 if (rpcError) throw rpcError;
 
                 if (!rpcResult || rpcResult.error) {
-                    const msg = rpcResult?.error === 'suspended'
-                        ? '❌ Your account has been suspended. Contact support.'
-                        : '❌ Invalid email or password. Please try again.';
-                    showError(msg);
+                    if (rpcResult?.error === 'suspended') {
+                        showError('⚠️ Your account has been suspended. Contact support for more info.', true);
+                    } else {
+                        showError('❌ Invalid email or password. Please try again.');
+                    }
                     btn.disabled = false;
                     btn.innerHTML = originalText;
                     return;
                 }
 
                 const user = rpcResult.user;
+
+                // Extra client-side safety: reject suspended users even if DB allows
+                if (user.status === 'suspended') {
+                    showError('⚠️ Your account has been suspended. Contact support for more info.', true);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    return;
+                }
+
                 localStorage.setItem('scn_u', JSON.stringify(user));
 
                 toast('Welcome back, ' + user.name + '! 🎉');
